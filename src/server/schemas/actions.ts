@@ -55,6 +55,13 @@ export const externalCalendarDraftPayloadSchema = z.object({
   timezone: z.string().min(3).max(64).optional(),
 });
 
+export const externalEmailDraftPayloadSchema = z.object({
+  to: z.array(z.string().email()).min(1).max(10),
+  cc: z.array(z.string().email()).max(10).optional(),
+  subject: z.string().min(1).max(500),
+  body: z.string().min(1).max(20_000),
+});
+
 export const actionTypeSchema = z.enum([
   "create_task",
   "update_task",
@@ -64,6 +71,7 @@ export const actionTypeSchema = z.enum([
   "delete_memory",
   "save_day_plan",
   "external_calendar_draft",
+  "external_email_draft",
 ]);
 
 export type ActionType = z.infer<typeof actionTypeSchema>;
@@ -79,6 +87,10 @@ export const actionPayloadSchema = z.discriminatedUnion("actionType", [
   z.object({
     actionType: z.literal("external_calendar_draft"),
     data: externalCalendarDraftPayloadSchema,
+  }),
+  z.object({
+    actionType: z.literal("external_email_draft"),
+    data: externalEmailDraftPayloadSchema,
   }),
 ]);
 

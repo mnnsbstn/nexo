@@ -44,6 +44,62 @@ export async function runDemoAgent(
     return { reply: lines.join("\n"), proposalIds, demo: true };
   }
 
+  if (/\be-mail\b|\bemail\b|mail an/i.test(lower)) {
+    if (!settings.emailIntegrationEnabled) {
+      return {
+        reply:
+          "**Demo-Antwort**\n\nE-Mail-Entwürfe sind **aus**. Unter **Einstellungen** „E-Mail-Entwürfe (Beta)“ aktivieren — dann kann ich einen Mail-Entwurf vorschlagen (Freigabe nötig, **kein** Versand).",
+        proposalIds,
+        demo: true,
+      };
+    }
+
+    const toMatch = /[\w.+-]+@[\w.-]+\.\w+/.exec(text);
+    const to = toMatch?.[0] ?? "empfaenger@beispiel.de";
+    const subjectMatch = /(?:betreff|subject)[:\s]+(.+?)(?:\n|$| nachricht| text)/i.exec(text);
+    const bodyMatch = /(?:nachricht|text|inhalt)[:\s]+([\s\S]+)/i.exec(text);
+    const subject = subjectMatch?.[1]?.trim() ?? "Nachricht von Nexo";
+    const body =
+      bodyMatch?.[1]?.trim() ??
+      (text.replace(/^.*?(?:betreff|subject)[:\s]+.+?(?=\n|$)/i, "").trim() || "Entwurf aus dem Chat.");
+
+    const payload: ActionPayload = {
+      actionType: "external_email_draft",
+      data: {
+        to: [to],
+        subject,
+        body,
+      },
+    };
+
+    const proposal = await proposeAction({
+      conversationId: ctx.conversationId,
+      triggerMessageId: ctx.messageId,
+      payload,
+      summary: `E-Mail-Entwurf: ${subject}`,
+      affectedData: `An ${to} — „${subject}“ (nur Entwurf in Nexo, kein Versand).`,
+      scope: "external",
+    });
+    proposalIds.push(proposal.id);
+
+    return {
+      reply: [
+        "**Demo-Antwort** — E-Mail-Entwurf (Beta):",
+        "",
+        `**An:** ${to}`,
+        `**Betreff:** ${subject}`,
+        "",
+        body.slice(0, 400) + (body.length > 400 ? "…" : ""),
+        "",
+        "_Kein Versand — nach Bestätigung nur Speicherung in Nexo._",
+        "",
+        "Bitte bestätige die Aktionskarte.",
+      ].join("\n"),
+      proposalIds,
+      demo: true,
+    };
+  }
+
   if (/kalender|termin block|in (den|meinem) kalender|calendar/i.test(lower)) {
     if (!settings.calendarIntegrationEnabled) {
       return {

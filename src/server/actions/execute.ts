@@ -6,6 +6,7 @@ import {
 import { persistDayPlan } from "@/server/daily/day-plan";
 import { getSettings } from "@/lib/settings";
 import { finalizeCalendarDraft, persistCalendarDraft } from "@/server/integrations/calendar";
+import { finalizeEmailDraft, persistEmailDraft } from "@/server/integrations/email";
 
 const TERMINAL = new Set(["succeeded", "failed", "rejected"]);
 
@@ -187,6 +188,23 @@ async function runAction(
         exported: exportResult.exported,
         externalEventId: exportResult.externalEventId,
         hint: exportResult.message,
+      };
+    }
+    case "external_email_draft": {
+      const settings = await getSettings();
+      if (!settings.emailIntegrationEnabled) {
+        throw new Error(
+          "E-Mail-Entwürfe sind deaktiviert. Bitte in Einstellungen aktivieren.",
+        );
+      }
+      const { data } = action;
+      const draft = await persistEmailDraft(data, proposalId);
+      const saveResult = await finalizeEmailDraft(draft.id);
+      return {
+        draftId: draft.id,
+        saved: saveResult.saved,
+        sent: saveResult.sent,
+        hint: saveResult.message,
       };
     }
     default:

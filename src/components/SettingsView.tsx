@@ -10,7 +10,19 @@ export function SettingsView() {
     notifyInAppDueTasks: false,
     notifyBrowserDueTasks: false,
     calendarIntegrationEnabled: false,
+    emailIntegrationEnabled: false,
   });
+  const [emailDrafts, setEmailDrafts] = useState<
+    {
+      id: string;
+      subject: string;
+      to: string[];
+      status: string;
+      preview: string;
+      createdLabel: string;
+    }[]
+  >([]);
+  const [emailStatus, setEmailStatus] = useState<{ message: string } | null>(null);
   const [calendarDrafts, setCalendarDrafts] = useState<
     {
       id: string;
@@ -59,6 +71,12 @@ export function SettingsView() {
           accountEmail: d.accountEmail ?? null,
           message: d.message ?? "",
         });
+      });
+    fetch("/api/integrations/email")
+      .then((r) => r.json())
+      .then((d) => {
+        setEmailDrafts(d.drafts ?? []);
+        setEmailStatus({ message: d.message ?? "" });
       });
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -380,6 +398,53 @@ export function SettingsView() {
         )}
         <button type="submit" className="px-4 py-2 rounded-lg bg-teal-700 text-white text-sm">
           Integration speichern
+        </button>
+      </form>
+
+      <form onSubmit={save} className="bg-white border border-stone-200 rounded-xl p-4 space-y-4">
+        <div>
+          <h2 className="font-medium text-sm">E-Mail-Entwürfe (Beta)</h2>
+          <p className="text-xs text-stone-600 mt-1">
+            Opt-in für freigabepflichtige E-Mail-Entwürfe. Nach Bestätigung wird nur in Nexo
+            gespeichert — <strong>kein Versand</strong> (SMTP/API folgt später).
+          </p>
+        </div>
+        {emailStatus && <p className="text-xs text-stone-600">{emailStatus.message}</p>}
+        <label className="flex gap-3 text-sm items-start">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={settings.emailIntegrationEnabled}
+            onChange={(e) =>
+              setSettings({ ...settings, emailIntegrationEnabled: e.target.checked })
+            }
+          />
+          <span>
+            <span className="font-medium">E-Mail-Entwürfe erlauben</span>
+            <span className="block text-stone-600 text-xs mt-0.5">
+              Demo-Chat z. B.: „E-Mail an team@beispiel.de Betreff: Update Nachricht: Kurzer Text“
+            </span>
+          </span>
+        </label>
+        {emailDrafts.length > 0 && (
+          <ul className="text-sm space-y-2 border-t border-stone-100 pt-3">
+            {emailDrafts.map((d) => (
+              <li key={d.id} className="border border-stone-100 rounded-lg p-3 space-y-1">
+                <div className="flex flex-wrap justify-between gap-2 text-stone-800">
+                  <span className="font-medium">{d.subject}</span>
+                  <span className="text-xs text-stone-500 shrink-0">
+                    {d.createdLabel}
+                    {d.status === "saved" ? " · Gespeichert" : " · Entwurf"}
+                  </span>
+                </div>
+                <p className="text-xs text-stone-600">An: {d.to.join(", ")}</p>
+                <p className="text-xs text-stone-500 line-clamp-2">{d.preview}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <button type="submit" className="px-4 py-2 rounded-lg bg-teal-700 text-white text-sm">
+          E-Mail-Option speichern
         </button>
       </form>
 

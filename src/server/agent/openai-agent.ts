@@ -73,10 +73,16 @@ export async function runLiveAgent(
     ? "Kalender: get_calendar_integration_status — external_calendar_draft (scope external) nach Freigabe; Export nur wenn verbunden; nie behaupten, der Termin liege bereits extern."
     : "Kalender: Entwürfe deaktiviert — keine external_calendar_draft vorschlagen.";
 
+  const emailLine = settings.emailIntegrationEnabled
+    ? "E-Mail: get_email_integration_status — external_email_draft (scope external) nach Freigabe; nur Entwurf in Nexo, kein Versand; nie behaupten, die Mail sei bereits gesendet."
+    : "E-Mail: Entwürfe deaktiviert — keine external_email_draft vorschlagen.";
+
   const system = [
     "Du bist Nexo, ein persönlicher Assistent. Antworte auf Deutsch.",
     calendarLine,
-    "Kein E-Mail/Messenger. Kalender: get_calendar_integration_status, list_calendar_drafts (read-only).",
+    emailLine,
+    "Kalender: get_calendar_integration_status, list_calendar_drafts (read-only).",
+    "E-Mail: get_email_integration_status, list_email_drafts (read-only).",
     "Offene Freigaben: list_pending_proposals (read-only).",
     "Nutze Tools für Fakten. Erfinde keine Aufgaben oder Erinnerungen.",
     "Schreibende Änderungen NUR über propose_action — nie behaupten, sie seien schon erledigt.",

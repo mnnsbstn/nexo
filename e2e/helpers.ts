@@ -5,6 +5,13 @@ export async function resetChatAndPendingActions(page: Page) {
   await page.request.post("/api/chat/clear", { data: { confirm: true } });
 }
 
+export async function setEmailIntegration(page: Page, enabled: boolean) {
+  const res = await page.request.patch("/api/settings", {
+    data: { emailIntegrationEnabled: enabled },
+  });
+  expect(res.ok()).toBeTruthy();
+}
+
 export async function setCalendarIntegration(page: Page, enabled: boolean) {
   const res = await page.request.patch("/api/settings", {
     data: { calendarIntegrationEnabled: enabled },
