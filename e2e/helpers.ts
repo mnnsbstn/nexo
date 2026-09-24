@@ -19,8 +19,23 @@ export async function setCalendarIntegration(page: Page, enabled: boolean) {
   expect(res.ok()).toBeTruthy();
 }
 
-export async function seedCalendarConnection(page: Page) {
-  const res = await page.request.post("/api/e2e/calendar/connection");
+export async function seedCalendarConnection(
+  page: Page,
+  provider: "google" | "microsoft" = "google",
+) {
+  const res = await page.request.post("/api/e2e/calendar/connection", {
+    data: { provider },
+  });
+  expect(res.ok()).toBeTruthy();
+}
+
+export async function setCalendarExportProvider(
+  page: Page,
+  provider: "google" | "microsoft" | "icloud",
+) {
+  const res = await page.request.patch("/api/settings", {
+    data: { calendarExportProvider: provider },
+  });
   expect(res.ok()).toBeTruthy();
 }
 

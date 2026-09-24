@@ -12,7 +12,7 @@ export const actionTypeLabels: Record<string, string> = {
 
 export function proposalScopeLabel(scope: string, actionType: string): string {
   if (actionType === "external_calendar_draft") {
-    return "Kalender · Freigabe, Export wenn verbunden";
+    return "Kalender · Freigabe, Export laut Export-Ziel (Einstellungen)";
   }
   if (actionType === "external_email_draft") {
     return "E-Mail · Freigabe, kein Versand (Beta)";

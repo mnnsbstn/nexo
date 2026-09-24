@@ -4,6 +4,7 @@ import {
   confirmCalendarDraftFromChat,
   resetChatAndPendingActions,
   seedCalendarConnection,
+  setCalendarExportProvider,
   setCalendarIntegration,
 } from "./helpers";
 
@@ -48,7 +49,9 @@ test.describe("Kalender Export & ICS (E2E)", () => {
     await confirmCalendarDraftFromChat(page, title);
 
     await page.goto("/einstellungen");
-    await expect(page.getByText(/Verbunden \(Google\).*e2e@nexo\.test/)).toBeVisible({
+    await expect(
+      page.locator("li").filter({ hasText: "Google" }).filter({ hasText: "e2e@nexo.test" }),
+    ).toBeVisible({
       timeout: 10_000,
     });
     await expect(page.locator("li", { hasText: title }).getByText(/ · Google/)).toBeVisible({
@@ -64,5 +67,33 @@ test.describe("Kalender Export & ICS (E2E)", () => {
     const draft = body.drafts.find((d) => d.title === title);
     expect(draft?.status).toBe("exported");
     expect(draft?.externalEventId).toMatch(/^e2e-mock-event-/);
+  });
+
+  test("Multi-Kalender: Export-Ziel Microsoft trotz Google-Verbindung", async ({ page }) => {
+    const title = `E2E Multi ${Date.now()}`;
+    await setCalendarIntegration(page, true);
+    await seedCalendarConnection(page, "google");
+    await seedCalendarConnection(page, "microsoft");
+    await setCalendarExportProvider(page, "microsoft");
+
+    await confirmCalendarDraftFromChat(page, title);
+
+    const list = await page.request.get("/api/integrations/calendar");
+    const body = (await list.json()) as {
+      exportProvider: string;
+      connections: { provider: string }[];
+      drafts: { title: string; status: string; exportProvider?: string | null }[];
+    };
+    expect(body.connections.length).toBeGreaterThanOrEqual(2);
+    expect(body.exportProvider).toBe("microsoft");
+
+    const draft = body.drafts.find((d) => d.title === title);
+    expect(draft?.status).toBe("exported");
+    expect(draft?.exportProvider).toBe("microsoft");
+
+    await page.goto("/einstellungen");
+    await expect(page.locator("li", { hasText: title }).getByText(/ · Outlook/)).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });
