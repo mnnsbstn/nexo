@@ -49,6 +49,7 @@ export async function POST(req: Request) {
     assistantMessage: serializeMessage(result.assistantMsg),
     proposals: result.proposals.map(serializeProposal),
     mode: result.mode,
+    liveMeta: result.liveMeta,
     error: "error" in result ? result.error : undefined,
   });
 }

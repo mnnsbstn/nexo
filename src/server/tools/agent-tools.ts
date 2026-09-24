@@ -1,9 +1,20 @@
 import { z } from "zod";
-import { listTasks, getTask, searchMemories, getDailyContext } from "@/server/tools/read";
+import {
+  listTasks,
+  getTask,
+  searchMemories,
+  getDailyContext,
+  listPendingProposals,
+} from "@/server/tools/read";
 import { proposeAction } from "@/server/actions/propose";
 import { actionPayloadSchema } from "@/server/schemas/actions";
 import { getSettings } from "@/lib/settings";
-import { getCalendarIntegrationStatus } from "@/server/integrations/calendar";
+import {
+  getCalendarIntegrationStatus,
+  listCalendarDrafts,
+} from "@/server/integrations/calendar";
+import { formatAgentToolError } from "@/server/tools/tool-errors";
+import { actionTypeLabels } from "@/lib/action-labels";
 
 const proposeActionArgsSchema = z.object({
   payload: actionPayloadSchema,
@@ -31,9 +42,26 @@ export async function executeAgentTool(
   try {
     args = rawArgs ? JSON.parse(rawArgs) : {};
   } catch {
-    return { output: JSON.stringify({ error: "Ungültiges JSON für Tool-Argumente." }) };
+    return {
+      output: JSON.stringify({
+        error: "Ungültiges JSON für Tool-Argumente.",
+        hint: "Tool-Argumente müssen ein JSON-Objekt sein.",
+      }),
+    };
   }
 
+  try {
+    return await executeAgentToolInner(name, args, ctx);
+  } catch (err) {
+    return { output: formatAgentToolError(name, err) };
+  }
+}
+
+async function executeAgentToolInner(
+  name: string,
+  args: unknown,
+  ctx: AgentToolContext,
+): Promise<AgentToolResult> {
   switch (name) {
     case "list_tasks": {
       const schema = z.object({ status: z.enum(["open", "done"]).optional() });
@@ -92,6 +120,39 @@ export async function executeAgentTool(
       const status = await getCalendarIntegrationStatus(settings);
       return { output: JSON.stringify(status) };
     }
+    case "list_calendar_drafts": {
+      const schema = z.object({ limit: z.number().int().min(1).max(20).optional() });
+      const { limit } = schema.parse(args);
+      const drafts = await listCalendarDrafts(limit ?? 10);
+      return {
+        output: JSON.stringify({
+          drafts: drafts.map((d) => ({
+            id: d.id,
+            title: d.title,
+            startAt: d.startAt.toISOString(),
+            status: d.status,
+            exportError: d.exportError,
+          })),
+        }),
+      };
+    }
+    case "list_pending_proposals": {
+      const schema = z.object({ limit: z.number().int().min(1).max(15).optional() });
+      const { limit } = schema.parse(args);
+      const pending = await listPendingProposals(ctx.conversationId, limit ?? 8);
+      return {
+        output: JSON.stringify({
+          proposals: pending.map((p) => ({
+            id: p.id,
+            actionType: p.actionType,
+            actionLabel: actionTypeLabels[p.actionType] ?? p.actionType,
+            summary: p.summary,
+            status: p.status,
+            scope: p.scope,
+          })),
+        }),
+      };
+    }
     case "propose_action": {
       const parsed = proposeActionArgsSchema.parse(args);
       if (parsed.payload.actionType === "external_calendar_draft") {
@@ -126,7 +187,12 @@ export async function executeAgentTool(
       };
     }
     default:
-      return { output: JSON.stringify({ error: `Unbekanntes Tool: ${name}` }) };
+      return {
+        output: JSON.stringify({
+          error: `Unbekanntes Tool: ${name}`,
+          hint: "Nur Tools aus der Allowlist verwenden.",
+        }),
+      };
   }
 }
 
@@ -185,6 +251,29 @@ export const openAiToolDefinitions = [
       description:
         "Status der Kalender-Integration (read-only): aktiviert?, verbunden?, Hinweistext.",
       parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "list_calendar_drafts",
+      description: "Listet gespeicherte Kalender-Entwürfe (read-only, kein Export).",
+      parameters: {
+        type: "object",
+        properties: { limit: { type: "integer", minimum: 1, maximum: 20 } },
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "list_pending_proposals",
+      description:
+        "Listet offene Freigaben in diesem Chat (read-only): wartet auf Bestätigen/Ablehnen.",
+      parameters: {
+        type: "object",
+        properties: { limit: { type: "integer", minimum: 1, maximum: 15 } },
+      },
     },
   },
   {

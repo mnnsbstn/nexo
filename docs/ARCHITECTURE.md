@@ -30,9 +30,11 @@ Lesend (Demo-Agent direkt; Live-Agent über OpenAI Tool-Calls → `agent-tools.t
 - `list_tasks` / `get_task`
 - `search_memories`
 - `get_daily_context`
+- `get_calendar_integration_status` / `list_calendar_drafts`
+- `list_pending_proposals`
 - `propose_action` (legt `ActionProposal` an, max. 4 Tool-Runden)
 
-Live-Modus: begrenzte Chat-Historie, Retries bei transienten API-Fehlern, Demo-Fallback mit Kennzeichnung.
+Live-Modus: begrenzte Chat-Historie, Retries bei transienten API-Fehlern, Demo-Fallback mit Kennzeichnung. Pro Live-Antwort werden genutzte Tool-Runden und History-Kontext in den Nachrichten-Metadaten angezeigt.
 
 ## Daten
 

@@ -2,7 +2,7 @@ import { prisma, ensureDefaultSettings } from "@/lib/db";
 import { getModelMode } from "@/server/model/provider";
 import { runDemoAgent } from "@/server/agent/demo-agent";
 import { runLiveAgent } from "@/server/agent/openai-agent";
-import { MAX_LIVE_TOOL_ROUNDS } from "@/server/agent/config";
+import { toUserFacingLiveError } from "@/server/agent/live-errors";
 
 export async function getOrCreateDefaultConversation() {
   await ensureDefaultSettings();
@@ -38,7 +38,9 @@ export async function handleChatMessage(conversationId: string, content: string)
       });
     }
   } catch (err) {
-    const liveError = err instanceof Error ? err.message : "Agent-Fehler";
+    const liveError = toUserFacingLiveError(
+      err instanceof Error ? err.message : "Agent-Fehler",
+    );
 
     if (mode === "live") {
       try {
@@ -94,6 +96,7 @@ export async function handleChatMessage(conversationId: string, content: string)
         live: effectiveMode === "live" && !result.liveFallback,
         liveFallback: result.liveFallback ?? false,
         liveError: result.liveError,
+        liveMeta: result.liveMeta,
       }),
     },
   });
@@ -115,7 +118,7 @@ export async function handleChatMessage(conversationId: string, content: string)
     assistantMsg,
     proposals,
     mode: effectiveMode,
-    stepsUsed: MAX_LIVE_TOOL_ROUNDS,
+    liveMeta: result.liveMeta,
     liveFallback: result.liveFallback,
   };
 }

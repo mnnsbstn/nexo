@@ -8,6 +8,7 @@ import {
   LIVE_MODEL_MAX_RETRIES,
   MAX_LIVE_TOOL_ROUNDS,
 } from "@/server/agent/config";
+import { getLiveAgentLimits } from "@/server/agent/live-meta";
 import { executeAgentTool, openAiToolDefinitions } from "@/server/tools/agent-tools";
 
 function isRetryableError(err: unknown): boolean {
@@ -75,7 +76,8 @@ export async function runLiveAgent(
   const system = [
     "Du bist Nexo, ein persönlicher Assistent. Antworte auf Deutsch.",
     calendarLine,
-    "Kein E-Mail/Messenger. Nutze get_calendar_integration_status vor Kalender-Vorschlägen.",
+    "Kein E-Mail/Messenger. Kalender: get_calendar_integration_status, list_calendar_drafts (read-only).",
+    "Offene Freigaben: list_pending_proposals (read-only).",
     "Nutze Tools für Fakten. Erfinde keine Aufgaben oder Erinnerungen.",
     "Schreibende Änderungen NUR über propose_action — nie behaupten, sie seien schon erledigt.",
     "Nach propose_action: weise den Nutzer auf die Bestätigungskarte hin.",
@@ -91,11 +93,12 @@ export async function runLiveAgent(
   ];
 
   const proposalIds: string[] = [];
-  let steps = 0;
+  let toolRoundsUsed = 0;
   let finalReply = "";
+  let toolLimitReached = false;
 
-  while (steps < MAX_LIVE_TOOL_ROUNDS) {
-    steps++;
+  while (toolRoundsUsed < MAX_LIVE_TOOL_ROUNDS) {
+    toolRoundsUsed++;
     const completion = await withRetries(() =>
       client.chat.completions.create({
         model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
@@ -134,19 +137,33 @@ export async function runLiveAgent(
     break;
   }
 
+  if (toolRoundsUsed >= MAX_LIVE_TOOL_ROUNDS && !finalReply) {
+    toolLimitReached = true;
+  }
+
   if (!finalReply) {
     if (proposalIds.length) {
       finalReply =
         "Ich habe einen Aktionsvorschlag vorbereitet. Bitte prüfe und bestätige die Karte unten.";
     } else {
-      finalReply =
-        "Ich konnte die Anfrage nicht abschließend beantworten (Tool-Limit erreicht). Bitte formuliere kürzer oder teile die Frage auf.";
+      finalReply = toolLimitReached
+        ? `Ich habe das Tool-Limit (${MAX_LIVE_TOOL_ROUNDS} Runden) erreicht, ohne eine abschließende Antwort zu formulieren. Bitte formuliere kürzer oder teile die Frage auf.`
+        : "Ich konnte die Anfrage nicht abschließend beantworten. Bitte erneut versuchen oder die Frage aufteilen.";
     }
   }
+
+  const limits = getLiveAgentLimits();
 
   return {
     reply: `**Live-Antwort**\n\n${finalReply}`,
     proposalIds,
     demo: false,
+    liveMeta: {
+      toolRoundsUsed,
+      toolRoundsMax: limits.toolRoundsMax,
+      historyMessagesUsed: history.length,
+      historyMessagesMax: limits.historyMessagesMax,
+      toolLimitReached,
+    },
   };
 }

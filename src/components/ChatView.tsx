@@ -12,7 +12,15 @@ type Message = {
     demo?: boolean;
     live?: boolean;
     liveFallback?: boolean;
+    liveError?: string;
     error?: boolean;
+    liveMeta?: {
+      toolRoundsUsed: number;
+      toolRoundsMax: number;
+      historyMessagesUsed: number;
+      historyMessagesMax: number;
+      toolLimitReached?: boolean;
+    };
   } | null;
   createdAt: string;
 };
@@ -132,7 +140,22 @@ export function ChatView() {
                 : "bg-white border border-stone-200 text-stone-800"
             }`}
           >
-            {m.role === "assistant" && <AssistantBadge metadata={m.metadata} />}
+            {m.role === "assistant" && (
+              <>
+                <AssistantBadge metadata={m.metadata} />
+                {m.metadata?.liveMeta && (
+                  <p className="text-xs text-stone-500" aria-label="Live-Kontextbudget">
+                    Kontext: {m.metadata.liveMeta.historyMessagesUsed}/
+                    {m.metadata.liveMeta.historyMessagesMax} Chat · Tools{" "}
+                    {m.metadata.liveMeta.toolRoundsUsed}/{m.metadata.liveMeta.toolRoundsMax}
+                    {m.metadata.liveMeta.toolLimitReached ? " · Tool-Limit" : ""}
+                  </p>
+                )}
+                {m.metadata?.liveError && m.metadata.liveFallback && (
+                  <p className="text-xs text-amber-900">{m.metadata.liveError}</p>
+                )}
+              </>
+            )}
             {m.content}
           </div>
         ))}

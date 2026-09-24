@@ -24,4 +24,23 @@ describe("executeAgentTool", () => {
     });
     expect(res.output).toContain("Unbekanntes Tool");
   });
+
+  it("returns structured error for invalid get_task args", async () => {
+    const res = await executeAgentTool("get_task", JSON.stringify({}), {
+      conversationId: "c1",
+      messageId: "m1",
+    });
+    const parsed = JSON.parse(res.output) as { error: string; details?: string };
+    expect(parsed.error).toContain("get_task");
+    expect(parsed.details).toBeTruthy();
+  });
+
+  it("list_pending_proposals returns empty array when none", async () => {
+    const res = await executeAgentTool("list_pending_proposals", "{}", {
+      conversationId: "c1",
+      messageId: "m1",
+    });
+    const parsed = JSON.parse(res.output) as { proposals: unknown[] };
+    expect(Array.isArray(parsed.proposals)).toBe(true);
+  });
 });
