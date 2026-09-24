@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model UserSettings {
+  id               String   @id @default("default")
+  uiLanguage       String   @default("de")
+  responseLanguage String   @default("de")
+  timezone         String   @default("Europe/Berlin")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  title     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+  actions   ActionProposal[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String
+  metadata       String?
+  createdAt      DateTime     @default(now())
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  status      String    @default("open")
+  priority    String?
+  dueDate     String?
+  dueAt       DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Memory {
+  id              String   @id @default(cuid())
+  content         String
+  category        String   @default("note")
+  source          String
+  sourceDetail    String?
+  isActive        Boolean  @default(true)
+  replacedById    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ActionProposal {
+  id             String        @id @default(cuid())
+  conversationId String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  triggerMessageId String?
+  actionType     String
+  payload        String
+  summary        String
+  affectedData   String
+  scope          String        @default("local")
+  status         String        @default("awaiting_confirmation")
+  idempotencyKey String        @unique
+  resultPayload  String?
+  errorMessage   String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  executedAt     DateTime?
+}
+
+model DailyBriefing {
+  id          String   @id @default(cuid())
+  content     String
+  generatedAt DateTime @default(now())
+}
