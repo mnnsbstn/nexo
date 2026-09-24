@@ -3,29 +3,38 @@ import type { AppSettings } from "@/lib/settings";
 import type { externalEmailDraftPayloadSchema } from "@/server/schemas/actions";
 import type { z } from "zod";
 import { isE2eEmailMockEnabled } from "@/lib/e2e-email-mock";
-import { isSmtpSendConfigured } from "@/server/integrations/smtp-config";
+import { getEmailConnection } from "@/server/integrations/email-connection";
+import { isEmailSendConfigured, isSmtpSendConfigured } from "@/server/integrations/smtp-config";
 import { sendViaSmtp } from "@/server/integrations/smtp-send";
 
 export type EmailDraftInput = z.infer<typeof externalEmailDraftPayloadSchema>;
 
 export async function getEmailIntegrationStatus(settings: AppSettings) {
   const enabled = settings.emailIntegrationEnabled;
-  const sendConfigured = isSmtpSendConfigured() || isE2eEmailMockEnabled();
+  const icloudMail = await getEmailConnection();
+  const icloudConnected = icloudMail?.provider === "icloud";
+  const sendConfigured =
+    (await isEmailSendConfigured()) || isE2eEmailMockEnabled();
   let message: string;
   if (!enabled) {
     message =
       "E-Mail-Integration ist aus. In Einstellungen aktivieren, um Entwürfe per Freigabe zu speichern.";
   } else if (!sendConfigured) {
     message =
-      "E-Mail-Entwürfe aktiv — nach Chat-Freigabe wird ein Entwurf gespeichert. Versand: SMTP in .env (SMTP_HOST, SMTP_FROM) und manuell „Senden“ in Einstellungen.";
+      "E-Mail-Entwürfe aktiv — Versand per SMTP in .env oder iCloud (Apple-ID + App-Passwort) in Einstellungen; Senden nur manuell.";
+  } else if (icloudConnected && !isSmtpSendConfigured()) {
+    message = `E-Mail-Entwürfe aktiv — iCloud Mail verbunden${icloudMail?.accountEmail ? ` (${icloudMail.accountEmail})` : ""}. Versand nur manuell pro Entwurf.`;
   } else {
     message =
-      "E-Mail-Entwürfe aktiv — SMTP konfiguriert. Versand nur manuell pro Entwurf in Einstellungen (zusätzlich zur Chat-Freigabe).";
+      "E-Mail-Entwürfe aktiv — Versand konfiguriert (SMTP/.env oder iCloud). Nur manuell pro Entwurf in Einstellungen.";
   }
 
   return {
     enabled,
     sendConfigured,
+    icloudConnected,
+    icloudAccountEmail: icloudConnected ? icloudMail?.accountEmail ?? null : null,
+    smtpFromEnv: isSmtpSendConfigured(),
     message,
   };
 }
@@ -72,7 +81,7 @@ export async function finalizeEmailDraft(draftId: string): Promise<{
     return { saved: false, sent: false, message: "Entwurf nicht gefunden." };
   }
 
-  const sendConfigured = isSmtpSendConfigured() || isE2eEmailMockEnabled();
+  const sendConfigured = (await isEmailSendConfigured()) || isE2eEmailMockEnabled();
   const message = sendConfigured
     ? "E-Mail-Entwurf gespeichert. Versand erst nach manuellem „Senden“ in Einstellungen."
     : "E-Mail-Entwurf in Nexo gespeichert — kein SMTP konfiguriert, daher kein Versand.";
@@ -93,10 +102,11 @@ export async function sendEmailDraft(draftId: string): Promise<{
   message: string;
   messageId?: string;
 }> {
-  if (!isSmtpSendConfigured() && !isE2eEmailMockEnabled()) {
+  if (!(await isEmailSendConfigured()) && !isE2eEmailMockEnabled()) {
     return {
       sent: false,
-      message: "SMTP nicht konfiguriert. Setze SMTP_HOST und SMTP_FROM in .env.",
+      message:
+        "Kein Versand konfiguriert. SMTP in .env (SMTP_HOST, SMTP_FROM) oder iCloud in Einstellungen verbinden.",
     };
   }
 

@@ -26,7 +26,13 @@ export function SettingsView() {
   const [emailStatus, setEmailStatus] = useState<{
     message: string;
     sendConfigured?: boolean;
+    icloudConnected?: boolean;
+    icloudAccountEmail?: string | null;
   } | null>(null);
+  const [externalInboxMessages, setExternalInboxMessages] = useState<
+    { id: string; subject: string; from: string; dateLabel: string }[]
+  >([]);
+  const [externalInboxHint, setExternalInboxHint] = useState<string | null>(null);
   const [calendarDrafts, setCalendarDrafts] = useState<
     {
       id: string;
@@ -43,11 +49,17 @@ export function SettingsView() {
     oauthConfigured: boolean;
     googleOAuthConfigured?: boolean;
     microsoftOAuthConfigured?: boolean;
+    icloudAvailable?: boolean;
+    icloudConnected?: boolean;
     connected: boolean;
     provider?: string | null;
     accountEmail: string | null;
     message: string;
   } | null>(null);
+  const [icloudAppleId, setIcloudAppleId] = useState("");
+  const [icloudAppPassword, setIcloudAppPassword] = useState("");
+  const [icloudConnectError, setIcloudConnectError] = useState<string | null>(null);
+  const [icloudConnecting, setIcloudConnecting] = useState(false);
   const [calendarBanner, setCalendarBanner] = useState<string | null>(null);
   const [externalCalendarEvents, setExternalCalendarEvents] = useState<
     { id: string; title: string; startLabel: string }[]
@@ -81,6 +93,8 @@ export function SettingsView() {
           oauthConfigured: Boolean(d.oauthConfigured),
           googleOAuthConfigured: Boolean(d.googleOAuthConfigured),
           microsoftOAuthConfigured: Boolean(d.microsoftOAuthConfigured),
+          icloudAvailable: d.icloudAvailable !== false,
+          icloudConnected: Boolean(d.icloudConnected),
           connected: Boolean(d.connected),
           provider: d.provider ?? null,
           accountEmail: d.accountEmail ?? null,
@@ -106,7 +120,21 @@ export function SettingsView() {
         setEmailStatus({
           message: d.message ?? "",
           sendConfigured: Boolean(d.sendConfigured),
+          icloudConnected: Boolean(d.icloudConnected),
+          icloudAccountEmail: d.icloudAccountEmail ?? null,
         });
+        if (d.icloudConnected && d.enabled) {
+          fetch("/api/integrations/email/messages?limit=6")
+            .then((r) => r.json())
+            .then((inbox) => {
+              setExternalInboxMessages(inbox.messages ?? []);
+              setExternalInboxHint(
+                inbox.readError
+                  ? `${inbox.message ?? ""} ${inbox.readError}`.trim()
+                  : (inbox.message ?? null),
+              );
+            });
+        }
       });
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -177,6 +205,8 @@ export function SettingsView() {
       oauthConfigured: Boolean(d.oauthConfigured),
       googleOAuthConfigured: Boolean(d.googleOAuthConfigured),
       microsoftOAuthConfigured: Boolean(d.microsoftOAuthConfigured),
+      icloudAvailable: d.icloudAvailable !== false,
+      icloudConnected: Boolean(d.icloudConnected),
       connected: Boolean(d.connected),
       provider: d.provider ?? null,
       accountEmail: d.accountEmail ?? null,
@@ -190,6 +220,62 @@ export function SettingsView() {
     }
   }
 
+  async function connectICloud() {
+    setIcloudConnectError(null);
+    setIcloudConnecting(true);
+    try {
+      const res = await fetch("/api/integrations/icloud/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          appleId: icloudAppleId.trim(),
+          appPassword: icloudAppPassword.trim(),
+        }),
+      });
+      const data = (await res.json()) as { error?: string; ok?: boolean };
+      if (!res.ok) {
+        setIcloudConnectError(data.error ?? "Verbindung fehlgeschlagen.");
+        return;
+      }
+      setIcloudAppPassword("");
+      setCalendarBanner("iCloud Kalender und Mail verbunden.");
+      await reloadCalendarDrafts();
+      const emailRes = await fetch("/api/integrations/email");
+      const emailData = await emailRes.json();
+      setEmailStatus({
+        message: emailData.message ?? "",
+        sendConfigured: Boolean(emailData.sendConfigured),
+        icloudConnected: Boolean(emailData.icloudConnected),
+        icloudAccountEmail: emailData.icloudAccountEmail ?? null,
+      });
+      if (emailData.icloudConnected && settings.emailIntegrationEnabled) {
+        const inboxRes = await fetch("/api/integrations/email/messages?limit=6");
+        const inbox = await inboxRes.json();
+        setExternalInboxMessages(inbox.messages ?? []);
+        setExternalInboxHint(inbox.message ?? null);
+      }
+    } finally {
+      setIcloudConnecting(false);
+    }
+  }
+
+  async function disconnectICloud() {
+    await fetch("/api/integrations/icloud/connection", { method: "DELETE" });
+    setIcloudAppleId("");
+    setIcloudAppPassword("");
+    await reloadCalendarDrafts();
+    const emailRes = await fetch("/api/integrations/email");
+    const emailData = await emailRes.json();
+    setEmailStatus({
+      message: emailData.message ?? "",
+      sendConfigured: Boolean(emailData.sendConfigured),
+      icloudConnected: Boolean(emailData.icloudConnected),
+      icloudAccountEmail: emailData.icloudAccountEmail ?? null,
+    });
+    setExternalInboxMessages([]);
+    setExternalInboxHint(null);
+  }
+
   async function retryCalendarExport(draftId: string) {
     await fetch(`/api/integrations/calendar/drafts/${draftId}/export`, { method: "POST" });
     await reloadCalendarDrafts();
@@ -197,22 +283,19 @@ export function SettingsView() {
 
   async function disconnectGoogle() {
     await fetch("/api/integrations/calendar/connection", { method: "DELETE" });
-    const res = await fetch("/api/integrations/calendar");
-    const d = await res.json();
-    setCalendarStatus({
-      oauthConfigured: Boolean(d.oauthConfigured),
-      googleOAuthConfigured: Boolean(d.googleOAuthConfigured),
-      microsoftOAuthConfigured: Boolean(d.microsoftOAuthConfigured),
-      connected: Boolean(d.connected),
-      provider: d.provider ?? null,
-      accountEmail: d.accountEmail ?? null,
-      message: d.message ?? "",
-    });
+    await reloadCalendarDrafts();
   }
 
   function exportProviderLabel(provider?: string | null) {
     if (provider === "microsoft") return " · Outlook";
+    if (provider === "icloud") return " · iCloud";
     return " · Google";
+  }
+
+  function connectedProviderLabel(provider?: string | null) {
+    if (provider === "microsoft") return "Microsoft";
+    if (provider === "icloud") return "iCloud";
+    return "Google";
   }
 
   async function reloadEmailDrafts() {
@@ -401,8 +484,8 @@ export function SettingsView() {
         <div>
           <h2 className="font-medium text-sm">Kalender-Entwürfe (Beta)</h2>
           <p className="text-xs text-stone-600 mt-1">
-            Opt-in für freigabepflichtige Termin-Entwürfe. Mit Google oder Microsoft verbunden →
-            Export nach Bestätigung; sonst nur Entwurf in Nexo (+ .ics).
+            Opt-in für freigabepflichtige Termin-Entwürfe. Mit Google, Microsoft oder iCloud
+            verbunden → Export nach Bestätigung; sonst nur Entwurf in Nexo (+ .ics).
           </p>
         </div>
         {calendarBanner && (
@@ -429,20 +512,75 @@ export function SettingsView() {
             Mit Microsoft verbinden
           </a>
         )}
+        {!calendarStatus?.connected && calendarStatus?.icloudAvailable !== false && (
+          <div className="border border-stone-200 rounded-lg p-3 space-y-2 bg-stone-50/80">
+            <p className="text-xs font-medium text-stone-700">iCloud (Kalender + Mail)</p>
+            <p className="text-xs text-stone-600">
+              Apple-ID und{" "}
+              <a
+                href="https://account.apple.com/account/manage"
+                className="text-teal-800 underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                app-spezifisches Passwort
+              </a>
+              . Wird verschlüsselt gespeichert — kein OAuth.
+            </p>
+            <input
+              type="email"
+              autoComplete="username"
+              placeholder="Apple-ID (E-Mail)"
+              value={icloudAppleId}
+              onChange={(e) => setIcloudAppleId(e.target.value)}
+              className="w-full text-sm border border-stone-300 rounded-lg px-2 py-1.5"
+            />
+            <input
+              type="password"
+              autoComplete="current-password"
+              placeholder="App-Passwort"
+              value={icloudAppPassword}
+              onChange={(e) => setIcloudAppPassword(e.target.value)}
+              className="w-full text-sm border border-stone-300 rounded-lg px-2 py-1.5"
+            />
+            {icloudConnectError && (
+              <p className="text-xs text-red-700" role="alert">
+                {icloudConnectError}
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={icloudConnecting || !icloudAppleId.trim() || !icloudAppPassword.trim()}
+              onClick={connectICloud}
+              className="text-sm px-3 py-2 rounded-lg bg-white border border-stone-300 hover:bg-stone-50 disabled:opacity-50"
+            >
+              {icloudConnecting ? "Verbinde…" : "Mit iCloud verbinden"}
+            </button>
+          </div>
+        )}
         {calendarStatus?.connected && (
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <span className="text-stone-700">
-              Verbunden (
-              {calendarStatus.provider === "microsoft" ? "Microsoft" : "Google"})
+              Verbunden ({connectedProviderLabel(calendarStatus.provider)})
               {calendarStatus.accountEmail ? `: ${calendarStatus.accountEmail}` : ""}
             </span>
-            <button
-              type="button"
-              onClick={disconnectGoogle}
-              className="text-xs px-2 py-1 border border-stone-300 rounded-lg"
-            >
-              Trennen
-            </button>
+            {calendarStatus.provider === "icloud" ? (
+              <button
+                type="button"
+                onClick={disconnectICloud}
+                className="text-xs px-2 py-1 border border-stone-300 rounded-lg"
+              >
+                iCloud trennen
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={disconnectGoogle}
+                className="text-xs px-2 py-1 border border-stone-300 rounded-lg"
+              >
+                Trennen
+              </button>
+            )}
           </div>
         )}
         {calendarStatus?.connected && (
@@ -531,10 +669,31 @@ export function SettingsView() {
           <h2 className="font-medium text-sm">E-Mail-Entwürfe (Beta)</h2>
           <p className="text-xs text-stone-600 mt-1">
             Opt-in für freigabepflichtige E-Mail-Entwürfe. Chat-Freigabe speichert den Entwurf;
-            Versand nur manuell hier (SMTP in .env), nie automatisch aus dem Chat.
+            Versand nur manuell hier (SMTP in .env oder iCloud-Verbindung oben), nie automatisch aus
+            dem Chat.
           </p>
         </div>
         {emailStatus && <p className="text-xs text-stone-600">{emailStatus.message}</p>}
+        {emailStatus?.icloudConnected && (
+          <div className="border border-stone-100 rounded-lg p-3 space-y-2 bg-stone-50/50">
+            <p className="text-xs font-medium text-stone-700">iCloud Posteingang (read-only)</p>
+            {externalInboxMessages.length > 0 ? (
+              <ul className="text-xs space-y-1 text-stone-800">
+                {externalInboxMessages.map((m) => (
+                  <li key={m.id}>
+                    <span className="text-stone-500">{m.dateLabel}</span> — {m.subject}
+                    <span className="text-stone-500"> · {m.from}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-stone-500">Keine Vorschau geladen.</p>
+            )}
+            {externalInboxHint && (
+              <p className="text-xs text-stone-500">{externalInboxHint}</p>
+            )}
+          </div>
+        )}
         <label className="flex gap-3 text-sm items-start">
           <input
             type="checkbox"

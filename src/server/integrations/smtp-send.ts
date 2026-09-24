@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import { isE2eEmailMockEnabled } from "@/lib/e2e-email-mock";
-import { getSmtpConfig } from "@/server/integrations/smtp-config";
+import { resolveSmtpConfig } from "@/server/integrations/smtp-config";
 
 export async function sendViaSmtp(input: {
   to: string[];
@@ -12,7 +12,7 @@ export async function sendViaSmtp(input: {
     return { messageId: `e2e-mock-mail-${Date.now()}` };
   }
 
-  const cfg = getSmtpConfig();
+  const cfg = await resolveSmtpConfig();
   const transport = nodemailer.createTransport({
     host: cfg.host,
     port: cfg.port,

@@ -46,4 +46,28 @@ describe("exportDraftToExternalCalendar", () => {
     const updated = await prisma.externalCalendarDraft.findUnique({ where: { id: draft.id } });
     expect(updated?.exportProvider).toBe("microsoft");
   });
+
+  it("exports via iCloud CalDAV when provider is icloud (E2E mock)", async () => {
+    vi.stubEnv("NEXO_E2E_CALENDAR_MOCK", "1");
+    await prisma.calendarConnection.create({
+      data: {
+        id: "default",
+        provider: "icloud",
+        accessToken: "app-pass",
+        accountEmail: "user@icloud.com",
+        calendarId: "https://caldav.icloud.com/cal/home/",
+      },
+    });
+    const draft = await prisma.externalCalendarDraft.create({
+      data: {
+        title: "iCloud Event",
+        startAt: new Date("2026-09-25T10:00:00.000Z"),
+      },
+    });
+
+    const result = await exportDraftToExternalCalendar(draft.id);
+    expect(result.exported).toBe(true);
+    expect(result.exportProvider).toBe("icloud");
+    vi.unstubAllEnvs();
+  });
 });

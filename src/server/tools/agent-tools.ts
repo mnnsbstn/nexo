@@ -126,6 +126,25 @@ async function executeAgentToolInner(
       const status = await getCalendarIntegrationStatus(settings);
       return { output: JSON.stringify(status) };
     }
+    case "list_external_inbox_messages": {
+      const settings = await getSettings();
+      if (!settings.emailIntegrationEnabled) {
+        return {
+          output: JSON.stringify({
+            error: "E-Mail-Integration deaktiviert.",
+          }),
+        };
+      }
+      const schema = z.object({
+        limit: z.number().int().min(1).max(25).optional(),
+      });
+      const parsed = schema.parse(args);
+      const { listExternalInboxMessages } = await import(
+        "@/server/integrations/email-read"
+      );
+      const result = await listExternalInboxMessages({ limit: parsed.limit });
+      return { output: JSON.stringify(result) };
+    }
     case "list_external_calendar_events": {
       const settings = await getSettings();
       if (!settings.calendarIntegrationEnabled) {
@@ -336,9 +355,23 @@ export const openAiToolDefinitions = [
   {
     type: "function" as const,
     function: {
+      name: "list_external_inbox_messages",
+      description:
+        "Liest eine read-only Vorschau des iCloud-Posteingangs (wenn iCloud Mail verbunden). Kein Versand/Sync.",
+      parameters: {
+        type: "object",
+        properties: {
+          limit: { type: "integer", minimum: 1, maximum: 25 },
+        },
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
       name: "list_external_calendar_events",
       description:
-        "Liest kommende Termine aus dem verbundenen Google/Outlook-Kalender (read-only, kein Schreiben/Sync).",
+        "Liest kommende Termine aus dem verbundenen Kalender (Google/Outlook/iCloud, read-only).",
       parameters: {
         type: "object",
         properties: {
