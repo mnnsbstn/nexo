@@ -80,10 +80,42 @@ test("CalDAV E2E-Fixture: verbunden und lesbar", async ({ page }) => {
   expect(eventsBody.events.some((e) => e.provider === "caldav")).toBe(true);
 });
 
-test("Web Push VAPID-Endpunkt ohne Keys", async ({ page }) => {
+test("Web Push: VAPID konfiguriert (E2E-Fixture)", async ({ page }) => {
   const res = await page.request.get("/api/push/vapid-public-key");
   expect(res.ok()).toBeTruthy();
   const body = (await res.json()) as { configured: boolean; publicKey: string | null };
-  expect(body.configured).toBe(false);
-  expect(body.publicKey).toBeNull();
+  expect(body.configured).toBe(true);
+  expect(body.publicKey).toBeTruthy();
+});
+
+test("Web Push: Abo + check-due bei fälliger Aufgabe (Mock-Versand)", async ({ page }) => {
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Berlin",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  await page.request.patch("/api/settings", {
+    data: { notifyWebPushDueTasks: true },
+  });
+
+  const sub = await page.request.post("/api/push/subscribe", {
+    data: {
+      endpoint: "https://fcm.googleapis.com/fcm/send/e2e-nexo-push-fixture",
+      keys: { p256dh: "e2e-p256dh-key-placeholder-0123456789ab", auth: "e2e-auth-key-012345" },
+    },
+  });
+  expect(sub.ok()).toBeTruthy();
+
+  const task = await page.request.post("/api/tasks", {
+    data: { title: `E2E Push ${Date.now()}`, dueDate: today },
+  });
+  expect(task.ok()).toBeTruthy();
+
+  const check = await page.request.post("/api/push/check-due");
+  expect(check.ok()).toBeTruthy();
+  const result = (await check.json()) as { sent: boolean; message: string };
+  expect(result.sent).toBe(true);
+  expect(result.message).toMatch(/Push an/);
 });

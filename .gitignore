@@ -38,6 +38,8 @@ yarn-error.log*
 /prisma/dev.db-journal
 /prisma/e2e.db
 /prisma/e2e.db-journal
+/prisma/staging-smoke.db
+/prisma/staging-smoke.db-journal
 /prisma/ci-test.db
 /prisma/ci-test.db-journal
 

@@ -89,7 +89,7 @@ Health-Smoke nach Deploy:
 3. Optional: `GET /api/auth/session` mit Session-Cookie (Browser DevTools)
 4. Test-Aufgabe anlegen → Reload → noch vorhanden (SQLite-Persistenz)
 5. Optional Kalender: `NEXO_PUBLIC_URL` + OAuth-Redirect in Google/Microsoft-Konsole wie in [INTEGRATIONS.md](./INTEGRATIONS.md)
-6. Optional Phase 6: **Einstellungen** → Sync-Einblicke / Web Push / CalDAV — Details [MANUAL_TEST.md](./MANUAL_TEST.md) §12–13
+6. Optional Phase 6: **Einstellungen** → Sync-Einblicke / Web Push / CalDAV — Details [MANUAL_TEST.md](./MANUAL_TEST.md) §12–13; API-Smoke: `./scripts/staging-phase6-smoke.sh https://deine-domain` (nur mit Test-Mock-Env, nicht blind in Prod)
 
 Kurz-Check Web Push (wenn VAPID gesetzt):
 
