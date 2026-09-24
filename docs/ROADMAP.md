@@ -13,8 +13,17 @@ Arbeitsweise: **Ein PR = ein klar abgrenzbarer Schritt.** Du mergst auf `main` �
 | **7** | Tagesplan-Entwurf | Vorschlag aus Chat als bestätigbarer Plan (lokal) | „Plane meinen Tag“ mit Freigabe |
 | **8** | Live-Agent | Tool-Loop, Limits, Fehler → verständliche UI | Mit `OPENAI_API_KEY` |
 | **9** | Auth (Single-User) | Einfacher Schutz aller APIs | Vor externem Hosting |
-| **10** | E2E | Playwright: Chat-Freigabe + Heute | CI-Sicherheitsnetz |
+| **10** | E2E | Playwright: Chat-Freigabe + Heute | ✅ merged |
 
 Reihenfolge bewusst: erst **testen & Lücken im MVP**, dann **Transparenz**, dann **Intelligenz & Absicherung**.
+
+## Phase 2 (nach MVP)
+
+| # | PR-Thema | Inhalt (kurz) | Danach testbar |
+|---|----------|---------------|----------------|
+| **11** | CI | GitHub Actions: lint, Vitest, Playwright Chromium | Grüner Check auf jedem PR |
+| **12** | Hosting-Runbook | Auth, Env, SQLite-Backup, Demo/Live | Sicheres Deploy |
+| **13** | Benachrichtigungen | Opt-in, keine Dark Patterns | Nur nach Freigabe |
+| **14** | Integrationen (Start) | z. B. Kalender-Tool-Skelett, freigabepflichtig | Erster externer Kanal |
 
 Anpassungen an der Reihenfolge jederzeit möglich — ein Satz reicht, bevor der nächste PR startet.
