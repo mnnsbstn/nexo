@@ -9,6 +9,9 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  DATABASE_URL: file:./ci-test.db
+
 jobs:
   quality:
     name: Lint & unit tests
@@ -20,6 +23,7 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
+      - run: npm run db:push
       - run: npm run lint
       - run: npm test
 
