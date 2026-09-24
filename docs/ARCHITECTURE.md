@@ -48,7 +48,8 @@ Live-Modus: begrenzte Chat-Historie, Retries bei transienten API-Fehlern, Demo-F
 - API-Keys nur in `.env` auf dem Server
 - Keine Speicherung von Secrets als Erinnerung (Heuristik + Ablehnung)
 - Optional: `NEXO_AUTH_PASSWORD` schützt UI + alle `/api/*` (Middleware, httpOnly-Session)
-- Ohne Passwort: offener lokaler Dev-Modus — nicht für öffentliches Hosting
+- Ohne Passwort: offener lokaler Dev-Modus — nicht für öffentliches Hosting  
+- Deploy: [HOSTING.md](./HOSTING.md)
 
 ## Demo-Modus
 
