@@ -4,6 +4,8 @@ export type AppSettings = {
   uiLanguage: string;
   responseLanguage: string;
   timezone: string;
+  notifyInAppDueTasks: boolean;
+  notifyBrowserDueTasks: boolean;
 };
 
 export async function getSettings(): Promise<AppSettings> {
@@ -13,5 +15,7 @@ export async function getSettings(): Promise<AppSettings> {
     uiLanguage: s.uiLanguage,
     responseLanguage: s.responseLanguage,
     timezone: s.timezone,
+    notifyInAppDueTasks: s.notifyInAppDueTasks,
+    notifyBrowserDueTasks: s.notifyBrowserDueTasks,
   };
 }

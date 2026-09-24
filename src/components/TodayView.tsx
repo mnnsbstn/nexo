@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { DueReminderBanner } from "@/components/DueReminderBanner";
+import { useBrowserDueNotification } from "@/components/useBrowserDueNotification";
 
 type Task = { id: string; title: string; status: string; priority: string | null };
 type Priority = {
@@ -36,6 +38,7 @@ export function TodayView() {
       confirmedAtLabel: string;
     } | null;
     dueLabels: Record<string, string>;
+    notifications: { inAppEnabled: boolean; browserEnabled: boolean };
   } | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -55,6 +58,13 @@ export function TodayView() {
     setRefreshing(false);
   }
 
+  useBrowserDueNotification(
+    data?.notifications.browserEnabled ?? false,
+    data?.today ?? "",
+    data?.overdue ?? [],
+    data?.dueToday ?? [],
+  );
+
   if (!data) return <p className="text-stone-500">Lade…</p>;
 
   return (
@@ -63,6 +73,10 @@ export function TodayView() {
         <h1 className="text-2xl font-semibold">Heute</h1>
         <p className="text-sm text-stone-600 mt-1">{data.today} · Europe/Berlin</p>
       </div>
+
+      {data.notifications.inAppEnabled && (
+        <DueReminderBanner overdue={data.overdue} dueToday={data.dueToday} />
+      )}
 
       {data.dayPlan ? (
         <section

@@ -77,8 +77,9 @@ Browser-UI auf Desktop/Mobil: nicht automatisiert in CI; lokal über `npm run de
 
 ## Grenzen (MVP)
 
-- Kein Kalender/E-Mail/Messenger, keine Push-Benachrichtigungen
-- Fälligkeiten sind In-App-Hinweise, keine Zustellung bei geschlossener App
+- Kein Kalender/E-Mail/Messenger
+- Erinnerungen nur **Opt-in** (Heute-Banner und optional Browser-Hinweis beim Öffnen von Heute — kein Hintergrund-Push)
+- Fälligkeiten ohne Opt-in: normale Listen auf Heute/Aufgaben
 - Einzelnutzer; Auth optional via `NEXO_AUTH_PASSWORD` (empfohlen außerhalb lokalem Dev)
 - Chat-Verlauf leeren: in Chat mit Bestätigung (Erinnerungen/Aufgaben bleiben)
 - Live-Modell: OpenAI-kompatibles JSON-Format; bei Fehlern Fallback prüfen

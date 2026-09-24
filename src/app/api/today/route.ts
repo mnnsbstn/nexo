@@ -53,5 +53,9 @@ export async function GET() {
         formatDueDisplay(t.dueDate, t.dueAt, settings.timezone),
       ]),
     ),
+    notifications: {
+      inAppEnabled: settings.notifyInAppDueTasks,
+      browserEnabled: settings.notifyBrowserDueTasks,
+    },
   });
 }
