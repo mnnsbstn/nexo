@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --nexo-accent: #0f766e;
+}
+
+body {
+  color: #1c1917;
+  background: #fafaf9;
+}

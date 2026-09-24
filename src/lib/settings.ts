@@ -1,0 +1,17 @@
+import { prisma, ensureDefaultSettings } from "@/lib/db";
+
+export type AppSettings = {
+  uiLanguage: string;
+  responseLanguage: string;
+  timezone: string;
+};
+
+export async function getSettings(): Promise<AppSettings> {
+  await ensureDefaultSettings();
+  const s = await prisma.userSettings.findUniqueOrThrow({ where: { id: "default" } });
+  return {
+    uiLanguage: s.uiLanguage,
+    responseLanguage: s.responseLanguage,
+    timezone: s.timezone,
+  };
+}
