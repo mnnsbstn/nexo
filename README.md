@@ -1,5 +1,7 @@
 # Nexo
 
+[![CI](https://github.com/mnnsbstn/nexo/actions/workflows/ci.yml/badge.svg)](https://github.com/mnnsbstn/nexo/actions/workflows/ci.yml)
+
 A personal AI that connects your tasks, information, routines, and priorities in one place.
 
 Persönlicher Assistent (MVP) mit Chat, Heute-Ansicht, Aufgaben, Gedächtnis und nachvollziehbaren Freigaben. Standard: Deutsch, Zeitzone `Europe/Berlin`.
@@ -58,6 +60,8 @@ npm run build
 ```
 
 E2E nutzt isolierte DB `prisma/e2e.db` und Demo-Modus. Optional Auth-E2E: `E2E_AUTH_PASSWORD` und passendes `NEXO_AUTH_PASSWORD` für den Test-Server setzen (siehe `playwright.config.ts`).
+
+Auf GitHub laufen **Lint**, **Vitest** und **Playwright (Chromium)** bei jedem PR (Workflow `.github/workflows/ci.yml`).
 
 Manuell geprüft (API + Build): Chat → Aktionsvorschlag → Bestätigung → Aufgabe; doppelte Bestätigung idempotent; Erinnerung speichern/löschen; Demo-Status-Endpunkt.
 

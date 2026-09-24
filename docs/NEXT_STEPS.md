@@ -1,10 +1,13 @@
-# Nexo — Nächste Schritte (nach MVP)
+# Nexo — Nächste Schritte (Phase 2)
 
-1. **Authentifizierung** — Session/JWT, Schutz aller API-Routen vor öffentlichem Zugriff
-2. **Chat-Verlauf verwalten** — löschen/archivieren mit klarer Trennung zum Gedächtnis
-3. **Live-Agent härten** — echtes Tool-Calling statt JSON-Mode, Retry, Kontextlimits
-4. **Erinnerungen** — Konflikt-UI bei Widersprüchen, bessere Extraktion aus Chat
-5. **Heute** — Tagesplan als bestätigbare Entwurfs-Entität (weiterhin ohne Kalenderblock)
-6. **Benachrichtigungen** — erst nach explizitem Scope (Push/E-Mail), ehrliche UX
-7. **Externe Integrationen** — Kalender/E-Mail als separate, freigabepflichtige Tools
-8. **Tests** — E2E (Playwright) für Chat-Freigabe und responsive UI
+Die MVP-Roadmap (Schritte 1–10) ist abgeschlossen. Weiter in **`docs/ROADMAP.md`** (Phase 2, PR-für-PR).
+
+Kurzüberblick der offenen Produktlinien:
+
+1. **CI** — GitHub Actions bei jedem PR (Lint, Vitest, Playwright)
+2. **Benachrichtigungen** — erst nach explizitem Scope (Push/E-Mail), ehrliche UX
+3. **Externe Integrationen** — Kalender/E-Mail als separate, freigabepflichtige Tools
+4. **Live-Agent vertiefen** — Kontextlimits, bessere Fehler-UX, optional mehr Tools
+5. **Hosting-Runbook** — Auth, Secrets, Backup SQLite, Demo vs. Live
+
+Bereits umgesetzt (ehemals in dieser Liste): Auth, Chat leeren, Live-Agent-Basis, Erinnerungen bearbeiten/Konflikte, Tagesplan, E2E lokal.
