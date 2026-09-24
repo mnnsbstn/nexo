@@ -1,10 +1,11 @@
 import { describe, expect, it, beforeEach } from "vitest";
-import { prisma } from "@/lib/db";
+import { prisma, ensureDefaultSettings } from "@/lib/db";
 import { getEmailIntegrationStatus, finalizeEmailDraft, persistEmailDraft } from "@/server/integrations/email";
 import { getSettings } from "@/lib/settings";
 
 describe("email integration", () => {
   beforeEach(async () => {
+    await ensureDefaultSettings();
     await prisma.externalEmailDraft.deleteMany();
     await prisma.userSettings.update({
       where: { id: "default" },

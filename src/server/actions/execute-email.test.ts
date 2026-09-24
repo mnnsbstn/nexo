@@ -1,9 +1,10 @@
 import { describe, expect, it, beforeEach } from "vitest";
-import { prisma } from "@/lib/db";
+import { prisma, ensureDefaultSettings } from "@/lib/db";
 import { executeProposal } from "@/server/actions/execute";
 
 describe("external_email_draft execution", () => {
   beforeEach(async () => {
+    await ensureDefaultSettings();
     await prisma.externalEmailDraft.deleteMany();
     await prisma.actionProposal.deleteMany({ where: { actionType: "external_email_draft" } });
     await prisma.userSettings.update({
