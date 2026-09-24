@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach } from "vitest";
-import { prisma } from "@/lib/db";
+import { prisma, ensureDefaultSettings } from "@/lib/db";
 import { proposeAction } from "@/server/actions/propose";
 import { executeProposal } from "@/server/actions/execute";
 
@@ -7,6 +7,7 @@ describe("external_calendar_draft execution", () => {
   beforeEach(async () => {
     await prisma.externalCalendarDraft.deleteMany();
     await prisma.actionProposal.deleteMany();
+    await ensureDefaultSettings();
     await prisma.userSettings.update({
       where: { id: "default" },
       data: { calendarIntegrationEnabled: true },
