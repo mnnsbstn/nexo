@@ -16,6 +16,7 @@ export function TodayView() {
     today: string;
     dueToday: Task[];
     overdue: Task[];
+    dueSoon: Task[];
     noDate: Task[];
     priorities: Priority[];
     briefing: { content: string; generatedAtLabel: string } | null;
@@ -75,6 +76,12 @@ export function TodayView() {
 
       <TaskSection title="Überfällig" tasks={data.overdue} dueLabels={data.dueLabels} empty="Nichts überfällig." />
       <TaskSection title="Heute fällig" tasks={data.dueToday} dueLabels={data.dueLabels} empty="Heute nichts datiert." />
+      <TaskSection
+        title="Demnächst (7 Tage)"
+        tasks={data.dueSoon ?? []}
+        dueLabels={data.dueLabels}
+        empty="Keine anstehenden Termine in den nächsten 7 Tagen."
+      />
 
       <section>
         <h2 className="font-medium mb-2">Vorgeschlagene Prioritäten</h2>

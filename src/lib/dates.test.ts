@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseGermanDuePhrase, todayDateKey, isDueToday } from "@/lib/dates";
+import { parseGermanDuePhrase, todayDateKey, isDueToday, isDueSoon } from "@/lib/dates";
 
 describe("parseGermanDuePhrase", () => {
   it("parses morgen um 10 Uhr in Europe/Berlin", () => {
@@ -23,5 +23,13 @@ describe("isDueToday", () => {
   it("matches dueDate key", () => {
     const now = new Date("2026-03-24T12:00:00.000Z");
     expect(isDueToday("2026-03-24", null, "Europe/Berlin", now)).toBe(true);
+  });
+});
+
+describe("isDueSoon", () => {
+  it("includes tomorrow but not today", () => {
+    const now = new Date("2026-03-24T12:00:00.000Z");
+    expect(isDueSoon("2026-03-25", null, "Europe/Berlin", 7, now)).toBe(true);
+    expect(isDueSoon("2026-03-24", null, "Europe/Berlin", 7, now)).toBe(false);
   });
 });

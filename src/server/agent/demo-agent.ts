@@ -106,8 +106,8 @@ export async function runDemoAgent(
 
   if (/merke dir|speicher.*(?:dass|mir)/i.test(text)) {
     const content =
-      text.replace(/^.*merke dir(?:,)?\s*(?:dass\s*)?/i, "").trim() ||
-      text.replace(/^.*speicher.*?\s*(?:dass\s*)?/i, "").trim();
+      text.replace(/^.*?merke dir(?:,)?\s*(?:dass\s*)?/i, "").trim() ||
+      text.replace(/^.*?speicher.*?\s*(?:dass\s*)?/i, "").trim();
     const payload: ActionPayload = {
       actionType: "create_memory",
       data: {

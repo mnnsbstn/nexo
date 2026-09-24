@@ -74,4 +74,6 @@ Browser-UI auf Desktop/Mobil: nicht automatisiert in CI; lokal über `npm run de
 - Chat-Verlauf löschen: noch nicht implementiert (Erinnerungen bleiben davon unberührt)
 - Live-Modell: OpenAI-kompatibles JSON-Format; bei Fehlern Fallback prüfen
 
+**Erste Tests:** [docs/MANUAL_TEST.md](docs/MANUAL_TEST.md) · **PR-Roadmap:** [docs/ROADMAP.md](docs/ROADMAP.md)
+
 Weitere Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md)
