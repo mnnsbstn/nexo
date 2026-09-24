@@ -13,6 +13,8 @@ Leitfaden für ein **Single-User-Deployment** (VPS, PaaS oder Node-Hosting). Nex
 | **Backup** | Regelmäßig `scripts/backup-db.sh` (Cron) |
 | **Secrets** | Nur serverseitige Env — nie in Git, nie im Browser |
 | **Modus** | Bewusst `NEXO_DEMO_MODE` + `OPENAI_API_KEY` wählen (siehe unten) |
+| **Öffentliche URL** | `NEXO_PUBLIC_URL` setzen, sobald OAuth, Microsoft/Google-Callbacks oder Web Push genutzt werden |
+| **Web Push** | Optional: VAPID-Keys + Opt-in in Einstellungen — nur sinnvoll mit HTTPS und korrekter `NEXO_PUBLIC_URL` |
 
 ## Umgebungsvariablen (Produktion)
 
@@ -26,6 +28,14 @@ Leitfaden für ein **Single-User-Deployment** (VPS, PaaS oder Node-Hosting). Nex
 | `OPENAI_BASE_URL` | Nein | Default OpenAI |
 | `OPENAI_MODEL` | Nein | Default `gpt-4o-mini` |
 | `NODE_ENV` | Ja | `production` beim Start |
+| `NEXO_PUBLIC_URL` | Bei OAuth / Push | Öffentliche Basis-URL **ohne** trailing slash, z. B. `https://nexo.example.com` — Redirects: `{URL}/api/integrations/calendar/...` |
+| `NEXO_VAPID_PUBLIC_KEY` | Nur Web Push | Paar mit Private Key; erzeugen: `npx web-push generate-vapid-keys` |
+| `NEXO_VAPID_PRIVATE_KEY` | Nur Web Push | Nie committen, nie im Client |
+| `NEXO_VAPID_SUBJECT` | Nur Web Push | z. B. `mailto:admin@example.com` (VAPID-Kontakt) |
+
+Kalender (Google/Microsoft/iCloud/CalDAV), SMTP, iCloud Mail: weitere Variablen in [INTEGRATIONS.md](./INTEGRATIONS.md) und [.env.example](../.env.example).
+
+**Nicht in Produktion setzen:** `NEXO_E2E_CALENDAR_MOCK`, `NEXO_E2E_EMAIL_MOCK` (nur Playwright).
 
 Beispiel (nur Struktur — Werte ersetzen):
 
@@ -36,6 +46,11 @@ NEXO_SESSION_SECRET="…lange-zufällige-zeichenkette…"
 NEXO_DEMO_MODE=auto
 OPENAI_API_KEY="sk-…"
 NODE_ENV=production
+NEXO_PUBLIC_URL="https://nexo.example.com"
+# Optional Web Push (nach Key-Generierung):
+# NEXO_VAPID_PUBLIC_KEY="…"
+# NEXO_VAPID_PRIVATE_KEY="…"
+# NEXO_VAPID_SUBJECT="mailto:admin@example.com"
 ```
 
 Plattformen ohne `.env`-Datei: dieselben Keys im Hosting-Panel setzen (API bei Hostinger o. Ä. oft nicht für alle Node-Env — dann hPanel nutzen).
@@ -72,6 +87,15 @@ Health-Smoke nach Deploy:
 1. `/anmelden` — Login mit `NEXO_AUTH_PASSWORD`
 2. `/heute` — lädt ohne 401
 3. Optional: `GET /api/auth/session` mit Session-Cookie (Browser DevTools)
+4. Test-Aufgabe anlegen → Reload → noch vorhanden (SQLite-Persistenz)
+5. Optional Kalender: `NEXO_PUBLIC_URL` + OAuth-Redirect in Google/Microsoft-Konsole wie in [INTEGRATIONS.md](./INTEGRATIONS.md)
+6. Optional Phase 6: **Einstellungen** → Sync-Einblicke / Web Push / CalDAV — Details [MANUAL_TEST.md](./MANUAL_TEST.md) §12–13
+
+Kurz-Check Web Push (wenn VAPID gesetzt):
+
+1. `GET /api/push/vapid-public-key` → `{ "configured": true, "publicKey": "…" }`
+2. In der UI: Erinnerungen → Web Push aktivieren → Browser-Berechtigung
+3. Heute fällige Aufgabe → **Heute** öffnen → höchstens ein Push pro Kalendertag (Opt-in)
 
 ## Auth-Verhalten
 
@@ -116,10 +140,14 @@ Wiederherstellung: App stoppen, Backup-Datei über die aktive DB kopieren, App s
 | Live schlägt fehl, Demo-Antwort | API-Fehler, Retry erschöpft | Logs, Key, `OPENAI_BASE_URL` |
 | Leere DB nach Redeploy | Ephemeres FS ohne Volume | `DATABASE_URL` auf persistentes Volume |
 | Prisma-Fehler beim Start | Schema/Datei fehlt | `npm run db:push`, Rechte auf DB-Ordner |
+| OAuth Redirect mismatch | `NEXO_PUBLIC_URL` falsch oder HTTP statt HTTPS | URL exakt wie in Cloud-Konsole; Proxy-Header prüfen |
+| „Web Push nicht konfiguriert“ | VAPID-Env fehlt | Keys setzen, App neu starten; `/api/push/vapid-public-key` prüfen |
+| Push kommt nicht an | Kein HTTPS, Permission verweigert, kein Abo | HTTPS, Opt-in in Einstellungen, Service Worker `/sw.js` erreichbar |
+| Externe Termine leer | Kein Kalender verbunden / Token abgelaufen | Einstellungen → Verbindung; ggf. erneut verbinden |
 
-## Google Kalender (optional)
+## Integrationen (optional)
 
-OAuth-Env und Redirect-URI: [INTEGRATIONS.md](./INTEGRATIONS.md). Tokens in SQLite (`CalendarConnection`) — nur mit `NEXO_AUTH_PASSWORD` öffentlich hosten.
+OAuth, SMTP, iCloud, CalDAV, Sync-Einblicke: [INTEGRATIONS.md](./INTEGRATIONS.md). Tokens und Zugangsdaten in SQLite — nur mit `NEXO_AUTH_PASSWORD` öffentlich hosten.
 
 ## Siehe auch
 
