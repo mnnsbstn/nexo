@@ -22,6 +22,8 @@ export async function GET() {
       cc: d.ccJson ? parseRecipientsJson(d.ccJson) : [],
       status: d.status,
       savedNote: d.savedNote,
+      sendError: d.sendError,
+      sentAt: d.sentAt?.toISOString() ?? null,
       preview: d.body.slice(0, 120) + (d.body.length > 120 ? "…" : ""),
       createdLabel: formatInTimeZone(d.createdAt, settings.timezone, "d. MMM yyyy, HH:mm", {
         locale: de,

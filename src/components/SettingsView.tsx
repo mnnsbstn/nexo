@@ -20,9 +20,13 @@ export function SettingsView() {
       status: string;
       preview: string;
       createdLabel: string;
+      sendError?: string | null;
     }[]
   >([]);
-  const [emailStatus, setEmailStatus] = useState<{ message: string } | null>(null);
+  const [emailStatus, setEmailStatus] = useState<{
+    message: string;
+    sendConfigured?: boolean;
+  } | null>(null);
   const [calendarDrafts, setCalendarDrafts] = useState<
     {
       id: string;
@@ -83,7 +87,10 @@ export function SettingsView() {
       .then((r) => r.json())
       .then((d) => {
         setEmailDrafts(d.drafts ?? []);
-        setEmailStatus({ message: d.message ?? "" });
+        setEmailStatus({
+          message: d.message ?? "",
+          sendConfigured: Boolean(d.sendConfigured),
+        });
       });
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -166,6 +173,35 @@ export function SettingsView() {
   function exportProviderLabel(provider?: string | null) {
     if (provider === "microsoft") return " · Outlook";
     return " · Google";
+  }
+
+  async function reloadEmailDrafts() {
+    const res = await fetch("/api/integrations/email");
+    const d = await res.json();
+    setEmailDrafts(d.drafts ?? []);
+    setEmailStatus({
+      message: d.message ?? "",
+      sendConfigured: Boolean(d.sendConfigured),
+    });
+  }
+
+  async function sendEmailDraft(draftId: string, subject: string) {
+    if (
+      !window.confirm(
+        `E-Mail „${subject}“ jetzt wirklich senden? Dieser Schritt ist getrennt von der Chat-Freigabe.`,
+      )
+    ) {
+      return;
+    }
+    await fetch(`/api/integrations/email/drafts/${draftId}/send`, { method: "POST" });
+    await reloadEmailDrafts();
+  }
+
+  function emailStatusSuffix(status: string) {
+    if (status === "sent") return " · Gesendet";
+    if (status === "send_failed") return " · Versand fehlgeschlagen";
+    if (status === "saved") return " · Gespeichert";
+    return " · Entwurf";
   }
 
   async function loadDemo() {
@@ -435,8 +471,8 @@ export function SettingsView() {
         <div>
           <h2 className="font-medium text-sm">E-Mail-Entwürfe (Beta)</h2>
           <p className="text-xs text-stone-600 mt-1">
-            Opt-in für freigabepflichtige E-Mail-Entwürfe. Nach Bestätigung wird nur in Nexo
-            gespeichert — <strong>kein Versand</strong> (SMTP/API folgt später).
+            Opt-in für freigabepflichtige E-Mail-Entwürfe. Chat-Freigabe speichert den Entwurf;
+            Versand nur manuell hier (SMTP in .env), nie automatisch aus dem Chat.
           </p>
         </div>
         {emailStatus && <p className="text-xs text-stone-600">{emailStatus.message}</p>}
@@ -464,11 +500,25 @@ export function SettingsView() {
                   <span className="font-medium">{d.subject}</span>
                   <span className="text-xs text-stone-500 shrink-0">
                     {d.createdLabel}
-                    {d.status === "saved" ? " · Gespeichert" : " · Entwurf"}
+                    {emailStatusSuffix(d.status)}
                   </span>
                 </div>
                 <p className="text-xs text-stone-600">An: {d.to.join(", ")}</p>
                 <p className="text-xs text-stone-500 line-clamp-2">{d.preview}</p>
+                {d.sendError && (
+                  <p className="text-xs text-red-700" role="alert">
+                    {d.sendError}
+                  </p>
+                )}
+                {d.status === "saved" && emailStatus?.sendConfigured && (
+                  <button
+                    type="button"
+                    onClick={() => sendEmailDraft(d.id, d.subject)}
+                    className="text-xs text-teal-800 underline"
+                  >
+                    E-Mail senden…
+                  </button>
+                )}
               </li>
             ))}
           </ul>

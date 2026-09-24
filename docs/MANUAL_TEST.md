@@ -124,8 +124,9 @@ Details: [INTEGRATIONS.md](./INTEGRATIONS.md)
 1. **Einstellungen** → „E-Mail-Entwürfe erlauben“ → **E-Mail-Option speichern**
 2. **Chat:** `E-Mail an du@beispiel.de Betreff: Test Nachricht: Hallo`
 3. **Erwartung:** Aktionskarte „E-Mail-Entwurf · kein Versand (Beta)“, scope extern
-4. **Bestätigen** → Entwurf unter Einstellungen (Status **Gespeichert**), **kein** echter Versand
-5. Mit deaktivierter Integration: Chat-Hinweis, keine Karte
+4. **Bestätigen** → Entwurf unter Einstellungen (Status **Gespeichert**)
+5. Mit SMTP in `.env`: **E-Mail senden…** → Browser-Bestätigung → Status **Gesendet** (ohne SMTP: kein Senden-Button)
+6. Mit deaktivierter Integration: Chat-Hinweis, keine Karte
 
 ## Nach Deploy (Hosting)
 

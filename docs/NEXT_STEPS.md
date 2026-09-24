@@ -1,20 +1,20 @@
 # Nexo — Nächste Schritte
 
-Stand nach **Phase 4** (Kalender härten, E2E Export). Die verbindliche PR-Reihenfolge steht in **[ROADMAP.md](./ROADMAP.md) — Phase 4**.
+Stand nach **Phase 4** (vollständig) und Start **Phase 5**. PR-Reihenfolge: **[ROADMAP.md](./ROADMAP.md) — Phase 5**.
 
 ## Als Nächstes (empfohlen)
 
-1. **Phase 5 planen** — z. B. E-Mail-Versand, Multi-Provider parallel, Sync lesen
+1. **Schritt 24 — Kalender extern lesen** — nächste Termine read-only (Graph / Google Calendar API)
 
 ## Danach
 
-2. Produktentscheidungen in [ROADMAP.md](./ROADMAP.md) ergänzen
+2. **Schritt 25 — Multi-Kalender** (optional, Produktentscheidung)
 
 ## Erledigt (Kurz)
 
-Auth, Chat leeren, Aktivitäten, Erinnerungen bearbeiten, Tagesplan, Live-Agent-Basis, CI, Hosting-Runbook, Opt-in-Erinnerungen, Kalender-Entwürfe, Google OAuth/Export, E2E Kern + Kalender.
+MVP, CI, Hosting, Erinnerungen, Kalender (Google + Microsoft), E-Mail-Entwürfe, Live-Agent-Härtung, E2E.
 
 ## Manuell testen
 
 - [MANUAL_TEST.md](./MANUAL_TEST.md)
-- Google Kalender: [INTEGRATIONS.md](./INTEGRATIONS.md) + `.env.example`
+- [INTEGRATIONS.md](./INTEGRATIONS.md) + `.env.example`

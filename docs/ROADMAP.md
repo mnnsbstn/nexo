@@ -39,7 +39,7 @@ Reihenfolge ist Vorschlag; ein Satz genügt zum Umstellen.
 | **19** | E2E Google-Pfad | Playwright mit gemocktem Export oder „connected“-Fixture; CI ohne echte Google-Keys | ✅ merged (#20) |
 | **20** | Live-Agent | Kontextbudget sichtbar, bessere Tool-Fehler, optional 1–2 read-only Tools | ✅ merged (#21) |
 | **21** | E-Mail-Skelett | Wie Kalender: Opt-in, `external_*`-Aktion, **kein** Versand ohne Freigabe | ✅ merged (#22) |
-| **22** | Microsoft Kalender | OAuth + Export analog Google | Outlook-Event nach Freigabe |
+| **22** | Microsoft Kalender | OAuth + Export analog Google | ✅ merged (#23) |
 
 ### Bewusst **nicht** in Phase 4
 
@@ -53,6 +53,18 @@ Reihenfolge ist Vorschlag; ein Satz genügt zum Umstellen.
 - **Freigabe** für jede schreibende externe Wirkung
 - **Ehrliche UX** (Demo, „nicht verbunden“, Export-Status)
 - **Single-User**, SQLite, optional Auth vor Hosting
+
+---
+
+## Phase 5 — Erweiterung (priorisiert)
+
+| # | PR-Thema | Inhalt (kurz) | Erfolgskriterium |
+|---|----------|---------------|------------------|
+| **23** | E-Mail SMTP-Versand | Nach Entwurf + **manueller** Senden-Button; SMTP-Env; E2E-Mock | Kein Auto-Send aus Chat |
+| **24** | Kalender extern lesen | Read-only: nächste Termine (verbundener Provider) | Tool + ehrliche UX |
+| **25** | Multi-Kalender (optional) | Google + Microsoft parallel | Zwei Verbindungen, Export-Ziel wählbar |
+
+Leitplanken Phase 5: weiter **Freigabe vor Wirkung**, Single-User, SQLite.
 
 ---
 
