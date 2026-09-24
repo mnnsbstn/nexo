@@ -12,6 +12,14 @@ type Priority = {
   userPriority: string | null;
 };
 
+type DayPlanItem = {
+  order: number;
+  title: string;
+  taskId?: string;
+  kind: "task" | "suggestion";
+  note?: string;
+};
+
 export function TodayView() {
   const [data, setData] = useState<{
     today: string;
@@ -21,6 +29,12 @@ export function TodayView() {
     noDate: Task[];
     priorities: Priority[];
     briefing: { content: string; generatedAtLabel: string } | null;
+    dayPlan: {
+      planDate: string;
+      intro: string | null;
+      items: DayPlanItem[];
+      confirmedAtLabel: string;
+    } | null;
     dueLabels: Record<string, string>;
   } | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -49,6 +63,50 @@ export function TodayView() {
         <h1 className="text-2xl font-semibold">Heute</h1>
         <p className="text-sm text-stone-600 mt-1">{data.today} · Europe/Berlin</p>
       </div>
+
+      {data.dayPlan ? (
+        <section
+          id="tagesplan"
+          className="bg-teal-50/40 border border-teal-100 rounded-xl p-4 space-y-3"
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-medium">Dein Tagesplan</h2>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 text-teal-900">
+              Vorschlag · nur in Nexo
+            </span>
+          </div>
+          <p className="text-xs text-stone-600">
+            Bestätigt am {data.dayPlan.confirmedAtLabel} · blockiert keine Kalendertermine · ändert
+            keine Aufgaben automatisch
+          </p>
+          {data.dayPlan.intro && (
+            <p className="text-sm text-stone-700">{data.dayPlan.intro}</p>
+          )}
+          <ol className="list-decimal pl-5 space-y-2 text-sm">
+            {data.dayPlan.items.map((item) => (
+              <li key={`${item.order}-${item.title}`}>
+                <span className="font-medium">{item.title}</span>
+                {item.kind === "suggestion" && (
+                  <span className="text-xs text-teal-800 ml-1">(Vorschlag)</span>
+                )}
+                {item.note && <span className="block text-stone-600 text-xs">{item.note}</span>}
+              </li>
+            ))}
+          </ol>
+          <p className="text-xs text-stone-500">
+            Neuen Plan im Chat anfordern: „Plane meinen Tag …“ — ersetzt den Plan erst nach
+            Bestätigung.
+          </p>
+        </section>
+      ) : (
+        <section className="bg-white border border-dashed border-stone-300 rounded-xl p-4 text-sm text-stone-600">
+          Noch kein gespeicherter Tagesplan. Im{" "}
+          <a href="/chat" className="text-teal-800 underline">
+            Chat
+          </a>{" "}
+          z. B.: „Plane meinen Tag anhand meiner offenen Aufgaben“ — dann Freigabe bestätigen.
+        </section>
+      )}
 
       <section className="bg-white border border-stone-200 rounded-xl p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">

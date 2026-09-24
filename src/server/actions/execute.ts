@@ -3,6 +3,7 @@ import {
   actionPayloadSchema,
   proposalStatusSchema,
 } from "@/server/schemas/actions";
+import { persistDayPlan } from "@/server/daily/day-plan";
 
 const TERMINAL = new Set(["succeeded", "failed", "rejected"]);
 
@@ -161,6 +162,11 @@ async function runAction(
         data: { isActive: false },
       });
       return { memoryId: data.memoryId, deleted: true };
+    }
+    case "save_day_plan": {
+      const { data } = action;
+      const plan = await persistDayPlan(data);
+      return { dayPlanId: plan.id, planDate: plan.planDate };
     }
     default:
       throw new Error("Unbekannter Aktionstyp.");

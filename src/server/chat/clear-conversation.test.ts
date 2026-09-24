@@ -7,6 +7,7 @@ beforeEach(async () => {
   await prisma.message.deleteMany();
   await prisma.actionProposal.deleteMany();
   await prisma.conversation.deleteMany();
+  await prisma.task.deleteMany();
 });
 
 describe("clearConversationChat", () => {
@@ -20,8 +21,11 @@ describe("clearConversationChat", () => {
     });
     await proposeAction({
       conversationId: conv.id,
-      triggerMessageId: "clear-test-msg",
-      payload: { actionType: "create_task", data: { title: "ClearChatTestTask" } },
+      triggerMessageId: `clear-test-${Math.random().toString(36).slice(2)}`,
+      payload: {
+        actionType: "create_task",
+        data: { title: `ClearChatTestTask-${Date.now()}` },
+      },
       summary: "s",
       affectedData: "a",
     });

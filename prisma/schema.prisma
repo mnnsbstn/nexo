@@ -83,3 +83,14 @@ model DailyBriefing {
   content     String
   generatedAt DateTime @default(now())
 }
+
+model DayPlan {
+  id          String   @id @default(cuid())
+  planDate    String
+  intro       String?
+  items       String
+  isActive    Boolean  @default(true)
+  source      String   @default("chat_confirmed")
+  createdAt   DateTime @default(now())
+  confirmedAt DateTime @default(now())
+}

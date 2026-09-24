@@ -53,7 +53,14 @@ Badge **Demo** in der Navigation = regelbasierte Antworten (kein `OPENAI_API_KEY
 3. **Erwartung:** Keine Nachrichten mehr; **Aufgaben** und **Gedächtnis** unverändert
 4. Offene Freigaben erscheinen nicht mehr als wartend
 
-## 7. Zusammenfassung & Prioritäten
+## 7. Tagesplan (mit Freigabe)
+
+1. **Chat:** `Plane meinen Tag anhand meiner offenen Aufgaben.`
+2. Vorschau in der Antwort + Aktionskarte **Tagesplan speichern**
+3. **Bestätigen** → **Heute** → Abschnitt **Dein Tagesplan** (Badge „Vorschlag · nur in Nexo“)
+4. **Erwartung:** Aufgaben-Status unverändert; kein Kalender-Hinweis
+
+## 8. Zusammenfassung & Prioritäten
 
 1. Chat: `Was ist heute wichtig?` / `Plane meinen Tag`
 2. **Erwartung:** Bezug auf gespeicherte Aufgaben, Kennzeichnung als Vorschlag/Demo, kein E-Mail/Kalender
@@ -64,13 +71,13 @@ Badge **Demo** in der Navigation = regelbasierte Antworten (kein `OPENAI_API_KEY
 2. **Erwartung:** Hinweis auf mögliche Überschneidung → **Trotzdem speichern** oder Text anpassen
 3. **Bearbeiten** einer Erinnerung → **Änderungen speichern** → nach Reload sichtbar
 
-## 8. Aktivitäten
+## 9. Aktivitäten
 
 1. Chat-Aktion bestätigen → **Heute** scrollen zu **Aktivitäten & Freigaben** → Status „Erfolgreich“
 2. Filter **Offen** / **Erfolgreich** durchklicken
 3. Im **Chat** kompakte Liste + Link „Alle auf Heute“
 
-## 9. Mobil (kurz)
+## 10. Mobil (kurz)
 
 1. Browser schmal ziehen oder DevTools Device Mode
 2. **Chat** Eingabe + Bestätigungskarten bedienbar, Navigation erreichbar
