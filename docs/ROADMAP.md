@@ -24,6 +24,14 @@ Reihenfolge bewusst: erst **testen & Lücken im MVP**, dann **Transparenz**, dan
 | **11** | CI | GitHub Actions: lint, Vitest, Playwright Chromium | ✅ merged |
 | **12** | Hosting-Runbook | Auth, Env, SQLite-Backup, Demo/Live | ✅ merged |
 | **13** | Benachrichtigungen | Opt-in, keine Dark Patterns | ✅ merged |
-| **14** | Integrationen (Start) | z. B. Kalender-Tool-Skelett, freigabepflichtig | Erster externer Kanal |
+| **14** | Integrationen (Start) | z. B. Kalender-Tool-Skelett, freigabepflichtig | ✅ merged |
+
+## Phase 3 (Härtung & Ausbau)
+
+| # | PR-Thema | Inhalt (kurz) | Danach testbar |
+|---|----------|---------------|----------------|
+| **15** | E2E Kalender | Playwright: Opt-in + Freigabe + Entwurf | CI |
+| **16** | Kalender OAuth | Anbindung + Export (später) | Echter Termin |
+| **17** | Roadmap-Pflege | Offene Phase-3-Themen schärfen | — |
 
 Anpassungen an der Reihenfolge jederzeit möglich — ein Satz reicht, bevor der nächste PR startet.
