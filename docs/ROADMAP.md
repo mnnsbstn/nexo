@@ -23,7 +23,7 @@ Reihenfolge bewusst: erst **testen & Lücken im MVP**, dann **Transparenz**, dan
 |---|----------|---------------|----------------|
 | **11** | CI | GitHub Actions: lint, Vitest, Playwright Chromium | ✅ merged |
 | **12** | Hosting-Runbook | Auth, Env, SQLite-Backup, Demo/Live | ✅ merged |
-| **13** | Benachrichtigungen | Opt-in, keine Dark Patterns | Nur nach Freigabe |
+| **13** | Benachrichtigungen | Opt-in, keine Dark Patterns | ✅ merged |
 | **14** | Integrationen (Start) | z. B. Kalender-Tool-Skelett, freigabepflichtig | Erster externer Kanal |
 
 Anpassungen an der Reihenfolge jederzeit möglich — ein Satz reicht, bevor der nächste PR startet.

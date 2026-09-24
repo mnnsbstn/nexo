@@ -6,6 +6,7 @@ export type AppSettings = {
   timezone: string;
   notifyInAppDueTasks: boolean;
   notifyBrowserDueTasks: boolean;
+  calendarIntegrationEnabled: boolean;
 };
 
 export async function getSettings(): Promise<AppSettings> {
@@ -17,5 +18,6 @@ export async function getSettings(): Promise<AppSettings> {
     timezone: s.timezone,
     notifyInAppDueTasks: s.notifyInAppDueTasks,
     notifyBrowserDueTasks: s.notifyBrowserDueTasks,
+    calendarIntegrationEnabled: s.calendarIntegrationEnabled,
   };
 }

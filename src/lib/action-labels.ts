@@ -1,3 +1,21 @@
+export const actionTypeLabels: Record<string, string> = {
+  create_task: "Aufgabe anlegen",
+  update_task: "Aufgabe ändern",
+  delete_task: "Aufgabe löschen",
+  create_memory: "Erinnerung speichern",
+  update_memory: "Erinnerung ändern",
+  delete_memory: "Erinnerung löschen",
+  save_day_plan: "Tagesplan speichern",
+  external_calendar_draft: "Kalender-Entwurf",
+};
+
+export function proposalScopeLabel(scope: string, actionType: string): string {
+  if (actionType === "external_calendar_draft") {
+    return "Kalender-Entwurf · nicht verbunden";
+  }
+  return scope === "local" ? "Nur lokal in Nexo" : "Extern";
+}
+
 export const actionStatusLabels: Record<string, string> = {
   proposed: "Vorgeschlagen",
   awaiting_confirmation: "Wartet auf Bestätigung",

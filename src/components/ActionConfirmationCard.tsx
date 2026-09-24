@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { actionStatusLabels } from "@/lib/action-labels";
+import { actionStatusLabels, actionTypeLabels, proposalScopeLabel } from "@/lib/action-labels";
 
 export type ProposalClient = {
   id: string;
@@ -64,8 +64,11 @@ export function ActionConfirmationCard({
           {actionStatusLabels[proposal.status] ?? proposal.status}
         </span>
         <span className="text-xs px-2 py-0.5 rounded-full bg-teal-50 text-teal-800">
-          {proposal.scope === "local" ? "Nur lokal in Nexo" : "Extern"}
+          {proposalScopeLabel(proposal.scope, proposal.actionType)}
         </span>
+        {actionTypeLabels[proposal.actionType] && (
+          <span className="text-xs text-stone-500">{actionTypeLabels[proposal.actionType]}</span>
+        )}
       </div>
       <p className="font-medium text-stone-900">{proposal.summary}</p>
       <div className="text-sm text-stone-600 space-y-1">

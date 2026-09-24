@@ -41,6 +41,64 @@ export async function runDemoAgent(
     return { reply: lines.join("\n"), proposalIds, demo: true };
   }
 
+  if (/kalender|termin block|in (den|meinem) kalender|calendar/i.test(lower)) {
+    if (!settings.calendarIntegrationEnabled) {
+      return {
+        reply:
+          "**Demo-Antwort**\n\nKalender-Entwürfe sind **aus**. Unter **Einstellungen** „Kalender-Entwürfe (Beta)“ aktivieren — dann kann ich einen Termin-Entwurf vorschlagen (Freigabe nötig, **noch kein** Google/Outlook-Export).",
+        proposalIds,
+        demo: true,
+      };
+    }
+
+    const titleMatch =
+      /(?:termin|eintrag|event)[:\s]+(.+)/i.exec(text) || /kalender[:\s]+(.+)/i.exec(text);
+    let title = titleMatch?.[1]?.trim() ?? "Termin";
+    title = title.replace(/,?\s*(morgen|heute).*$/i, "").trim() || "Termin";
+
+    const due = parseGermanDuePhrase(text, settings.timezone);
+    const startAt = due?.dueAt ? new Date(due.dueAt) : new Date();
+    if (!due?.dueAt) {
+      startAt.setHours(10, 0, 0, 0);
+    }
+    const endAt = new Date(startAt.getTime() + 60 * 60 * 1000);
+
+    const payload: ActionPayload = {
+      actionType: "external_calendar_draft",
+      data: {
+        title,
+        startAt: startAt.toISOString(),
+        endAt: endAt.toISOString(),
+        timezone: settings.timezone,
+      },
+    };
+
+    const whenLabel = due?.label ?? startAt.toLocaleString("de-DE", { timeZone: settings.timezone });
+    const proposal = await proposeAction({
+      conversationId: ctx.conversationId,
+      triggerMessageId: ctx.messageId,
+      payload,
+      summary: `Kalender-Entwurf: ${title}`,
+      affectedData: `Termin-Entwurf „${title}“ ab ${whenLabel} — wird lokal gespeichert, nicht im externen Kalender.`,
+      scope: "external",
+    });
+    proposalIds.push(proposal.id);
+
+    return {
+      reply: [
+        "**Demo-Antwort** — Kalender-Entwurf (Beta):",
+        "",
+        `**${title}** · ${whenLabel}`,
+        "",
+        "_Noch keine Verbindung zu Google/Outlook — nach Bestätigung nur ein Entwurf in Nexo._",
+        "",
+        "Bitte bestätige die Aktionskarte.",
+      ].join("\n"),
+      proposalIds,
+      demo: true,
+    };
+  }
+
   if (/plane meinen tag|tagesplan/.test(lower)) {
     const draft = await buildDayPlanDraft();
     const preview = formatDayPlanPreview(draft);
@@ -187,6 +245,7 @@ export async function runDemoAgent(
       "• „Was ist heute wichtig?“",
       "• „Plane meinen Tag anhand meiner offenen Aufgaben.“",
       "• „Erstelle eine Aufgabe: Termin vereinbaren, morgen um 10 Uhr.“",
+      "• (Kalender Beta) „Kalender Termin: …“ — nach Opt-in in Einstellungen",
       "• „Merke dir, dass ich kurze Antworten bevorzuge.“",
       "• „Was habe ich mir zu diesem Thema gemerkt?“",
       "",

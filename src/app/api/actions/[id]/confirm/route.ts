@@ -64,8 +64,11 @@ async function checkStale(
     // surface confirmation clarity only — no stale logic
     void formatDueDisplay(payload.data.dueDate, new Date(payload.data.dueAt), timezone);
   }
-  if (actionType.startsWith("external")) {
-    return "Externe Aktionen sind im MVP nicht verfügbar.";
+  if (payload.actionType === "external_calendar_draft") {
+    const settings = await getSettings();
+    if (!settings.calendarIntegrationEnabled) {
+      return "Kalender-Entwürfe sind deaktiviert. Bitte in Einstellungen aktivieren und erneut vorschlagen lassen.";
+    }
   }
   return null;
 }

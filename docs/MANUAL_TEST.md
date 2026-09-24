@@ -106,6 +106,16 @@ Nur mit gesetztem `OPENAI_API_KEY` in `.env` (Nav-Badge **Live**).
 4. Optional: „Browser-Benachrichtigung“ aktivieren → **Berechtigung anfragen** (nur nach Klick) → Heute neu laden → ein Browser-Popup pro Tab-Sitzung
 5. **Erwartung:** Kein Banner ohne Opt-in; kein automatisches Permission-Popup beim App-Start
 
+## 10. Kalender-Entwurf (Beta)
+
+1. **Einstellungen** → „Kalender-Entwürfe erlauben“ → **Integration speichern**
+2. **Chat:** `Kalender Termin: Team-Sync morgen 10 Uhr`
+3. **Erwartung:** Aktionskarte „Kalender-Entwurf · nicht verbunden“, scope extern
+4. **Bestätigen** → Erfolg; unter Einstellungen erscheint der Entwurf in der Liste
+5. Mit deaktivierter Integration: Chat-Hinweis, keine Karte
+
+Details: [INTEGRATIONS.md](./INTEGRATIONS.md)
+
 ## Nach Deploy (Hosting)
 
 Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:

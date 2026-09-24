@@ -4,6 +4,8 @@ import {
   proposalStatusSchema,
 } from "@/server/schemas/actions";
 import { persistDayPlan } from "@/server/daily/day-plan";
+import { getSettings } from "@/lib/settings";
+import { persistCalendarDraft } from "@/server/integrations/calendar";
 
 const TERMINAL = new Set(["succeeded", "failed", "rejected"]);
 
@@ -54,7 +56,7 @@ export async function executeProposal(proposalId: string) {
 
   try {
     const parsed = actionPayloadSchema.parse(JSON.parse(proposal.payload));
-    const result = await runAction(parsed);
+    const result = await runAction(parsed, proposalId);
     const updated = await prisma.actionProposal.update({
       where: { id: proposalId },
       data: {
@@ -78,6 +80,7 @@ export async function executeProposal(proposalId: string) {
 
 async function runAction(
   action: ReturnType<typeof actionPayloadSchema.parse>,
+  proposalId: string,
 ): Promise<Record<string, unknown>> {
   switch (action.actionType) {
     case "create_task": {
@@ -167,6 +170,21 @@ async function runAction(
       const { data } = action;
       const plan = await persistDayPlan(data);
       return { dayPlanId: plan.id, planDate: plan.planDate };
+    }
+    case "external_calendar_draft": {
+      const settings = await getSettings();
+      if (!settings.calendarIntegrationEnabled) {
+        throw new Error(
+          "Kalender-Entwürfe sind deaktiviert. Bitte in Einstellungen aktivieren.",
+        );
+      }
+      const { data } = action;
+      const draft = await persistCalendarDraft(data, proposalId);
+      return {
+        draftId: draft.id,
+        connected: false,
+        hint: "Entwurf gespeichert — noch kein Export in Google/Outlook (OAuth folgt).",
+      };
     }
     default:
       throw new Error("Unbekannter Aktionstyp.");
