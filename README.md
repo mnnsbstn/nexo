@@ -54,7 +54,7 @@ Secrets nur serverseitig in `.env` — nicht committen.
 
 ```bash
 npm test                  # Vitest: Datum, Freigaben, Duplikatschutz
-npm run test:e2e:chromium # Playwright E2E (startet Build + Server, Demo-DB)
+npm run test:e2e:chromium # Playwright E2E (frische Demo-DB, Build + Server)
 npm run lint
 npm run build
 ```

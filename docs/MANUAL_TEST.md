@@ -131,7 +131,7 @@ Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
 npm run test:e2e:chromium
 ```
 
-Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan ab.
+Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan, Kalender-Entwurf ab.
 
 ## Demo-Daten (optional)
 

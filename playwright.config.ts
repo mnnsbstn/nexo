@@ -20,7 +20,8 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 7"] } },
   ],
   webServer: {
-    command: "npm run db:push && npm run build && npm run start -- -p 3010",
+    command:
+      "rm -f prisma/e2e.db prisma/e2e.db-journal && npm run db:push && npm run build && npm run start -- -p 3010",
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
