@@ -5,9 +5,10 @@ test.describe("Nexo Kernabläufe (Demo)", () => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/heute$/);
     await expect(page.getByRole("heading", { name: "Heute", exact: true })).toBeVisible();
-    await page.getByRole("link", { name: "Chat", exact: true }).click();
+    const nav = page.getByRole("navigation");
+    await nav.getByRole("link", { name: "Chat", exact: true }).click();
     await expect(page).toHaveURL(/\/chat$/);
-    await page.getByRole("link", { name: "Aufgaben", exact: true }).click();
+    await nav.getByRole("link", { name: "Aufgaben", exact: true }).click();
     await expect(page).toHaveURL(/\/aufgaben$/);
   });
 
