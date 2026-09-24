@@ -51,10 +51,13 @@ Secrets nur serverseitig in `.env` — nicht committen.
 ## Tests
 
 ```bash
-npm test          # Vitest: Datum, Freigaben, Duplikatschutz
+npm test                  # Vitest: Datum, Freigaben, Duplikatschutz
+npm run test:e2e:chromium # Playwright E2E (startet Build + Server, Demo-DB)
 npm run lint
 npm run build
 ```
+
+E2E nutzt isolierte DB `prisma/e2e.db` und Demo-Modus. Optional Auth-E2E: `E2E_AUTH_PASSWORD` und passendes `NEXO_AUTH_PASSWORD` für den Test-Server setzen (siehe `playwright.config.ts`).
 
 Manuell geprüft (API + Build): Chat → Aktionsvorschlag → Bestätigung → Aufgabe; doppelte Bestätigung idempotent; Erinnerung speichern/löschen; Demo-Status-Endpunkt.
 
