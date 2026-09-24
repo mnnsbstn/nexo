@@ -58,6 +58,12 @@ Badge **Demo** in der Navigation = regelbasierte Antworten (kein `OPENAI_API_KEY
 1. Chat: `Was ist heute wichtig?` / `Plane meinen Tag`
 2. **Erwartung:** Bezug auf gespeicherte Aufgaben, Kennzeichnung als Vorschlag/Demo, kein E-Mail/Kalender
 
+## 7b. Erinnerung bearbeiten & Konflikt
+
+1. **Gedächtnis** → zwei **Präferenzen** mit ähnlichen Wörtern (z. B. „kurze Antworten“ und erneut „kurze Antworten ohne Floskeln“)
+2. **Erwartung:** Hinweis auf mögliche Überschneidung → **Trotzdem speichern** oder Text anpassen
+3. **Bearbeiten** einer Erinnerung → **Änderungen speichern** → nach Reload sichtbar
+
 ## 8. Aktivitäten
 
 1. Chat-Aktion bestätigen → **Heute** scrollen zu **Aktivitäten & Freigaben** → Status „Erfolgreich“
