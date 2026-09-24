@@ -14,8 +14,13 @@ const patchSchema = z.object({
   timezone: z.string().min(3).max(64).optional(),
   notifyInAppDueTasks: z.boolean().optional(),
   notifyBrowserDueTasks: z.boolean().optional(),
+  notifyWebPushDueTasks: z.boolean().optional(),
   calendarIntegrationEnabled: z.boolean().optional(),
-  calendarExportProvider: z.enum(["google", "microsoft", "icloud"]).nullable().optional(),
+  calendarSyncInsightsEnabled: z.boolean().optional(),
+  calendarExportProvider: z
+    .enum(["google", "microsoft", "icloud", "caldav"])
+    .nullable()
+    .optional(),
   emailIntegrationEnabled: z.boolean().optional(),
 });
 
@@ -33,7 +38,9 @@ export async function PATCH(req: Request) {
       timezone: updated.timezone,
       notifyInAppDueTasks: updated.notifyInAppDueTasks,
       notifyBrowserDueTasks: updated.notifyBrowserDueTasks,
+      notifyWebPushDueTasks: updated.notifyWebPushDueTasks,
       calendarIntegrationEnabled: updated.calendarIntegrationEnabled,
+      calendarSyncInsightsEnabled: updated.calendarSyncInsightsEnabled,
       calendarExportProvider: updated.calendarExportProvider,
       emailIntegrationEnabled: updated.emailIntegrationEnabled,
     },

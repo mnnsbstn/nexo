@@ -32,7 +32,9 @@ describe("resolveCalendarExportProvider", () => {
       notifyInAppDueTasks: false,
       notifyBrowserDueTasks: false,
       calendarIntegrationEnabled: true,
+      calendarSyncInsightsEnabled: false,
       calendarExportProvider: "microsoft",
+      notifyWebPushDueTasks: false,
       emailIntegrationEnabled: false,
     });
 

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { DueReminderBanner } from "@/components/DueReminderBanner";
 import { useBrowserDueNotification } from "@/components/useBrowserDueNotification";
+import { useWebPushDue } from "@/components/useWebPushDue";
 
 type Task = { id: string; title: string; status: string; priority: string | null };
 type Priority = {
@@ -38,7 +39,12 @@ export function TodayView() {
       confirmedAtLabel: string;
     } | null;
     dueLabels: Record<string, string>;
-    notifications: { inAppEnabled: boolean; browserEnabled: boolean };
+    notifications: {
+      inAppEnabled: boolean;
+      browserEnabled: boolean;
+      webPushEnabled: boolean;
+      webPushConfigured: boolean;
+    };
   } | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -63,6 +69,11 @@ export function TodayView() {
     data?.today ?? "",
     data?.overdue ?? [],
     data?.dueToday ?? [],
+  );
+
+  useWebPushDue(
+    (data?.notifications.webPushEnabled && data?.notifications.webPushConfigured) ?? false,
+    data?.today ?? "",
   );
 
   if (!data) return <p className="text-stone-500">Lade…</p>;

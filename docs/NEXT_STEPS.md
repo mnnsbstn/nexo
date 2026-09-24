@@ -4,8 +4,8 @@ Stand nach **Phase 5** (Kern abgeschlossen). Details: **[ROADMAP.md](./ROADMAP.m
 
 ## Als Nächstes (empfohlen)
 
-1. **Schritt 27 — E2E Multi-Kalender** (PR)
-2. Phase-6-Thema wählen (Sync-Tiefe, Push, …) — siehe ROADMAP Phase 6
+1. **Schritt 28 — Phase 6** (Sync-Einblicke, Web Push, CalDAV) — PR
+2. Manuell: VAPID-Keys setzen, Push abonnieren, CalDAV-Server testen
 
 ## Erledigt (Kurz)
 

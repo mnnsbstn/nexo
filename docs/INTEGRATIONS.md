@@ -47,7 +47,7 @@ Tokens liegen verschlüsselt in SQLite (`CalendarConnection`, AES-GCM via `NEXO_
 
 **API-Berechtigung:** `Calendars.ReadWrite`, `User.Read` (delegiert).
 
-In **Einstellungen** → **Mit Microsoft verbinden**. Pro Nexo-Instanz ist **ein** Provider aktiv (Google *oder* Microsoft *oder* iCloud).
+In **Einstellungen** → **Mit Microsoft verbinden**. Mehrere Provider parallel möglich — **Export-Ziel** wählen.
 
 Export erfolgt über **Microsoft Graph** (`POST /me/events`).
 
@@ -68,11 +68,22 @@ Ein Klick verbindet **Kalender (CalDAV)** und **Mail (SMTP-Versand + IMAP read-o
 
 Mehrere Kalender können **parallel** verbunden sein; in Einstellungen wählst du das **Export-Ziel**. iCloud-Mail bleibt an `EmailConnection` gekoppelt.
 
+### 2d. CalDAV (generisch)
+
+In **Einstellungen** → **CalDAV verbinden**: Server-URL (z. B. Nextcloud `/remote.php/dav`), Benutzername, Passwort/App-Token. Export/Lesen wie iCloud, Provider `caldav`.
+
 ### 3. Extern lesen (read-only)
 
 - API: `GET /api/integrations/calendar/events?limit=8&daysAhead=14`
 - Nur wenn Kalender-Opt-in **und** Provider verbunden
 - Kein Zwei-Wege-Sync — Vorschau der nächsten Termine
+- **Sync-Einblicke** (Opt-in `calendarSyncInsightsEnabled`): bis 90 Tage, wiederkehrende Termine, Hinweise bei Überschneidungen mit Nexo-Entwürfen (`syncInsights` in API-Antwort)
+
+### 3b. Web Push (fällige Aufgaben)
+
+- Opt-in: Einstellungen → **Web Push (Heute)** + **Push auf diesem Gerät aktivieren**
+- Server-Env: `NEXO_VAPID_PUBLIC_KEY`, `NEXO_VAPID_PRIVATE_KEY`, `NEXO_VAPID_SUBJECT` (siehe `.env.example`)
+- Max. **ein** Push pro Tag bei fälligen/überfälligen Aufgaben — kein Marketing-Blast
 
 ### 4. Agent-Tools
 

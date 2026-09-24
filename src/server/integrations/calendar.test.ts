@@ -19,7 +19,9 @@ describe("calendar integration", () => {
       notifyInAppDueTasks: false,
       notifyBrowserDueTasks: false,
       calendarIntegrationEnabled: false,
+      calendarSyncInsightsEnabled: false,
       calendarExportProvider: null,
+      notifyWebPushDueTasks: false,
       emailIntegrationEnabled: false,
     });
     expect(status.connected).toBe(false);

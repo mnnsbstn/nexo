@@ -19,6 +19,9 @@ Lebendes Log für wiederkehrende „Warum so?“-Fragen. Kein Ersatz für Issues
 | Phase 5 | Kalender lesen read-only | Kein Sync; Live-Agent/Settings zeigen Vorschau, ehrlich gekennzeichnet |
 | Phase 5 | Multi-Kalender parallel | `CalendarConnection` id = Provider (`google`/`microsoft`/`icloud`); Export-Ziel in Einstellungen |
 | Phase 5 | iCloud via CalDAV + App-Passwort | Kein Apple-OAuth; gleiche Credentials für Kalender + Mail; verschlüsselt at rest |
+| Phase 6 | Sync-Einblicke read-only | Kein Zwei-Wege-Sync; Overlap-Hinweise vs. Nexo-Entwürfe |
+| Phase 6 | Web Push Opt-in + VAPID | Max. 1 Push/Tag; kein Versand ohne Abonnement + Setting |
+| Phase 6 | Generischer CalDAV-Provider | Eigener PR-Provider `caldav` neben iCloud |
 | Phase 4 (Plan) | Kein Multi-Tenant | Nexo bleibt persönlicher Assistent, kein Team-Produkt |
 
 Neue Zeilen bei PRs ergänzen, wenn eine Entscheidung festgezogen wird.

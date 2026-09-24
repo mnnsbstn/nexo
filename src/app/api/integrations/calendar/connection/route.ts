@@ -6,7 +6,7 @@ import {
 } from "@/server/integrations/calendar-connection";
 import type { CalendarProvider } from "@/server/integrations/calendar-provider";
 
-const providerSchema = z.enum(["google", "microsoft", "icloud"]);
+const providerSchema = z.enum(["google", "microsoft", "icloud", "caldav"]);
 
 export async function DELETE(req: Request) {
   const url = new URL(req.url);

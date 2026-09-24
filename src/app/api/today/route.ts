@@ -5,6 +5,7 @@ import { formatDueDisplay } from "@/lib/dates";
 import { formatBriefingTimestamp } from "@/server/daily/briefing";
 import { getActiveDayPlan, parseDayPlanItems } from "@/server/daily/day-plan";
 import { serializeTask } from "@/lib/serialize";
+import { isWebPushConfigured } from "@/server/push/vapid-config";
 import { formatInTimeZone } from "date-fns-tz";
 import { de } from "date-fns/locale";
 
@@ -56,6 +57,8 @@ export async function GET() {
     notifications: {
       inAppEnabled: settings.notifyInAppDueTasks,
       browserEnabled: settings.notifyBrowserDueTasks,
+      webPushEnabled: settings.notifyWebPushDueTasks,
+      webPushConfigured: isWebPushConfigured(),
     },
   });
 }

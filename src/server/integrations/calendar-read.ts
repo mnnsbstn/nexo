@@ -1,8 +1,13 @@
 import { isE2eCalendarMockEnabled } from "@/lib/e2e-calendar-mock";
+import { getSettings } from "@/lib/settings";
 import type { CalendarProvider } from "@/server/integrations/calendar-provider";
 import { calendarProviderLabel, parseCalendarProvider } from "@/server/integrations/calendar-provider";
 import { listCalendarConnections } from "@/server/integrations/calendar-connection";
+import { findCalendarDraftOverlaps } from "@/server/integrations/calendar-sync-insights";
+import type { CalendarDraftOverlap } from "@/server/integrations/calendar-sync-insights";
+import { listCalDavCalendarEvents } from "@/server/integrations/caldav";
 import {
+  getCalDavCalendarCredentials,
   getICloudCalendarCredentials,
   getValidCalendarAccessToken,
 } from "@/server/integrations/calendar-token";
@@ -15,6 +20,7 @@ export type ExternalCalendarEvent = {
   endAt: string | null;
   allDay: boolean;
   provider: CalendarProvider;
+  recurring?: boolean;
 };
 
 export type ListExternalCalendarEventsResult = {
@@ -23,6 +29,12 @@ export type ListExternalCalendarEventsResult = {
   events: ExternalCalendarEvent[];
   message: string;
   readError?: string;
+  syncInsights?: {
+    enabled: boolean;
+    daysAhead: number;
+    recurringEventCount: number;
+    draftOverlaps: CalendarDraftOverlap[];
+  };
 };
 
 function mockEvents(provider: CalendarProvider): ExternalCalendarEvent[] {
@@ -141,12 +153,29 @@ async function listMicrosoftEvents(
 async function listEventsForProvider(
   provider: CalendarProvider,
   auth: { token: string },
-  connCalendarId: string,
+  conn: { calendarId: string; serverUrl: string | null },
   limit: number,
   daysAhead: number,
 ): Promise<ExternalCalendarEvent[]> {
   if (provider === "microsoft") {
     return listMicrosoftEvents(auth.token, limit, daysAhead);
+  }
+  if (provider === "caldav") {
+    const caldav = await getCalDavCalendarCredentials();
+    if (!caldav?.calendarUrl) {
+      throw new Error("CalDAV nicht vollständig verbunden.");
+    }
+    const rows = await listCalDavCalendarEvents(
+      {
+        serverUrl: caldav.serverUrl,
+        username: caldav.username,
+        password: caldav.password,
+      },
+      caldav.calendarUrl,
+      limit,
+      daysAhead,
+    );
+    return rows.map((row) => ({ ...row, provider: "caldav" as const }));
   }
   if (provider === "icloud") {
     const icloud = await getICloudCalendarCredentials();
@@ -161,15 +190,19 @@ async function listEventsForProvider(
     );
     return rows.map((row) => ({ ...row, provider: "icloud" as const }));
   }
-  return listGoogleEvents(auth.token, limit, daysAhead, connCalendarId);
+  return listGoogleEvents(auth.token, limit, daysAhead, conn.calendarId);
 }
 
 export async function listExternalCalendarEvents(options?: {
   limit?: number;
   daysAhead?: number;
 }): Promise<ListExternalCalendarEventsResult> {
+  const settings = await getSettings();
+  const insightsEnabled = settings.calendarSyncInsightsEnabled;
   const limit = Math.min(Math.max(options?.limit ?? 10, 1), 25);
-  const daysAhead = Math.min(Math.max(options?.daysAhead ?? 14, 1), 60);
+  const defaultDays = insightsEnabled ? 60 : 14;
+  const maxDays = insightsEnabled ? 90 : 60;
+  const daysAhead = Math.min(Math.max(options?.daysAhead ?? defaultDays, 1), maxDays);
 
   const connections = await listCalendarConnections();
   if (connections.length === 0) {
@@ -200,13 +233,7 @@ export async function listExternalCalendarEvents(options?: {
     const auth = await getValidCalendarAccessToken(provider);
     if (!auth) continue;
     try {
-      const chunk = await listEventsForProvider(
-        provider,
-        auth,
-        conn.calendarId,
-        limit,
-        daysAhead,
-      );
+      const chunk = await listEventsForProvider(provider, auth, conn, limit, daysAhead);
       merged.push(...chunk);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Lesen fehlgeschlagen";
@@ -221,6 +248,9 @@ export async function listExternalCalendarEvents(options?: {
       ? calendarProviderLabel(providers[0]!)
       : `${providers.length} Kalender`;
 
+  const recurringEventCount = events.filter((e) => e.recurring).length;
+  const draftOverlaps = insightsEnabled ? await findCalendarDraftOverlaps(events) : [];
+
   return {
     connected: true,
     provider: providers.length === 1 ? providers[0]! : null,
@@ -232,5 +262,13 @@ export async function listExternalCalendarEvents(options?: {
           ? "Externe Termine konnten nicht geladen werden."
           : "Keine Termine im gewählten Zeitraum gefunden.",
     readError: errors.length > 0 ? errors.join(" · ") : undefined,
+    syncInsights: insightsEnabled
+      ? {
+          enabled: true,
+          daysAhead,
+          recurringEventCount,
+          draftOverlaps,
+        }
+      : undefined,
   };
 }

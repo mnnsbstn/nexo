@@ -19,7 +19,7 @@ export async function getValidCalendarAccessToken(provider: CalendarProvider): P
   const parsed = parseCalendarProvider(conn.provider);
   const { accessToken, refreshToken } = decryptConnectionTokens(conn);
 
-  if (parsed === "icloud") {
+  if (parsed === "icloud" || parsed === "caldav") {
     return accessToken
       ? { token: accessToken, provider: parsed, accountEmail: conn.accountEmail ?? null }
       : null;
@@ -45,6 +45,26 @@ export async function getValidCalendarAccessToken(provider: CalendarProvider): P
     token: refreshed.accessToken,
     provider: parsed,
     accountEmail: conn.accountEmail ?? null,
+  };
+}
+
+export async function getCalDavCalendarCredentials(): Promise<{
+  serverUrl: string;
+  username: string;
+  password: string;
+  calendarUrl: string;
+} | null> {
+  const conn = await getCalendarConnection("caldav");
+  if (!conn || conn.provider !== "caldav") return null;
+  const { accessToken } = decryptConnectionTokens(conn);
+  const username = conn.accountEmail?.trim();
+  const serverUrl = conn.serverUrl?.trim();
+  if (!username || !accessToken || !serverUrl) return null;
+  return {
+    serverUrl,
+    username,
+    password: accessToken,
+    calendarUrl: conn.calendarId || "",
   };
 }
 
