@@ -11,7 +11,7 @@ export const actionTypeLabels: Record<string, string> = {
 
 export function proposalScopeLabel(scope: string, actionType: string): string {
   if (actionType === "external_calendar_draft") {
-    return "Kalender-Entwurf · nicht verbunden";
+    return "Kalender · Freigabe, Export wenn verbunden";
   }
   return scope === "local" ? "Nur lokal in Nexo" : "Extern";
 }

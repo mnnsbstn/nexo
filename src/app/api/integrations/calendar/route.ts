@@ -9,7 +9,7 @@ import { de } from "date-fns/locale";
 
 export async function GET() {
   const settings = await getSettings();
-  const status = getCalendarIntegrationStatus(settings);
+  const status = await getCalendarIntegrationStatus(settings);
   const drafts = await listCalendarDrafts(15);
 
   return NextResponse.json({
@@ -20,6 +20,7 @@ export async function GET() {
       startAt: d.startAt.toISOString(),
       endAt: d.endAt?.toISOString() ?? null,
       status: d.status,
+      externalEventId: d.externalEventId,
       startLabel: formatInTimeZone(d.startAt, settings.timezone, "d. MMM yyyy, HH:mm", {
         locale: de,
       }),

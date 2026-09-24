@@ -5,7 +5,7 @@ import {
 } from "@/server/schemas/actions";
 import { persistDayPlan } from "@/server/daily/day-plan";
 import { getSettings } from "@/lib/settings";
-import { persistCalendarDraft } from "@/server/integrations/calendar";
+import { finalizeCalendarDraft, persistCalendarDraft } from "@/server/integrations/calendar";
 
 const TERMINAL = new Set(["succeeded", "failed", "rejected"]);
 
@@ -180,10 +180,13 @@ async function runAction(
       }
       const { data } = action;
       const draft = await persistCalendarDraft(data, proposalId);
+      const exportResult = await finalizeCalendarDraft(draft.id);
       return {
         draftId: draft.id,
-        connected: false,
-        hint: "Entwurf gespeichert — noch kein Export in Google/Outlook (OAuth folgt).",
+        connected: exportResult.connected,
+        exported: exportResult.exported,
+        externalEventId: exportResult.externalEventId,
+        hint: exportResult.message,
       };
     }
     default:

@@ -30,8 +30,8 @@ Reihenfolge bewusst: erst **testen & Lücken im MVP**, dann **Transparenz**, dan
 
 | # | PR-Thema | Inhalt (kurz) | Danach testbar |
 |---|----------|---------------|----------------|
-| **15** | E2E Kalender | Playwright: Opt-in + Freigabe + Entwurf | CI |
-| **16** | Kalender OAuth | Anbindung + Export (später) | Echter Termin |
+| **15** | E2E Kalender | Playwright: Opt-in + Freigabe + Entwurf | ✅ merged |
+| **16** | Kalender OAuth | Google OAuth + Export nach Freigabe | Mit Google verbunden |
 | **17** | Roadmap-Pflege | Offene Phase-3-Themen schärfen | — |
 
 Anpassungen an der Reihenfolge jederzeit möglich — ein Satz reicht, bevor der nächste PR startet.

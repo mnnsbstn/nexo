@@ -12,8 +12,21 @@ export function SettingsView() {
     calendarIntegrationEnabled: false,
   });
   const [calendarDrafts, setCalendarDrafts] = useState<
-    { id: string; title: string; startLabel: string; status: string }[]
+    {
+      id: string;
+      title: string;
+      startLabel: string;
+      status: string;
+      externalEventId?: string | null;
+    }[]
   >([]);
+  const [calendarStatus, setCalendarStatus] = useState<{
+    oauthConfigured: boolean;
+    connected: boolean;
+    accountEmail: string | null;
+    message: string;
+  } | null>(null);
+  const [calendarBanner, setCalendarBanner] = useState<string | null>(null);
   const [browserPermission, setBrowserPermission] = useState<
     NotificationPermission | "unsupported" | "loading"
   >("loading");
@@ -35,7 +48,21 @@ export function SettingsView() {
       .then((d) => setSettings(d.settings));
     fetch("/api/integrations/calendar")
       .then((r) => r.json())
-      .then((d) => setCalendarDrafts(d.drafts ?? []));
+      .then((d) => {
+        setCalendarDrafts(d.drafts ?? []);
+        setCalendarStatus({
+          oauthConfigured: Boolean(d.oauthConfigured),
+          connected: Boolean(d.connected),
+          accountEmail: d.accountEmail ?? null,
+          message: d.message ?? "",
+        });
+      });
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const cal = params.get("calendar");
+      if (cal === "connected") setCalendarBanner("Google Kalender verbunden.");
+      if (cal === "error") setCalendarBanner("Verbindung fehlgeschlagen — bitte erneut versuchen.");
+    }
     fetch("/api/status")
       .then((r) => r.json())
       .then(setStatus);
@@ -69,6 +96,18 @@ export function SettingsView() {
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  async function disconnectGoogle() {
+    await fetch("/api/integrations/calendar/connection", { method: "DELETE" });
+    const res = await fetch("/api/integrations/calendar");
+    const d = await res.json();
+    setCalendarStatus({
+      oauthConfigured: Boolean(d.oauthConfigured),
+      connected: Boolean(d.connected),
+      accountEmail: d.accountEmail ?? null,
+      message: d.message ?? "",
+    });
   }
 
   async function loadDemo() {
@@ -224,10 +263,40 @@ export function SettingsView() {
         <div>
           <h2 className="font-medium text-sm">Kalender-Entwürfe (Beta)</h2>
           <p className="text-xs text-stone-600 mt-1">
-            Opt-in für freigabepflichtige Termin-Entwürfe im Chat. **Noch keine** Verbindung zu
-            Google/Outlook — nach Bestätigung nur Speicherung in Nexo.
+            Opt-in für freigabepflichtige Termin-Entwürfe. Mit Google verbunden → Export in den
+            Kalender nach Bestätigung; sonst nur Entwurf in Nexo.
           </p>
         </div>
+        {calendarBanner && (
+          <p className="text-sm text-teal-800 bg-teal-50 border border-teal-100 rounded-lg px-3 py-2">
+            {calendarBanner}
+          </p>
+        )}
+        {calendarStatus && (
+          <p className="text-xs text-stone-600">{calendarStatus.message}</p>
+        )}
+        {calendarStatus?.oauthConfigured && !calendarStatus.connected && (
+          <a
+            href="/api/integrations/calendar/connect"
+            className="inline-block text-sm px-3 py-2 rounded-lg bg-white border border-stone-300 hover:bg-stone-50"
+          >
+            Mit Google verbinden
+          </a>
+        )}
+        {calendarStatus?.connected && (
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="text-stone-700">
+              Verbunden{calendarStatus.accountEmail ? `: ${calendarStatus.accountEmail}` : ""}
+            </span>
+            <button
+              type="button"
+              onClick={disconnectGoogle}
+              className="text-xs px-2 py-1 border border-stone-300 rounded-lg"
+            >
+              Trennen
+            </button>
+          </div>
+        )}
         <label className="flex gap-3 text-sm items-start">
           <input
             type="checkbox"
@@ -248,9 +317,12 @@ export function SettingsView() {
         {calendarDrafts.length > 0 && (
           <ul className="text-sm space-y-2 border-t border-stone-100 pt-3">
             {calendarDrafts.map((d) => (
-              <li key={d.id} className="flex justify-between gap-2 text-stone-700">
+              <li key={d.id} className="flex flex-wrap justify-between gap-2 text-stone-700">
                 <span>{d.title}</span>
-                <span className="text-xs text-stone-500 shrink-0">{d.startLabel}</span>
+                <span className="text-xs text-stone-500 shrink-0">
+                  {d.startLabel}
+                  {d.status === "exported" ? " · Google" : d.status === "export_failed" ? " · Export fehlgeschlagen" : " · Entwurf"}
+                </span>
               </li>
             ))}
           </ul>

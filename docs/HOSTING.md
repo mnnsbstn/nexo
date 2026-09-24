@@ -117,6 +117,10 @@ Wiederherstellung: App stoppen, Backup-Datei über die aktive DB kopieren, App s
 | Leere DB nach Redeploy | Ephemeres FS ohne Volume | `DATABASE_URL` auf persistentes Volume |
 | Prisma-Fehler beim Start | Schema/Datei fehlt | `npm run db:push`, Rechte auf DB-Ordner |
 
+## Google Kalender (optional)
+
+OAuth-Env und Redirect-URI: [INTEGRATIONS.md](./INTEGRATIONS.md). Tokens in SQLite (`CalendarConnection`) — nur mit `NEXO_AUTH_PASSWORD` öffentlich hosten.
+
 ## Siehe auch
 
 - [README.md](../README.md) — lokal entwickeln

@@ -1,6 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { resetChatAndPendingActions } from "./helpers";
 
 test.describe("Nexo Kernabläufe (Demo)", () => {
+  test.beforeEach(async ({ page }) => {
+    await resetChatAndPendingActions(page);
+  });
   test("Navigation und Heute-Ansicht", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/heute$/);
@@ -28,10 +32,12 @@ test.describe("Nexo Kernabläufe (Demo)", () => {
     await page.goto("/chat");
     await page.getByLabel("Nachricht").fill(`Erstelle eine Aufgabe: ${taskTitle}, heute`);
     await page.getByRole("button", { name: "Senden" }).click();
-    const confirm = page.getByRole("button", { name: "Bestätigen" });
-    await expect(confirm).toBeVisible({ timeout: 15_000 });
-    await confirm.click();
-    await expect(confirm).toHaveCount(0, { timeout: 10_000 }).catch(() => {});
+    const card = page
+      .locator("div.border")
+      .filter({ hasText: `Aufgabe anlegen: ${taskTitle}` })
+      .filter({ has: page.getByRole("button", { name: "Bestätigen" }) });
+    await expect(card).toBeVisible({ timeout: 15_000 });
+    await card.getByRole("button", { name: "Bestätigen" }).click();
     await page.getByRole("link", { name: "Aufgaben", exact: true }).click();
     await expect(page.getByRole("listitem").filter({ hasText: taskTitle })).toBeVisible({
       timeout: 10_000,
@@ -44,10 +50,12 @@ test.describe("Nexo Kernabläufe (Demo)", () => {
     await page.goto("/chat");
     await page.getByLabel("Nachricht").fill(`Erstelle eine Aufgabe: ${taskTitle}, heute`);
     await page.getByRole("button", { name: "Senden" }).click();
-    await expect(page.getByRole("button", { name: "Ablehnen" })).toBeVisible({
-      timeout: 15_000,
-    });
-    await page.getByRole("button", { name: "Ablehnen" }).click();
+    const card = page
+      .locator("div.border")
+      .filter({ hasText: `Aufgabe anlegen: ${taskTitle}` })
+      .filter({ has: page.getByRole("button", { name: "Ablehnen" }) });
+    await expect(card).toBeVisible({ timeout: 15_000 });
+    await card.getByRole("button", { name: "Ablehnen" }).click();
     await page.getByRole("link", { name: "Aufgaben", exact: true }).click();
     await expect(page.getByRole("listitem").filter({ hasText: taskTitle })).toHaveCount(0);
   });
@@ -56,10 +64,12 @@ test.describe("Nexo Kernabläufe (Demo)", () => {
     await page.goto("/chat");
     await page.getByLabel("Nachricht").fill("Plane meinen Tag anhand meiner offenen Aufgaben.");
     await page.getByRole("button", { name: "Senden" }).click();
-    await expect(page.getByRole("button", { name: "Bestätigen" })).toBeVisible({
-      timeout: 15_000,
-    });
-    await page.getByRole("button", { name: "Bestätigen" }).click();
+    const card = page
+      .locator("div.border")
+      .filter({ hasText: "Tagesplan für" })
+      .filter({ has: page.getByRole("button", { name: "Bestätigen" }) });
+    await expect(card).toBeVisible({ timeout: 15_000 });
+    await card.getByRole("button", { name: "Bestätigen" }).click();
     await page.getByRole("link", { name: "Heute", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Dein Tagesplan" })).toBeVisible({
       timeout: 10_000,

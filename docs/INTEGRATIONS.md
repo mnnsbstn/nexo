@@ -1,27 +1,50 @@
-# Nexo — Integrationen (Start)
+# Nexo — Integrationen
 
-## Kalender (Beta-Skelett)
+## Kalender (Google)
 
-**Stand:** Entwürfe mit Freigabe, **kein** OAuth, **kein** Export zu Google/Outlook.
+**Flow:** Opt-in → optional **Google OAuth** → Chat-Entwurf mit Freigabe → Export in Google Kalender (wenn verbunden).
 
-### Opt-in
+### 1. Opt-in (Entwürfe)
 
 1. **Einstellungen** → „Kalender-Entwürfe erlauben“
 2. Im **Chat** (Demo): z. B. `Kalender Termin: Arzt morgen 10 Uhr`
-3. **Aktionskarte** mit Badge „Kalender-Entwurf · nicht verbunden“ → Bestätigen
-4. Entwurf erscheint unter **Einstellungen** (Liste) und in der DB (`ExternalCalendarDraft`)
+3. **Aktionskarte** → Bestätigen
+4. Entwurf in Nexo; mit Google verbunden → zusätzlich Event in Google Kalender
 
-### Agent-Tools
+### 2. Google OAuth (optional, Server-Env)
+
+In `.env` (nie committen):
+
+| Variable | Zweck |
+|----------|--------|
+| `GOOGLE_CLIENT_ID` | OAuth Client (Google Cloud Console) |
+| `GOOGLE_CLIENT_SECRET` | Client Secret |
+| `NEXO_PUBLIC_URL` | Öffentliche App-URL, z. B. `https://nexo.example.com` oder lokal `http://localhost:3000` |
+
+**Redirect URI** in der Google Console:
+
+`{NEXO_PUBLIC_URL}/api/integrations/calendar/callback`
+
+Dann in **Einstellungen** → **Mit Google verbinden**.
+
+Tokens liegen in SQLite (`CalendarConnection`, Single-User). Bei gehostetem Betrieb: Auth (`NEXO_AUTH_PASSWORD`) empfohlen.
+
+### 3. Agent-Tools
 
 | Tool | Typ | Zweck |
 |------|-----|--------|
-| `get_calendar_integration_status` | read | Aktiv? Verbunden? Hinweistext |
+| `get_calendar_integration_status` | read | Aktiv, OAuth konfiguriert, verbunden |
 | `propose_action` + `external_calendar_draft` | write (Freigabe) | `scope: external` |
 
-Live-Agent: System-Prompt berücksichtigt `calendarIntegrationEnabled`.
+### Status Entwürfe
 
-### Nächste Ausbaustufe (nicht in diesem Schritt)
+| status | Bedeutung |
+|--------|-----------|
+| `draft` | Nur lokal (Google nicht verbunden) |
+| `exported` | In Google Kalender (`externalEventId`) |
+| `export_failed` | Export versucht, Fehler in `exportError` |
 
-- OAuth (Google/Microsoft)
-- Echter Export nach Bestätigung
-- E-Mail-Kanal analog, ebenfalls freigabepflichtig
+### Nächste Ausbaustufe
+
+- Microsoft Outlook OAuth
+- E-Mail-Kanal analog, freigabepflichtig

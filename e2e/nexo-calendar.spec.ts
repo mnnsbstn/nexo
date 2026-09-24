@@ -1,6 +1,11 @@
 import { test, expect } from "@playwright/test";
+import { resetChatAndPendingActions } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
+
+test.beforeEach(async ({ page }) => {
+  await resetChatAndPendingActions(page);
+});
 
 async function setCalendarIntegration(page: import("@playwright/test").Page, enabled: boolean) {
   const res = await page.request.patch("/api/settings", {
@@ -33,7 +38,6 @@ test.describe("Kalender-Entwurf (Demo, Opt-in)", () => {
       .filter({ has: page.getByRole("button", { name: "Bestätigen" }) })
       .first();
     await expect(card).toBeVisible({ timeout: 15_000 });
-    await expect(card.getByText(/nicht verbunden/i)).toBeVisible();
     await card.getByRole("button", { name: "Bestätigen" }).click();
 
     await page.goto("/einstellungen");
