@@ -3,6 +3,7 @@ import { z } from "zod";
 import { isE2eCalendarMockEnabled } from "@/lib/e2e-calendar-mock";
 import {
   disconnectAllCalendars,
+  saveCalDavCalendarConnection,
   saveGoogleCalendarConnection,
   saveMicrosoftCalendarConnection,
 } from "@/server/integrations/calendar-connection";
@@ -12,13 +13,13 @@ function notFound() {
 }
 
 const bodySchema = z.object({
-  provider: z.enum(["google", "microsoft"]).optional(),
+  provider: z.enum(["google", "microsoft", "caldav"]).optional(),
 });
 
 export async function POST(req: Request) {
   if (!isE2eCalendarMockEnabled()) return notFound();
 
-  let provider: "google" | "microsoft" = "google";
+  let provider: "google" | "microsoft" | "caldav" = "google";
   try {
     const json = await req.json();
     const parsed = bodySchema.safeParse(json);
@@ -29,7 +30,14 @@ export async function POST(req: Request) {
     /* default google */
   }
 
-  if (provider === "microsoft") {
+  if (provider === "caldav") {
+    await saveCalDavCalendarConnection({
+      serverUrl: "https://e2e-caldav.test",
+      username: "e2e-caldav@nexo.test",
+      password: "e2e-caldav-password",
+      calendarUrl: "https://e2e-caldav.test/cal/home/",
+    });
+  } else if (provider === "microsoft") {
     await saveMicrosoftCalendarConnection({
       accessToken: "e2e-ms-access-token",
       refreshToken: null,

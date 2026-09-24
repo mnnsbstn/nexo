@@ -74,7 +74,7 @@ Leitplanken Phase 5: weiter **Freigabe vor Wirkung**, Single-User, SQLite.
 
 | # | PR-Thema | Inhalt (kurz) | Erfolgskriterium |
 |---|----------|---------------|------------------|
-| **28** | Sync-Einblicke + Push + CalDAV | Längere read-only Vorschau, Entwurf-Überschneidungen; Web Push (VAPID, Opt-in); generischer CalDAV-Provider | Einstellungen + Tests |
+| **28** | Sync-Einblicke + Push + CalDAV | Längere read-only Vorschau, Entwurf-Überschneidungen; Web Push (VAPID, Opt-in); generischer CalDAV-Provider | ✅ merged (#29) |
 
 | Thema | Status |
 |-------|--------|
