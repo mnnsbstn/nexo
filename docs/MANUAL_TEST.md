@@ -82,6 +82,14 @@ Badge **Demo** in der Navigation = regelbasierte Antworten (kein `OPENAI_API_KEY
 1. Browser schmal ziehen oder DevTools Device Mode
 2. **Chat** Eingabe + Bestätigungskarten bedienbar, Navigation erreichbar
 
+## Auth (optional)
+
+1. In `.env` setzen: `NEXO_AUTH_PASSWORD=…` und `NEXO_SESSION_SECRET=…` (lang, zufällig)
+2. `npm run dev` neu starten → Redirect auf `/anmelden`
+3. Falsches Passwort → Fehler; richtiges Passwort → **Heute**
+4. **Einstellungen** → **Abmelden**
+5. Ohne `NEXO_AUTH_PASSWORD` bleibt Auth aus (nur lokaler Dev)
+
 ## Live-Modus (optional)
 
 Nur mit gesetztem `OPENAI_API_KEY` in `.env` (Nav-Badge **Live**).
