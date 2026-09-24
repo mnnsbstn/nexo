@@ -80,9 +80,9 @@ Browser-UI auf Desktop/Mobil: nicht automatisiert in CI; lokal über `npm run de
 - Kein Kalender/E-Mail/Messenger, keine Push-Benachrichtigungen
 - Fälligkeiten sind In-App-Hinweise, keine Zustellung bei geschlossener App
 - Einzelnutzer; Auth optional via `NEXO_AUTH_PASSWORD` (empfohlen außerhalb lokalem Dev)
-- Chat-Verlauf löschen: noch nicht implementiert (Erinnerungen bleiben davon unberührt)
+- Chat-Verlauf leeren: in Chat mit Bestätigung (Erinnerungen/Aufgaben bleiben)
 - Live-Modell: OpenAI-kompatibles JSON-Format; bei Fehlern Fallback prüfen
 
-**Erste Tests:** [docs/MANUAL_TEST.md](docs/MANUAL_TEST.md) · **PR-Roadmap:** [docs/ROADMAP.md](docs/ROADMAP.md)
+**Erste Tests:** [docs/MANUAL_TEST.md](docs/MANUAL_TEST.md) · **Hosting:** [docs/HOSTING.md](docs/HOSTING.md) · **PR-Roadmap:** [docs/ROADMAP.md](docs/ROADMAP.md)
 
 Weitere Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md)

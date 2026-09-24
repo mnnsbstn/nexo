@@ -98,6 +98,15 @@ Nur mit gesetztem `OPENAI_API_KEY` in `.env` (Nav-Badge **Live**).
 2. Assistenten-Nachricht mit Badge **Live**
 3. Bei API-Fehler: Badge **Demo-Fallback** und Fehlerhinweis im Text
 
+## Nach Deploy (Hosting)
+
+Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
+
+1. `/anmelden` → Login (wenn `NEXO_AUTH_PASSWORD` gesetzt)
+2. **Heute** / **Chat** laden ohne Fehler
+3. Eine Test-Aufgabe anlegen → Reload → noch vorhanden
+4. Optional: `./scripts/backup-db.sh` auf dem Server ausführen
+
 ## Automatisiert (E2E)
 
 ```bash
