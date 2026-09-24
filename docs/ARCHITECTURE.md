@@ -51,6 +51,7 @@ Live-Modus: begrenzte Chat-Historie, Retries bei transienten API-Fehlern, Demo-F
 - Ohne Passwort: offener lokaler Dev-Modus — nicht für öffentliches Hosting  
 - Deploy: [HOSTING.md](./HOSTING.md)
 - Erinnerungen: `UserSettings.notifyInAppDueTasks` / `notifyBrowserDueTasks` (Default aus); Browser nur nach expliziter Berechtigung
+- Integrationen: [INTEGRATIONS.md](./INTEGRATIONS.md) — `external_calendar_draft`, `ExternalCalendarDraft`, Opt-in `calendarIntegrationEnabled`
 
 ## Demo-Modus
 

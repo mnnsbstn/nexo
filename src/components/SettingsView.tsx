@@ -9,7 +9,11 @@ export function SettingsView() {
     timezone: "Europe/Berlin",
     notifyInAppDueTasks: false,
     notifyBrowserDueTasks: false,
+    calendarIntegrationEnabled: false,
   });
+  const [calendarDrafts, setCalendarDrafts] = useState<
+    { id: string; title: string; startLabel: string; status: string }[]
+  >([]);
   const [browserPermission, setBrowserPermission] = useState<
     NotificationPermission | "unsupported" | "loading"
   >("loading");
@@ -29,6 +33,9 @@ export function SettingsView() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((d) => setSettings(d.settings));
+    fetch("/api/integrations/calendar")
+      .then((r) => r.json())
+      .then((d) => setCalendarDrafts(d.drafts ?? []));
     fetch("/api/status")
       .then((r) => r.json())
       .then(setStatus);
@@ -210,6 +217,46 @@ export function SettingsView() {
         )}
         <button type="submit" className="px-4 py-2 rounded-lg bg-teal-700 text-white text-sm">
           Erinnerungen speichern
+        </button>
+      </form>
+
+      <form onSubmit={save} className="bg-white border border-stone-200 rounded-xl p-4 space-y-4">
+        <div>
+          <h2 className="font-medium text-sm">Kalender-Entwürfe (Beta)</h2>
+          <p className="text-xs text-stone-600 mt-1">
+            Opt-in für freigabepflichtige Termin-Entwürfe im Chat. **Noch keine** Verbindung zu
+            Google/Outlook — nach Bestätigung nur Speicherung in Nexo.
+          </p>
+        </div>
+        <label className="flex gap-3 text-sm items-start">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={settings.calendarIntegrationEnabled}
+            onChange={(e) =>
+              setSettings({ ...settings, calendarIntegrationEnabled: e.target.checked })
+            }
+          />
+          <span>
+            <span className="font-medium">Kalender-Entwürfe erlauben</span>
+            <span className="block text-stone-600 text-xs mt-0.5">
+              Demo-Chat z. B.: „Kalender Termin: Team-Call morgen 10 Uhr“ → Aktionskarte mit
+              Badge „nicht verbunden“.
+            </span>
+          </span>
+        </label>
+        {calendarDrafts.length > 0 && (
+          <ul className="text-sm space-y-2 border-t border-stone-100 pt-3">
+            {calendarDrafts.map((d) => (
+              <li key={d.id} className="flex justify-between gap-2 text-stone-700">
+                <span>{d.title}</span>
+                <span className="text-xs text-stone-500 shrink-0">{d.startLabel}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <button type="submit" className="px-4 py-2 rounded-lg bg-teal-700 text-white text-sm">
+          Integration speichern
         </button>
       </form>
 

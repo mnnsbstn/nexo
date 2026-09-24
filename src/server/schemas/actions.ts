@@ -47,6 +47,14 @@ export const deleteMemoryPayloadSchema = z.object({
   memoryId: z.string().min(1),
 });
 
+export const externalCalendarDraftPayloadSchema = z.object({
+  title: z.string().min(1).max(500),
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime().optional(),
+  description: z.string().max(5000).optional(),
+  timezone: z.string().min(3).max(64).optional(),
+});
+
 export const actionTypeSchema = z.enum([
   "create_task",
   "update_task",
@@ -55,6 +63,7 @@ export const actionTypeSchema = z.enum([
   "update_memory",
   "delete_memory",
   "save_day_plan",
+  "external_calendar_draft",
 ]);
 
 export type ActionType = z.infer<typeof actionTypeSchema>;
@@ -67,6 +76,10 @@ export const actionPayloadSchema = z.discriminatedUnion("actionType", [
   z.object({ actionType: z.literal("update_memory"), data: updateMemoryPayloadSchema }),
   z.object({ actionType: z.literal("delete_memory"), data: deleteMemoryPayloadSchema }),
   z.object({ actionType: z.literal("save_day_plan"), data: saveDayPlanPayloadSchema }),
+  z.object({
+    actionType: z.literal("external_calendar_draft"),
+    data: externalCalendarDraftPayloadSchema,
+  }),
 ]);
 
 export type ActionPayload = z.infer<typeof actionPayloadSchema>;

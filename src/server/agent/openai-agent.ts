@@ -68,9 +68,14 @@ export async function runLiveAgent(
     timeout: 60_000,
   });
 
+  const calendarLine = settings.calendarIntegrationEnabled
+    ? "Kalender: nicht verbunden — nur external_calendar_draft (scope external) nach Freigabe, nie behaupten, der Termin liege bereits im Kalender."
+    : "Kalender: Entwürfe deaktiviert — keine external_calendar_draft vorschlagen.";
+
   const system = [
     "Du bist Nexo, ein persönlicher Assistent. Antworte auf Deutsch.",
-    "Du hast KEINEN Zugriff auf Kalender, E-Mail oder externe Messenger.",
+    calendarLine,
+    "Kein E-Mail/Messenger. Nutze get_calendar_integration_status vor Kalender-Vorschlägen.",
     "Nutze Tools für Fakten. Erfinde keine Aufgaben oder Erinnerungen.",
     "Schreibende Änderungen NUR über propose_action — nie behaupten, sie seien schon erledigt.",
     "Nach propose_action: weise den Nutzer auf die Bestätigungskarte hin.",

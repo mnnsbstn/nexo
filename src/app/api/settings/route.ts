@@ -14,6 +14,7 @@ const patchSchema = z.object({
   timezone: z.string().min(3).max(64).optional(),
   notifyInAppDueTasks: z.boolean().optional(),
   notifyBrowserDueTasks: z.boolean().optional(),
+  calendarIntegrationEnabled: z.boolean().optional(),
 });
 
 export async function PATCH(req: Request) {
@@ -30,6 +31,7 @@ export async function PATCH(req: Request) {
       timezone: updated.timezone,
       notifyInAppDueTasks: updated.notifyInAppDueTasks,
       notifyBrowserDueTasks: updated.notifyBrowserDueTasks,
+      calendarIntegrationEnabled: updated.calendarIntegrationEnabled,
     },
   });
 }

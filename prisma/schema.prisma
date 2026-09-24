@@ -12,10 +12,24 @@ model UserSettings {
   uiLanguage            String   @default("de")
   responseLanguage      String   @default("de")
   timezone              String   @default("Europe/Berlin")
-  notifyInAppDueTasks   Boolean  @default(false)
-  notifyBrowserDueTasks Boolean  @default(false)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  notifyInAppDueTasks        Boolean  @default(false)
+  notifyBrowserDueTasks      Boolean  @default(false)
+  calendarIntegrationEnabled Boolean  @default(false)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+}
+
+/// Lokaler Entwurf für spätere OAuth-Kalender-Anbindung (noch kein Export).
+model ExternalCalendarDraft {
+  id          String   @id @default(cuid())
+  title       String
+  startAt     DateTime
+  endAt       DateTime?
+  description String?
+  timezone    String?
+  status      String   @default("draft")
+  proposalId  String?  @unique
+  createdAt   DateTime @default(now())
 }
 
 model Conversation {
