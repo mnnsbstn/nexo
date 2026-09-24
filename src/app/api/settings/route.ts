@@ -12,6 +12,8 @@ const patchSchema = z.object({
   uiLanguage: z.string().min(2).max(10).optional(),
   responseLanguage: z.string().min(2).max(10).optional(),
   timezone: z.string().min(3).max(64).optional(),
+  notifyInAppDueTasks: z.boolean().optional(),
+  notifyBrowserDueTasks: z.boolean().optional(),
 });
 
 export async function PATCH(req: Request) {
@@ -26,6 +28,8 @@ export async function PATCH(req: Request) {
       uiLanguage: updated.uiLanguage,
       responseLanguage: updated.responseLanguage,
       timezone: updated.timezone,
+      notifyInAppDueTasks: updated.notifyInAppDueTasks,
+      notifyBrowserDueTasks: updated.notifyBrowserDueTasks,
     },
   });
 }

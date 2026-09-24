@@ -50,6 +50,7 @@ Live-Modus: begrenzte Chat-Historie, Retries bei transienten API-Fehlern, Demo-F
 - Optional: `NEXO_AUTH_PASSWORD` schützt UI + alle `/api/*` (Middleware, httpOnly-Session)
 - Ohne Passwort: offener lokaler Dev-Modus — nicht für öffentliches Hosting  
 - Deploy: [HOSTING.md](./HOSTING.md)
+- Erinnerungen: `UserSettings.notifyInAppDueTasks` / `notifyBrowserDueTasks` (Default aus); Browser nur nach expliziter Berechtigung
 
 ## Demo-Modus
 

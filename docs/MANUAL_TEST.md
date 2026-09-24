@@ -98,6 +98,14 @@ Nur mit gesetztem `OPENAI_API_KEY` in `.env` (Nav-Badge **Live**).
 2. Assistenten-Nachricht mit Badge **Live**
 3. Bei API-Fehler: Badge **Demo-Fallback** und Fehlerhinweis im Text
 
+## 9. Erinnerungen (Opt-in)
+
+1. **Einstellungen** → „Hinweis auf Heute“ aktivieren → **Erinnerungen speichern**
+2. Lege eine **heute fällige** oder **überfällige** Aufgabe an (Aufgaben-Formular)
+3. **Heute** → gelber Hinweis-Banner mit Aufgaben — verschwindet nicht bei geschlossener App (weil kein Push)
+4. Optional: „Browser-Benachrichtigung“ aktivieren → **Berechtigung anfragen** (nur nach Klick) → Heute neu laden → ein Browser-Popup pro Tab-Sitzung
+5. **Erwartung:** Kein Banner ohne Opt-in; kein automatisches Permission-Popup beim App-Start
+
 ## Nach Deploy (Hosting)
 
 Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
