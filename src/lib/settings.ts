@@ -7,6 +7,7 @@ export type AppSettings = {
   notifyInAppDueTasks: boolean;
   notifyBrowserDueTasks: boolean;
   calendarIntegrationEnabled: boolean;
+  emailIntegrationEnabled: boolean;
 };
 
 export async function getSettings(): Promise<AppSettings> {
@@ -19,5 +20,6 @@ export async function getSettings(): Promise<AppSettings> {
     notifyInAppDueTasks: s.notifyInAppDueTasks,
     notifyBrowserDueTasks: s.notifyBrowserDueTasks,
     calendarIntegrationEnabled: s.calendarIntegrationEnabled,
+    emailIntegrationEnabled: s.emailIntegrationEnabled,
   };
 }

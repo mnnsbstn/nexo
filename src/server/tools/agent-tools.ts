@@ -13,6 +13,11 @@ import {
   getCalendarIntegrationStatus,
   listCalendarDrafts,
 } from "@/server/integrations/calendar";
+import {
+  getEmailIntegrationStatus,
+  listEmailDrafts,
+  parseRecipientsJson,
+} from "@/server/integrations/email";
 import { formatAgentToolError } from "@/server/tools/tool-errors";
 import { actionTypeLabels } from "@/lib/action-labels";
 
@@ -136,6 +141,26 @@ async function executeAgentToolInner(
         }),
       };
     }
+    case "get_email_integration_status": {
+      const settings = await getSettings();
+      const status = await getEmailIntegrationStatus(settings);
+      return { output: JSON.stringify(status) };
+    }
+    case "list_email_drafts": {
+      const schema = z.object({ limit: z.number().int().min(1).max(20).optional() });
+      const { limit } = schema.parse(args);
+      const drafts = await listEmailDrafts(limit ?? 10);
+      return {
+        output: JSON.stringify({
+          drafts: drafts.map((d) => ({
+            id: d.id,
+            subject: d.subject,
+            to: parseRecipientsJson(d.toJson),
+            status: d.status,
+          })),
+        }),
+      };
+    }
     case "list_pending_proposals": {
       const schema = z.object({ limit: z.number().int().min(1).max(15).optional() });
       const { limit } = schema.parse(args);
@@ -166,9 +191,23 @@ async function executeAgentToolInner(
           };
         }
       }
+      if (parsed.payload.actionType === "external_email_draft") {
+        const settings = await getSettings();
+        if (!settings.emailIntegrationEnabled) {
+          return {
+            output: JSON.stringify({
+              error:
+                "E-Mail-Entwürfe sind deaktiviert. Nutzer muss sie in Einstellungen aktivieren.",
+            }),
+          };
+        }
+      }
       const scope =
         parsed.scope ??
-        (parsed.payload.actionType === "external_calendar_draft" ? "external" : "local");
+        (parsed.payload.actionType === "external_calendar_draft" ||
+        parsed.payload.actionType === "external_email_draft"
+          ? "external"
+          : "local");
       const proposal = await proposeAction({
         conversationId: ctx.conversationId,
         triggerMessageId: ctx.messageId,
@@ -256,6 +295,26 @@ export const openAiToolDefinitions = [
   {
     type: "function" as const,
     function: {
+      name: "get_email_integration_status",
+      description:
+        "Status der E-Mail-Integration (read-only): aktiviert?, Hinweis — kein Versand in Beta.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "list_email_drafts",
+      description: "Listet gespeicherte E-Mail-Entwürfe (read-only, kein Versand).",
+      parameters: {
+        type: "object",
+        properties: { limit: { type: "integer", minimum: 1, maximum: 20 } },
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
       name: "list_calendar_drafts",
       description: "Listet gespeicherte Kalender-Entwürfe (read-only, kein Export).",
       parameters: {
@@ -281,7 +340,7 @@ export const openAiToolDefinitions = [
     function: {
       name: "propose_action",
       description:
-        "Schlägt eine schreibende Aktion vor (Aufgabe, Erinnerung, Tagesplan, optional external_calendar_draft). Wird erst nach UI-Bestätigung ausgeführt. external_calendar_draft nur mit scope external und wenn Kalender-Entwürfe aktiv.",
+        "Schlägt eine schreibende Aktion vor (Aufgabe, Erinnerung, Tagesplan, optional external_calendar_draft / external_email_draft). Wird erst nach UI-Bestätigung ausgeführt. Externe Entwürfe nur mit scope external und wenn die Integration in Einstellungen aktiv ist.",
       parameters: {
         type: "object",
         properties: {

@@ -47,8 +47,23 @@ Tokens liegen verschlüsselt in SQLite (`CalendarConnection`, AES-GCM via `NEXO_
 | `exported` | In Google Kalender (`externalEventId`) |
 | `export_failed` | Export versucht, Fehler in `exportError` |
 
+## E-Mail (Entwürfe, Beta)
+
+**Flow:** Opt-in → Chat-Entwurf mit Freigabe → Speicherung in Nexo — **kein Versand** (SMTP/API folgt später).
+
+1. **Einstellungen** → „E-Mail-Entwürfe erlauben“
+2. Im **Chat** (Demo): z. B. `E-Mail an team@beispiel.de Betreff: Update Nachricht: Kurzer Text`
+3. **Aktionskarte** → Bestätigen
+4. Entwurf unter **Einstellungen** (Status `saved`)
+
+| Tool | Typ | Zweck |
+|------|-----|--------|
+| `get_email_integration_status` | read | Opt-in aktiv?, Hinweis kein Versand |
+| `list_email_drafts` | read | Gespeicherte Entwürfe |
+| `propose_action` + `external_email_draft` | write (Freigabe) | `scope: external` |
+
 ### Nächste Ausbaustufe (Phase 4)
 
-Siehe [ROADMAP.md](./ROADMAP.md): Microsoft OAuth, E-Mail-Skelett.
+Siehe [ROADMAP.md](./ROADMAP.md): Microsoft Kalender, optional E-Mail-Versand-Provider.
 
 **E2E (Playwright):** Mit `NEXO_E2E_CALENDAR_MOCK=1` (nur in `playwright.config.ts`) seedet `POST /api/e2e/calendar/connection` eine Fake-Verbindung; der Export liefert Mock-Event-IDs ohne Google-API.

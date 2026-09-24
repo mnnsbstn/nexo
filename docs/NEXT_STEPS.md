@@ -4,11 +4,11 @@ Stand nach **Phase 4** (Kalender härten, E2E Export). Die verbindliche PR-Reihe
 
 ## Als Nächstes (empfohlen)
 
-1. **Schritt 21 — E-Mail-Skelett** — Opt-in + Freigabe, wie Kalender Beta
+1. **Schritt 22 — Microsoft Kalender** (zweiter Provider)
 
 ## Danach
 
-2. **Schritt 22 — Microsoft Kalender** (zweiter Provider)
+2. Optional: E-Mail-Versand-Provider (SMTP/API) — erst nach explizitem Produkt-Scope
 
 ## Erledigt (Kurz)
 

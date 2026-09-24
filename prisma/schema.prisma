@@ -15,6 +15,7 @@ model UserSettings {
   notifyInAppDueTasks        Boolean  @default(false)
   notifyBrowserDueTasks      Boolean  @default(false)
   calendarIntegrationEnabled Boolean  @default(false)
+  emailIntegrationEnabled    Boolean  @default(false)
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
 }
@@ -32,6 +33,19 @@ model CalendarConnection {
 }
 
 /// Kalender-Entwurf; Export nach Google wenn verbunden.
+/// E-Mail-Entwurf; kein Versand ohne spätere Provider-Anbindung.
+model ExternalEmailDraft {
+  id         String   @id @default(cuid())
+  toJson     String
+  ccJson     String?
+  subject    String
+  body       String
+  status     String   @default("draft")
+  proposalId String?  @unique
+  savedNote  String?
+  createdAt  DateTime @default(now())
+}
+
 model ExternalCalendarDraft {
   id              String    @id @default(cuid())
   title           String

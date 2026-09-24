@@ -119,6 +119,14 @@ Nur mit gesetztem `OPENAI_API_KEY` in `.env` (Nav-Badge **Live**).
 
 Details: [INTEGRATIONS.md](./INTEGRATIONS.md)
 
+## 11. E-Mail-Entwurf (Beta)
+
+1. **Einstellungen** → „E-Mail-Entwürfe erlauben“ → **E-Mail-Option speichern**
+2. **Chat:** `E-Mail an du@beispiel.de Betreff: Test Nachricht: Hallo`
+3. **Erwartung:** Aktionskarte „E-Mail-Entwurf · kein Versand (Beta)“, scope extern
+4. **Bestätigen** → Entwurf unter Einstellungen (Status **Gespeichert**), **kein** echter Versand
+5. Mit deaktivierter Integration: Chat-Hinweis, keine Karte
+
 ## Nach Deploy (Hosting)
 
 Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
@@ -134,7 +142,7 @@ Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
 npm run test:e2e:chromium
 ```
 
-Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan, Kalender-Entwurf, `.ics`-Download und Mock-Google-Export (nur mit `NEXO_E2E_CALENDAR_MOCK=1` in Playwright) ab.
+Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan, Kalender- und E-Mail-Entwürfe, `.ics`-Download und Mock-Google-Export (nur mit `NEXO_E2E_CALENDAR_MOCK=1` in Playwright) ab.
 
 ## Demo-Daten (optional)
 

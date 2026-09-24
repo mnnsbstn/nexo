@@ -70,5 +70,11 @@ async function checkStale(
       return "Kalender-Entwürfe sind deaktiviert. Bitte in Einstellungen aktivieren und erneut vorschlagen lassen.";
     }
   }
+  if (payload.actionType === "external_email_draft") {
+    const settings = await getSettings();
+    if (!settings.emailIntegrationEnabled) {
+      return "E-Mail-Entwürfe sind deaktiviert. Bitte in Einstellungen aktivieren und erneut vorschlagen lassen.";
+    }
+  }
   return null;
 }

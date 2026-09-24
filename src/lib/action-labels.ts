@@ -7,11 +7,15 @@ export const actionTypeLabels: Record<string, string> = {
   delete_memory: "Erinnerung löschen",
   save_day_plan: "Tagesplan speichern",
   external_calendar_draft: "Kalender-Entwurf",
+  external_email_draft: "E-Mail-Entwurf",
 };
 
 export function proposalScopeLabel(scope: string, actionType: string): string {
   if (actionType === "external_calendar_draft") {
     return "Kalender · Freigabe, Export wenn verbunden";
+  }
+  if (actionType === "external_email_draft") {
+    return "E-Mail · Freigabe, kein Versand (Beta)";
   }
   return scope === "local" ? "Nur lokal in Nexo" : "Extern";
 }
