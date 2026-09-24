@@ -114,6 +114,9 @@ Nur mit gesetztem `OPENAI_API_KEY` in `.env` (Nav-Badge **Live**).
 4. **Bestätigen** → Erfolg; unter Einstellungen erscheint der Entwurf in der Liste
 5. Mit deaktivierter Integration: Chat-Hinweis, keine Karte
 
+5. **Einstellungen** → bei Entwurf **Als .ics laden** (funktioniert auch ohne Google)
+6. Optional: Google verbunden, Export schlägt fehl → roter Fehlertext + **Export erneut versuchen**
+
 Details: [INTEGRATIONS.md](./INTEGRATIONS.md)
 
 ## Nach Deploy (Hosting)
