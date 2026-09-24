@@ -2,36 +2,60 @@
 
 Arbeitsweise: **Ein PR = ein klar abgrenzbarer Schritt.** Du mergst auf `main` → der Agent setzt den nächsten Schritt um (ohne dass du jedes Mal neu nach „next steps“ fragen musst).
 
-| # | PR-Thema | Inhalt (kurz) | Danach testbar |
-|---|----------|---------------|----------------|
-| **1** | MVP | Chat, Heute, Aufgaben, Gedächtnis, Freigaben | ✅ merged |
-| **2** | Test-Readiness | `MANUAL_TEST.md`, Heute „Demnächst (7 Tage)“ | Erste geführte Test-Session |
-| **3** | Aufgaben bearbeiten | Inline/Bearbeiten-Dialog (Titel, Datum, Priorität) | MVP-Lücke „bearbeiten“ |
-| **4** | Chat leeren | Verlauf löschen mit Bestätigung; Gedächtnis bleibt | Transparenz Datentrennung |
-| **5** | Aktivitäten | Kompakte Historie (Chat + Heute), Status-Filter | Freigaben nachvollziehen |
-| **6** | Erinnerungen | Bearbeiten + Hinweis bei widersprüchlichen Inhalten | Gedächtnis-Pflege |
-| **7** | Tagesplan-Entwurf | Vorschlag aus Chat als bestätigbarer Plan (lokal) | „Plane meinen Tag“ mit Freigabe |
-| **8** | Live-Agent | Tool-Loop, Limits, Fehler → verständliche UI | Mit `OPENAI_API_KEY` |
-| **9** | Auth (Single-User) | Einfacher Schutz aller APIs | Vor externem Hosting |
-| **10** | E2E | Playwright: Chat-Freigabe + Heute | ✅ merged |
+## Phase 1 — MVP ✅
 
-Reihenfolge bewusst: erst **testen & Lücken im MVP**, dann **Transparenz**, dann **Intelligenz & Absicherung**.
+| # | PR-Thema | Status |
+|---|----------|--------|
+| 1–10 | MVP bis E2E | ✅ merged (Details im Git-Verlauf / frühere PRs) |
 
-## Phase 2 (nach MVP)
+Kern: Chat, Heute, Aufgaben, Gedächtnis, Freigaben, Auth, Demo/Live-Agent, Playwright-Basis.
 
-| # | PR-Thema | Inhalt (kurz) | Danach testbar |
-|---|----------|---------------|----------------|
-| **11** | CI | GitHub Actions: lint, Vitest, Playwright Chromium | ✅ merged |
-| **12** | Hosting-Runbook | Auth, Env, SQLite-Backup, Demo/Live | ✅ merged |
-| **13** | Benachrichtigungen | Opt-in, keine Dark Patterns | ✅ merged |
-| **14** | Integrationen (Start) | z. B. Kalender-Tool-Skelett, freigabepflichtig | ✅ merged |
+## Phase 2 — Betrieb & Vertrauen ✅
 
-## Phase 3 (Härtung & Ausbau)
+| # | PR-Thema | Status |
+|---|----------|--------|
+| **11** | CI (GitHub Actions) | ✅ merged |
+| **12** | Hosting-Runbook | ✅ merged |
+| **13** | Benachrichtigungen (Opt-in) | ✅ merged |
+| **14** | Kalender-Skelett (Entwürfe) | ✅ merged |
 
-| # | PR-Thema | Inhalt (kurz) | Danach testbar |
-|---|----------|---------------|----------------|
-| **15** | E2E Kalender | Playwright: Opt-in + Freigabe + Entwurf | ✅ merged |
-| **16** | Kalender OAuth | Google OAuth + Export nach Freigabe | Mit Google verbunden |
-| **17** | Roadmap-Pflege | Offene Phase-3-Themen schärfen | — |
+## Phase 3 — Integrationen & Tests ✅
 
-Anpassungen an der Reihenfolge jederzeit möglich — ein Satz reicht, bevor der nächste PR startet.
+| # | PR-Thema | Status |
+|---|----------|--------|
+| **15** | E2E Kalender-Entwurf | ✅ merged |
+| **16** | Google OAuth + Export | ✅ merged |
+| **17** | Roadmap Phase 4 | ✅ (dieser PR) |
+
+---
+
+## Phase 4 — Nächste PRs (priorisiert)
+
+Reihenfolge ist Vorschlag; ein Satz genügt zum Umstellen.
+
+| # | PR-Thema | Inhalt (kurz) | Erfolgskriterium |
+|---|----------|---------------|------------------|
+| **18** | Kalender härten | Token-Sicherheit (Verschlüsselung at rest), Export-Fehler in UI, optional `.ics`-Download ohne OAuth | Klare Fehler + Fallback |
+| **19** | E2E Google-Pfad | Playwright mit gemocktem Export oder „connected“-Fixture; CI ohne echte Google-Keys | Grüner CI-Check |
+| **20** | Live-Agent | Kontextbudget sichtbar, bessere Tool-Fehler, optional 1–2 read-only Tools | Live-Chat robuster |
+| **21** | E-Mail-Skelett | Wie Kalender: Opt-in, `external_*`-Aktion, **kein** Versand ohne Freigabe | Erster E-Mail-Entwurf |
+| **22** | Microsoft Kalender | OAuth + Export analog Google | Outlook-Event nach Freigabe |
+
+### Bewusst **nicht** in Phase 4
+
+- Multi-User / Teams
+- Push ohne Opt-in oder Hintergrund-Sync
+- Automatisches Schreiben ohne Freigabe-Karte
+- Vollständige Kalender-Synchronisation (lesen aller externen Termine)
+
+### Leitplanken (bleiben)
+
+- **Freigabe** für jede schreibende externe Wirkung
+- **Ehrliche UX** (Demo, „nicht verbunden“, Export-Status)
+- **Single-User**, SQLite, optional Auth vor Hosting
+
+---
+
+Anpassungen jederzeit — ein Satz reicht, bevor der nächste PR startet.
+
+**Kurzüberblick offene Arbeit:** [NEXT_STEPS.md](./NEXT_STEPS.md) · **Integrationen:** [INTEGRATIONS.md](./INTEGRATIONS.md)
