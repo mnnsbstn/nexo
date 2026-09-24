@@ -20,6 +20,7 @@ export async function GET() {
       startAt: d.startAt.toISOString(),
       endAt: d.endAt?.toISOString() ?? null,
       status: d.status,
+      exportProvider: d.exportProvider,
       externalEventId: d.externalEventId,
       exportError: d.exportError,
       icsUrl: `/api/integrations/calendar/drafts/${d.id}/ics`,

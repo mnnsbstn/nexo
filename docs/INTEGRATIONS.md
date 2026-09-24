@@ -30,7 +30,26 @@ Dann in **Einstellungen** → **Mit Google verbinden**.
 
 Tokens liegen verschlüsselt in SQLite (`CalendarConnection`, AES-GCM via `NEXO_TOKEN_ENCRYPTION_KEY` oder abgeleitet). Bei gehostetem Betrieb: Auth (`NEXO_AUTH_PASSWORD`) empfohlen.
 
-**Export erneut:** bei `export_failed` in Einstellungen „Export erneut versuchen“ (wenn Google verbunden).
+**Export erneut:** bei `export_failed` in Einstellungen „Export erneut versuchen“ (wenn ein Kalender verbunden ist).
+
+### 2b. Microsoft / Outlook (optional, Server-Env)
+
+| Variable | Zweck |
+|----------|--------|
+| `MICROSOFT_CLIENT_ID` | App-Registrierung (Entra ID) |
+| `MICROSOFT_CLIENT_SECRET` | Client Secret |
+| `MICROSOFT_TENANT_ID` | Optional, Standard `common` (Multi-Tenant) |
+| `NEXO_PUBLIC_URL` | Wie bei Google |
+
+**Redirect URI** in der App-Registrierung:
+
+`{NEXO_PUBLIC_URL}/api/integrations/calendar/microsoft/callback`
+
+**API-Berechtigung:** `Calendars.ReadWrite`, `User.Read` (delegiert).
+
+In **Einstellungen** → **Mit Microsoft verbinden**. Pro Nexo-Instanz ist **ein** Provider aktiv (Google *oder* Microsoft).
+
+Export erfolgt über **Microsoft Graph** (`POST /me/events`).
 
 ### 3. Agent-Tools
 
@@ -44,7 +63,7 @@ Tokens liegen verschlüsselt in SQLite (`CalendarConnection`, AES-GCM via `NEXO_
 | status | Bedeutung |
 |--------|-----------|
 | `draft` | Nur lokal (Google nicht verbunden) |
-| `exported` | In Google Kalender (`externalEventId`) |
+| `exported` | Im verbundenen Kalender (`externalEventId`, `exportProvider` google/microsoft) |
 | `export_failed` | Export versucht, Fehler in `exportError` |
 
 ## E-Mail (Entwürfe, Beta)

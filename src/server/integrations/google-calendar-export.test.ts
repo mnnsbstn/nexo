@@ -55,6 +55,7 @@ describe("exportDraftToGoogle", () => {
 
     const updated = await prisma.externalCalendarDraft.findUnique({ where: { id: draft.id } });
     expect(updated?.status).toBe("exported");
+    expect(updated?.exportProvider).toBe("google");
   });
 
   it("uses E2E mock export without calling Google API", async () => {

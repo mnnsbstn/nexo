@@ -3,15 +3,25 @@ import type { AppSettings } from "@/lib/settings";
 import type { externalCalendarDraftPayloadSchema } from "@/server/schemas/actions";
 import type { z } from "zod";
 import { isGoogleCalendarOAuthConfigured } from "@/server/integrations/google-config";
+import { isMicrosoftCalendarOAuthConfigured } from "@/server/integrations/microsoft-config";
 import { getCalendarConnection } from "@/server/integrations/calendar-connection";
-import { exportDraftToGoogle } from "@/server/integrations/google-calendar-export";
+import { exportDraftToExternalCalendar } from "@/server/integrations/calendar-export";
 
 export type CalendarDraftInput = z.infer<typeof externalCalendarDraftPayloadSchema>;
 
 export async function getCalendarIntegrationStatus(settings: AppSettings) {
-  const oauthConfigured = isGoogleCalendarOAuthConfigured();
+  const googleOAuthConfigured = isGoogleCalendarOAuthConfigured();
+  const microsoftOAuthConfigured = isMicrosoftCalendarOAuthConfigured();
+  const oauthConfigured = googleOAuthConfigured || microsoftOAuthConfigured;
   const connection = await getCalendarConnection();
   const connected = Boolean(oauthConfigured && connection);
+
+  const provider =
+    connected && connection?.provider === "microsoft"
+      ? ("microsoft" as const)
+      : connected
+        ? ("google" as const)
+        : null;
 
   let message: string;
   if (!settings.calendarIntegrationEnabled) {
@@ -19,9 +29,14 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
       "Kalender-Integration ist aus. In Einstellungen aktivieren, um Entwürfe per Freigabe zu speichern.";
   } else if (!oauthConfigured) {
     message =
-      "Entwürfe aktiv — setze GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET und NEXO_PUBLIC_URL für Google OAuth.";
+      "Entwürfe aktiv — setze Google- oder Microsoft-OAuth-Env (Client ID/Secret) und NEXO_PUBLIC_URL.";
   } else if (!connected) {
-    message = "Google OAuth bereit — in Einstellungen „Mit Google verbinden“.";
+    const parts: string[] = [];
+    if (googleOAuthConfigured) parts.push("Google");
+    if (microsoftOAuthConfigured) parts.push("Microsoft");
+    message = `OAuth bereit (${parts.join(" / ")}) — in Einstellungen verbinden.`;
+  } else if (provider === "microsoft") {
+    message = `Verbunden mit Microsoft${connection?.accountEmail ? ` (${connection.accountEmail})` : ""}. Bestätigte Entwürfe werden nach Outlook exportiert.`;
   } else {
     message = `Verbunden mit Google${connection?.accountEmail ? ` (${connection.accountEmail})` : ""}. Bestätigte Entwürfe werden exportiert.`;
   }
@@ -29,8 +44,10 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
   return {
     enabled: settings.calendarIntegrationEnabled,
     oauthConfigured,
+    googleOAuthConfigured,
+    microsoftOAuthConfigured,
     connected,
-    provider: connected ? ("google" as const) : null,
+    provider,
     accountEmail: connection?.accountEmail ?? null,
     message,
   };
@@ -61,5 +78,5 @@ export async function persistCalendarDraft(
 }
 
 export async function finalizeCalendarDraft(draftId: string) {
-  return exportDraftToGoogle(draftId);
+  return exportDraftToExternalCalendar(draftId);
 }
