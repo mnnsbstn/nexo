@@ -1,17 +1,16 @@
 # Nexo — Nächste Schritte
 
-Stand nach **Phase 6** (#29–#30) und ergänztem Hosting-Runbook. Details: **[ROADMAP.md](./ROADMAP.md)**.
+Stand nach **Phase 7 Schritt 29** (VAPID-E2E, in PR). Details: **[ROADMAP.md](./ROADMAP.md)**.
 
 ## Als Nächstes (empfohlen)
 
-1. **Manuell auf Staging/Prod:** Sync-Einblicke, VAPID + Push, optional CalDAV — [MANUAL_TEST.md](./MANUAL_TEST.md) §12–13; Env laut [HOSTING.md](./HOSTING.md)
-2. **Roadmap Phase 7:** z. B. VAPID-E2E-Fixture, Microsoft-Mail read-only, Outlook OAuth-Härtung — Priorität per Satz setzen
+1. **Staging/Prod:** [MANUAL_TEST.md](./MANUAL_TEST.md) §12–13 mit **eigenen** VAPID-Keys (nicht die Playwright-Fixture-Keys)
+2. **Phase 7 Schritt 30:** Priorität setzen (Microsoft-Mail read-only, OAuth-Härtung, …)
 
 ## Erledigt (Kurz)
 
-MVP, CI, Hosting-Runbook (inkl. Push/OAuth-URL), Kalender (Google/Microsoft/iCloud/CalDAV, Multi-Export, Sync-Einblicke), E-Mail (SMTP/iCloud), Live-Agent, Web Push (Opt-in), E2E Phase 6.
+Phase 6, Hosting-Runbook (#31), E2E Sync-Einblicke/CalDAV (#30), VAPID-E2E-Fixture (#29 PR).
 
 ## Manuell testen
 
-- [MANUAL_TEST.md](./MANUAL_TEST.md)
-- [INTEGRATIONS.md](./INTEGRATIONS.md) + `.env.example`
+- [MANUAL_TEST.md](./MANUAL_TEST.md) · [HOSTING.md](./HOSTING.md) · [INTEGRATIONS.md](./INTEGRATIONS.md)

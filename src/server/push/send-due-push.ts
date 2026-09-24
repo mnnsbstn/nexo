@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { isE2eCalendarMockEnabled } from "@/lib/e2e-calendar-mock";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { buildBrowserNotificationPayload, hasDueReminders } from "@/lib/due-reminders";
@@ -51,6 +52,10 @@ export async function sendDueTaskWebPushIfNeeded(): Promise<{
 
   let sentCount = 0;
   for (const sub of subs) {
+    if (isE2eCalendarMockEnabled()) {
+      sentCount += 1;
+      continue;
+    }
     try {
       await webpush.sendNotification(
         {

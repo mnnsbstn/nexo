@@ -161,13 +161,25 @@ Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
 3. Eine Test-Aufgabe anlegen → Reload → noch vorhanden
 4. Optional: `./scripts/backup-db.sh` auf dem Server ausführen
 
+## Staging-Smoke (API, §12–13)
+
+Mit laufender App (Mock + VAPID wie in Playwright, **nur Staging/Dev**):
+
+```bash
+npm run build
+# Server z. B. Port 3011 mit NEXO_E2E_CALENDAR_MOCK=1 und VAPID-Env (siehe playwright.config.ts)
+./scripts/staging-phase6-smoke.sh http://127.0.0.1:3011
+```
+
+Prüft Kalender, Sync-Einblicke, externe Termine, VAPID, Push `check-due` und CalDAV-Fixture per HTTP.
+
 ## Automatisiert (E2E)
 
 ```bash
 npm run test:e2e:chromium
 ```
 
-Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan, Kalender- und E-Mail-Entwürfe, `.ics`-Download, Mock-Google-Export, Sync-Einblicke-API, CalDAV-Fixture und VAPID-Status (nur mit `NEXO_E2E_CALENDAR_MOCK=1` in Playwright) ab.
+Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan, Kalender- und E-Mail-Entwürfe, `.ics`-Download, Mock-Google-Export, Sync-Einblicke-API, CalDAV-Fixture, VAPID konfiguriert und Push `check-due` (nur mit `NEXO_E2E_CALENDAR_MOCK=1` + VAPID-Env in `playwright.config.ts`) ab.
 
 ## Demo-Daten (optional)
 

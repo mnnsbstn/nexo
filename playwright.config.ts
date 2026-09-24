@@ -38,6 +38,11 @@ export default defineConfig({
       NEXO_PUBLIC_URL: baseURL,
       GOOGLE_CLIENT_ID: "e2e-not-a-real-client",
       GOOGLE_CLIENT_SECRET: "e2e-not-a-real-secret",
+      // Nur Playwright/CI — niemals in Produktion (siehe docs/HOSTING.md)
+      NEXO_VAPID_PUBLIC_KEY:
+        "BOglRGdVKUXpfekdyky0oz_W2NYfjfbpEfPgpNzdhtKzMq68SB2_N_veubWbSZGhDBEBA31EBJx3wfMzQiPvT0I",
+      NEXO_VAPID_PRIVATE_KEY: "-MR8hBVGLo8NSYLe8hSuSm_T5t2ea8QilsydvHaG9cw",
+      NEXO_VAPID_SUBJECT: "mailto:e2e@nexo.test",
     },
   },
 });

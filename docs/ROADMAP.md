@@ -85,6 +85,13 @@ Leitplanken Phase 5: weiter **Freigabe vor Wirkung**, Single-User, SQLite.
 
 ---
 
+## Phase 7 — Betrieb & Tests
+
+| # | PR-Thema | Inhalt (kurz) | Erfolgskriterium |
+|---|----------|---------------|------------------|
+| **29** | VAPID E2E-Fixture | Playwright-Env + Mock-Versand; API-Tests Subscribe/check-due | CI grün ohne echte Push-Infrastruktur |
+| **30** | (offen) | z. B. Microsoft-Mail read-only, OAuth-Härtung | nach Priorität |
+
 ---
 
 Anpassungen jederzeit — ein Satz reicht, bevor der nächste PR startet.
