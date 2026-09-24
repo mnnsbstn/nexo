@@ -70,16 +70,20 @@ Leitplanken Phase 5: weiter **Freigabe vor Wirkung**, Single-User, SQLite.
 
 ---
 
-## Phase 6 — Ausblick (optional, noch nicht priorisiert)
+## Phase 6 — Erweiterung
 
-| Thema | Inhalt | Leitplanken |
-|-------|--------|-------------|
-| **Sync-Tiefe** | z. B. wiederkehrende Termine lesen, Konflikt-Hinweise | Weiter read-only oder Freigabe — kein Hintergrund-Sync |
-| **Push / Erinnerungen** | Fällige Aufgaben optional per Push (Opt-in) | Kein Marketing-Push; bestehende Browser/In-App-Flags respektieren |
-| **Weitere Provider** | z. B. CalDAV generisch, CardDAV Kontakte | Ein PR pro Provider |
-| **Teams / Multi-User** | — | Bewusst **nicht** Ziel für Nexo MVP |
+| # | PR-Thema | Inhalt (kurz) | Erfolgskriterium |
+|---|----------|---------------|------------------|
+| **28** | Sync-Einblicke + Push + CalDAV | Längere read-only Vorschau, Entwurf-Überschneidungen; Web Push (VAPID, Opt-in); generischer CalDAV-Provider | Einstellungen + Tests |
 
-Reihenfolge per Satz anpassen, bevor der nächste PR startet.
+| Thema | Status |
+|-------|--------|
+| **Sync-Tiefe (read-only)** | `calendarSyncInsightsEnabled`: 60–90 Tage, RRULE-Hinweis, Entwurf-Overlap |
+| **Web Push** | `notifyWebPushDueTasks` + VAPID-Env + Service Worker |
+| **CalDAV generisch** | Provider `caldav`, eigene Server-URL |
+| **Teams / Multi-User** | Bewusst **nicht** Ziel |
+
+---
 
 ---
 

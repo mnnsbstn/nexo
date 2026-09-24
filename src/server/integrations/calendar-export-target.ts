@@ -3,7 +3,7 @@ import type { CalendarProvider } from "@/server/integrations/calendar-provider";
 import { parseCalendarProvider } from "@/server/integrations/calendar-provider";
 import { listCalendarConnections } from "@/server/integrations/calendar-connection";
 
-const EXPORT_PRIORITY: CalendarProvider[] = ["google", "microsoft", "icloud"];
+const EXPORT_PRIORITY: CalendarProvider[] = ["google", "microsoft", "icloud", "caldav"];
 
 export async function resolveCalendarExportProvider(
   settings: AppSettings,

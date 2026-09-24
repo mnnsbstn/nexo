@@ -2,7 +2,9 @@ import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import type { CalendarProvider } from "@/server/integrations/calendar-provider";
 import { resolveCalendarExportProvider } from "@/server/integrations/calendar-export-target";
+import { createCalDavCalendarEvent } from "@/server/integrations/caldav";
 import {
+  getCalDavCalendarCredentials,
   getICloudCalendarCredentials,
   getValidCalendarAccessToken,
 } from "@/server/integrations/calendar-token";
@@ -51,6 +53,20 @@ export async function exportDraftToExternalCalendar(
         throw new Error("iCloud Kalender nicht vollständig verbunden.");
       }
       eventId = await createICloudCalendarEvent(draft, icloud, icloud.calendarUrl);
+    } else if (provider === "caldav") {
+      const caldav = await getCalDavCalendarCredentials();
+      if (!caldav?.calendarUrl) {
+        throw new Error("CalDAV nicht vollständig verbunden.");
+      }
+      eventId = await createCalDavCalendarEvent(
+        draft,
+        {
+          serverUrl: caldav.serverUrl,
+          username: caldav.username,
+          password: caldav.password,
+        },
+        caldav.calendarUrl,
+      );
     } else {
       eventId = await createGoogleCalendarEvent(draft, auth.token);
     }
@@ -76,7 +92,9 @@ export async function exportDraftToExternalCalendar(
           ? "Termin in Outlook-Kalender erstellt."
           : provider === "icloud"
             ? "Termin in iCloud-Kalender erstellt."
-            : "Termin in Google Kalender erstellt.",
+            : provider === "caldav"
+              ? "Termin im CalDAV-Kalender erstellt."
+              : "Termin in Google Kalender erstellt.",
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Export fehlgeschlagen";

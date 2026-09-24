@@ -26,6 +26,7 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
   const googleConnected = connectedProviders.includes("google");
   const microsoftConnected = connectedProviders.includes("microsoft");
   const icloudConnected = connectedProviders.includes("icloud");
+  const caldavConnected = connectedProviders.includes("caldav");
 
   const exportProvider = connected
     ? await resolveCalendarExportProvider(settings)
@@ -39,7 +40,7 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
     message =
       "Entwürfe aktiv — Google/Microsoft-OAuth in .env oder iCloud (Apple-ID + App-Passwort) in Einstellungen.";
   } else if (!connected) {
-    const parts: string[] = ["iCloud"];
+    const parts: string[] = ["iCloud", "CalDAV"];
     if (googleOAuthConfigured) parts.push("Google");
     if (microsoftOAuthConfigured) parts.push("Microsoft");
     message = `Verbindung möglich (${parts.join(" / ")}) — mehrere Provider parallel möglich.`;
@@ -64,6 +65,7 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
     googleConnected,
     microsoftConnected,
     icloudConnected,
+    caldavConnected,
     icloudMailConnected,
     connected,
     canReadExternal: connected,

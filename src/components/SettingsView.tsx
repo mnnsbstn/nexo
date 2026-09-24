@@ -9,7 +9,9 @@ export function SettingsView() {
     timezone: "Europe/Berlin",
     notifyInAppDueTasks: false,
     notifyBrowserDueTasks: false,
+    notifyWebPushDueTasks: false,
     calendarIntegrationEnabled: false,
+    calendarSyncInsightsEnabled: false,
     calendarExportProvider: null as string | null,
     emailIntegrationEnabled: false,
   });
@@ -54,6 +56,7 @@ export function SettingsView() {
     googleConnected?: boolean;
     microsoftConnected?: boolean;
     icloudConnected?: boolean;
+    caldavConnected?: boolean;
     connected: boolean;
     provider?: string | null;
     exportProvider?: string | null;
@@ -65,6 +68,16 @@ export function SettingsView() {
   const [icloudAppPassword, setIcloudAppPassword] = useState("");
   const [icloudConnectError, setIcloudConnectError] = useState<string | null>(null);
   const [icloudConnecting, setIcloudConnecting] = useState(false);
+  const [caldavServerUrl, setCaldavServerUrl] = useState("");
+  const [caldavUsername, setCaldavUsername] = useState("");
+  const [caldavPassword, setCaldavPassword] = useState("");
+  const [caldavConnectError, setCaldavConnectError] = useState<string | null>(null);
+  const [caldavConnecting, setCaldavConnecting] = useState(false);
+  const [webPushMsg, setWebPushMsg] = useState<string | null>(null);
+  const [calendarSyncInsights, setCalendarSyncInsights] = useState<{
+    recurringEventCount?: number;
+    draftOverlaps?: { draftTitle: string; externalTitle: string; reason: string }[];
+  } | null>(null);
   const [calendarBanner, setCalendarBanner] = useState<string | null>(null);
   const [externalCalendarEvents, setExternalCalendarEvents] = useState<
     { id: string; title: string; startLabel: string }[]
@@ -95,6 +108,7 @@ export function SettingsView() {
       googleConnected: Boolean(d.googleConnected),
       microsoftConnected: Boolean(d.microsoftConnected),
       icloudConnected: Boolean(d.icloudConnected),
+      caldavConnected: Boolean(d.caldavConnected),
       connected: Boolean(d.connected),
       provider: (d.provider as string | null) ?? null,
       exportProvider: (d.exportProvider as string | null) ?? null,
@@ -113,12 +127,14 @@ export function SettingsView() {
       .then((d) => {
         setCalendarDrafts(d.drafts ?? []);
         setCalendarStatus(calendarStatusFromApi(d));
-        if (d.exportProvider && !settings.calendarExportProvider) {
-          setSettings((s) => ({
-            ...s,
-            calendarExportProvider: (d.exportProvider as string) ?? null,
-          }));
-        }
+        setSettings((s) =>
+          s.calendarExportProvider
+            ? s
+            : {
+                ...s,
+                calendarExportProvider: (d.exportProvider as string) ?? null,
+              },
+        );
         if (d.connected && d.enabled) {
           fetch("/api/integrations/calendar/events?limit=8")
             .then((r) => r.json())
@@ -129,6 +145,14 @@ export function SettingsView() {
                   ? `${ev.message ?? ""} ${ev.readError}`.trim()
                   : (ev.message ?? null),
               );
+              if (ev.syncInsights) {
+                setCalendarSyncInsights({
+                  recurringEventCount: ev.syncInsights.recurringEventCount,
+                  draftOverlaps: ev.syncInsights.draftOverlaps,
+                });
+              } else {
+                setCalendarSyncInsights(null);
+              }
             });
         }
       });
@@ -304,13 +328,48 @@ export function SettingsView() {
   function exportProviderLabel(provider?: string | null) {
     if (provider === "microsoft") return " · Outlook";
     if (provider === "icloud") return " · iCloud";
+    if (provider === "caldav") return " · CalDAV";
     return " · Google";
   }
 
   function connectedProviderLabel(provider?: string | null) {
     if (provider === "microsoft") return "Microsoft";
     if (provider === "icloud") return "iCloud";
+    if (provider === "caldav") return "CalDAV";
     return "Google";
+  }
+
+  async function connectCalDav() {
+    setCaldavConnectError(null);
+    setCaldavConnecting(true);
+    try {
+      const res = await fetch("/api/integrations/calendar/caldav/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serverUrl: caldavServerUrl.trim(),
+          username: caldavUsername.trim(),
+          password: caldavPassword.trim(),
+        }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setCaldavConnectError(data.error ?? "Verbindung fehlgeschlagen.");
+        return;
+      }
+      setCaldavPassword("");
+      setCalendarBanner("CalDAV-Kalender verbunden.");
+      await reloadCalendarDrafts();
+    } finally {
+      setCaldavConnecting(false);
+    }
+  }
+
+  async function enableWebPush() {
+    setWebPushMsg(null);
+    const { registerWebPushSubscription } = await import("@/components/useWebPushDue");
+    const result = await registerWebPushSubscription();
+    setWebPushMsg(result.message);
   }
 
   async function reloadEmailDrafts() {
@@ -466,6 +525,35 @@ export function SettingsView() {
             </span>
           </span>
         </label>
+        <label className="flex gap-3 text-sm items-start">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={settings.notifyWebPushDueTasks}
+            onChange={(e) =>
+              setSettings({ ...settings, notifyWebPushDueTasks: e.target.checked })
+            }
+          />
+          <span>
+            <span className="font-medium">Web Push (Heute)</span>
+            <span className="block text-stone-600 text-xs mt-0.5">
+              Max. ein Push pro Tag bei fälligen Aufgaben — VAPID in Server-.env, dann Gerät
+              unten abonnieren (Opt-in).
+            </span>
+          </span>
+        </label>
+        {settings.notifyWebPushDueTasks && (
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <button
+              type="button"
+              onClick={enableWebPush}
+              className="px-2 py-1 border border-stone-300 rounded-lg text-stone-800"
+            >
+              Push auf diesem Gerät aktivieren
+            </button>
+            {webPushMsg && <span className="text-stone-600">{webPushMsg}</span>}
+          </div>
+        )}
         {browserPermission === "unsupported" && (
           <p className="text-xs text-stone-500">Dein Browser unterstützt keine Web-Benachrichtigungen.</p>
         )}
@@ -526,6 +614,55 @@ export function SettingsView() {
           >
             Mit Microsoft verbinden
           </a>
+        )}
+        {!calendarStatus?.caldavConnected && (
+          <div className="border border-stone-200 rounded-lg p-3 space-y-2 bg-stone-50/80">
+            <p className="text-xs font-medium text-stone-700">CalDAV (generisch)</p>
+            <p className="text-xs text-stone-600">
+              Eigener CalDAV-Server (Nextcloud, Fastmail, …): URL, Benutzername und Passwort.
+            </p>
+            <input
+              type="url"
+              placeholder="https://cloud.example.com/remote.php/dav"
+              value={caldavServerUrl}
+              onChange={(e) => setCaldavServerUrl(e.target.value)}
+              className="w-full text-sm border border-stone-300 rounded-lg px-2 py-1.5"
+            />
+            <input
+              type="text"
+              autoComplete="username"
+              placeholder="Benutzername"
+              value={caldavUsername}
+              onChange={(e) => setCaldavUsername(e.target.value)}
+              className="w-full text-sm border border-stone-300 rounded-lg px-2 py-1.5"
+            />
+            <input
+              type="password"
+              autoComplete="current-password"
+              placeholder="Passwort / App-Token"
+              value={caldavPassword}
+              onChange={(e) => setCaldavPassword(e.target.value)}
+              className="w-full text-sm border border-stone-300 rounded-lg px-2 py-1.5"
+            />
+            {caldavConnectError && (
+              <p className="text-xs text-red-700" role="alert">
+                {caldavConnectError}
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={
+                caldavConnecting ||
+                !caldavServerUrl.trim() ||
+                !caldavUsername.trim() ||
+                !caldavPassword.trim()
+              }
+              onClick={connectCalDav}
+              className="text-sm px-3 py-2 rounded-lg bg-white border border-stone-300 hover:bg-stone-50 disabled:opacity-50"
+            >
+              {caldavConnecting ? "Verbinde…" : "CalDAV verbinden"}
+            </button>
+          </div>
         )}
         {!calendarStatus?.icloudConnected && calendarStatus?.icloudAvailable !== false && (
           <div className="border border-stone-200 rounded-lg p-3 space-y-2 bg-stone-50/80">
@@ -624,6 +761,23 @@ export function SettingsView() {
             </select>
           </label>
         )}
+        <label className="flex gap-3 text-sm items-start">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={settings.calendarSyncInsightsEnabled}
+            onChange={(e) =>
+              setSettings({ ...settings, calendarSyncInsightsEnabled: e.target.checked })
+            }
+          />
+          <span>
+            <span className="font-medium">Sync-Einblicke (read-only)</span>
+            <span className="block text-stone-600 text-xs mt-0.5">
+              Längerer Vorschau-Zeitraum, wiederkehrende Termine markieren, Hinweise bei
+              Überschneidungen mit Nexo-Entwürfen — kein Zwei-Wege-Sync.
+            </span>
+          </span>
+        </label>
         {calendarStatus?.connected && (
           <div className="border border-stone-100 rounded-lg p-3 space-y-2 bg-stone-50/50">
             <p className="text-xs font-medium text-stone-700">Externe Termine (read-only)</p>
@@ -641,6 +795,24 @@ export function SettingsView() {
             {externalCalendarReadHint && (
               <p className="text-xs text-stone-500">{externalCalendarReadHint}</p>
             )}
+            {calendarSyncInsights &&
+              (calendarSyncInsights.recurringEventCount ?? 0) > 0 && (
+                <p className="text-xs text-stone-600">
+                  {calendarSyncInsights.recurringEventCount} wiederkehrende Termin(e) im
+                  Vorschau-Zeitraum.
+                </p>
+              )}
+            {calendarSyncInsights?.draftOverlaps &&
+              calendarSyncInsights.draftOverlaps.length > 0 && (
+                <ul className="text-xs text-amber-900 bg-amber-50 rounded-lg p-2 space-y-1">
+                  {calendarSyncInsights.draftOverlaps.map((o, i) => (
+                    <li key={`${o.draftTitle}-${i}`}>
+                      Überschneidung: Entwurf „{o.draftTitle}“ ↔ extern „{o.externalTitle}“ (
+                      {o.reason === "time_overlap" ? "Zeit" : "Titel/Tag"})
+                    </li>
+                  ))}
+                </ul>
+              )}
           </div>
         )}
         <label className="flex gap-3 text-sm items-start">

@@ -8,7 +8,9 @@ export type AppSettings = {
   timezone: string;
   notifyInAppDueTasks: boolean;
   notifyBrowserDueTasks: boolean;
+  notifyWebPushDueTasks: boolean;
   calendarIntegrationEnabled: boolean;
+  calendarSyncInsightsEnabled: boolean;
   calendarExportProvider: CalendarProvider | null;
   emailIntegrationEnabled: boolean;
 };
@@ -22,7 +24,9 @@ export async function getSettings(): Promise<AppSettings> {
     timezone: s.timezone,
     notifyInAppDueTasks: s.notifyInAppDueTasks,
     notifyBrowserDueTasks: s.notifyBrowserDueTasks,
+    notifyWebPushDueTasks: s.notifyWebPushDueTasks,
     calendarIntegrationEnabled: s.calendarIntegrationEnabled,
+    calendarSyncInsightsEnabled: s.calendarSyncInsightsEnabled,
     calendarExportProvider: s.calendarExportProvider
       ? parseCalendarProvider(s.calendarExportProvider)
       : null,

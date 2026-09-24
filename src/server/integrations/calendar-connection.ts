@@ -57,6 +57,7 @@ export async function saveCalendarConnection(input: {
   expiresAt: Date | null;
   accountEmail?: string | null;
   calendarId?: string;
+  serverUrl?: string | null;
 }) {
   await migrateLegacyDefaultCalendarConnection();
   const id = connectionIdForProvider(input.provider);
@@ -70,6 +71,7 @@ export async function saveCalendarConnection(input: {
       expiresAt: input.expiresAt,
       accountEmail: input.accountEmail ?? null,
       calendarId: input.calendarId ?? "primary",
+      serverUrl: input.serverUrl ?? null,
     },
     update: {
       provider: input.provider,
@@ -78,7 +80,25 @@ export async function saveCalendarConnection(input: {
       expiresAt: input.expiresAt,
       accountEmail: input.accountEmail ?? undefined,
       calendarId: input.calendarId ?? undefined,
+      serverUrl: input.serverUrl ?? undefined,
     },
+  });
+}
+
+export async function saveCalDavCalendarConnection(input: {
+  serverUrl: string;
+  username: string;
+  password: string;
+  calendarUrl: string;
+}) {
+  return saveCalendarConnection({
+    provider: "caldav",
+    accessToken: input.password,
+    refreshToken: null,
+    expiresAt: null,
+    accountEmail: input.username,
+    calendarId: input.calendarUrl,
+    serverUrl: input.serverUrl,
   });
 }
 
