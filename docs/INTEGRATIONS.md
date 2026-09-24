@@ -51,11 +51,19 @@ In **Einstellungen** → **Mit Microsoft verbinden**. Pro Nexo-Instanz ist **ein
 
 Export erfolgt über **Microsoft Graph** (`POST /me/events`).
 
-### 3. Agent-Tools
+### 3. Extern lesen (read-only)
+
+- API: `GET /api/integrations/calendar/events?limit=8&daysAhead=14`
+- Nur wenn Kalender-Opt-in **und** Provider verbunden
+- Kein Zwei-Wege-Sync — Vorschau der nächsten Termine
+
+### 4. Agent-Tools
 
 | Tool | Typ | Zweck |
 |------|-----|--------|
 | `get_calendar_integration_status` | read | Aktiv, OAuth konfiguriert, verbunden |
+| `list_external_calendar_events` | read | Kommende Termine (Google/Outlook) |
+| `list_calendar_drafts` | read | Nexo-Entwürfe |
 | `propose_action` + `external_calendar_draft` | write (Freigabe) | `scope: external` |
 
 ### Status Entwürfe

@@ -116,6 +116,7 @@ Nur mit gesetztem `OPENAI_API_KEY` in `.env` (Nav-Badge **Live**).
 
 5. **Einstellungen** → bei Entwurf **Als .ics laden** (funktioniert auch ohne Google)
 6. Optional: Google verbunden, Export schlägt fehl → roter Fehlertext + **Export erneut versuchen**
+7. Mit verbundenem Kalender: Block **Externe Termine (read-only)** in Einstellungen
 
 Details: [INTEGRATIONS.md](./INTEGRATIONS.md)
 

@@ -4,11 +4,11 @@ Stand nach **Phase 4** (vollständig) und Start **Phase 5**. PR-Reihenfolge: **[
 
 ## Als Nächstes (empfohlen)
 
-1. **Schritt 24 — Kalender extern lesen** — nächste Termine read-only (Graph / Google Calendar API)
+1. **Schritt 25 — Multi-Kalender** (optional, Produktentscheidung)
 
 ## Danach
 
-2. **Schritt 25 — Multi-Kalender** (optional, Produktentscheidung)
+2. Phase-5-Ausblick in [ROADMAP.md](./ROADMAP.md) ergänzen (z. B. Sync-Tiefe, Push)
 
 ## Erledigt (Kurz)
 

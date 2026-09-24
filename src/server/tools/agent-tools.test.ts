@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { prisma } from "@/lib/db";
+import { prisma, ensureDefaultSettings } from "@/lib/db";
 import { executeAgentTool } from "@/server/tools/agent-tools";
 
 beforeEach(async () => {
@@ -33,6 +33,19 @@ describe("executeAgentTool", () => {
     const parsed = JSON.parse(res.output) as { error: string; details?: string };
     expect(parsed.error).toContain("get_task");
     expect(parsed.details).toBeTruthy();
+  });
+
+  it("list_external_calendar_events when integration disabled", async () => {
+    await ensureDefaultSettings();
+    await prisma.userSettings.update({
+      where: { id: "default" },
+      data: { calendarIntegrationEnabled: false },
+    });
+    const res = await executeAgentTool("list_external_calendar_events", "{}", {
+      conversationId: "c1",
+      messageId: "m1",
+    });
+    expect(res.output).toContain("deaktiviert");
   });
 
   it("list_pending_proposals returns empty array when none", async () => {
