@@ -58,7 +58,13 @@ Badge **Demo** in der Navigation = regelbasierte Antworten (kein `OPENAI_API_KEY
 1. Chat: `Was ist heute wichtig?` / `Plane meinen Tag`
 2. **Erwartung:** Bezug auf gespeicherte Aufgaben, Kennzeichnung als Vorschlag/Demo, kein E-Mail/Kalender
 
-## 8. Mobil (kurz)
+## 8. Aktivitäten
+
+1. Chat-Aktion bestätigen → **Heute** scrollen zu **Aktivitäten & Freigaben** → Status „Erfolgreich“
+2. Filter **Offen** / **Erfolgreich** durchklicken
+3. Im **Chat** kompakte Liste + Link „Alle auf Heute“
+
+## 9. Mobil (kurz)
 
 1. Browser schmal ziehen oder DevTools Device Mode
 2. **Chat** Eingabe + Bestätigungskarten bedienbar, Navigation erreichbar
