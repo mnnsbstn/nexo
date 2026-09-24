@@ -38,6 +38,8 @@ npm start
 |----------|--------------|
 | `DATABASE_URL` | SQLite-Pfad, Standard `file:./dev.db` (unter `prisma/`) |
 | `NEXO_DEMO_MODE` | `auto` (Standard), `true` oder `false` |
+| `NEXO_AUTH_PASSWORD` | Optional — aktiviert Login für Single-User (empfohlen bei Hosting) |
+| `NEXO_SESSION_SECRET` | Optional — Cookie-Signatur (min. ~16 Zeichen; sonst abgeleitet) |
 | `OPENAI_API_KEY` | Optional — aktiviert Live-Modus bei `auto`/`false` |
 | `OPENAI_BASE_URL` | Optional, compatibles OpenAI-API-Endpoint |
 | `OPENAI_MODEL` | Optional, Standard `gpt-4o-mini` |
@@ -70,7 +72,7 @@ Browser-UI auf Desktop/Mobil: nicht automatisiert in CI; lokal über `npm run de
 
 - Kein Kalender/E-Mail/Messenger, keine Push-Benachrichtigungen
 - Fälligkeiten sind In-App-Hinweise, keine Zustellung bei geschlossener App
-- Einzelnutzer, keine Auth (nur lokaler Dev-Betrieb vorgesehen)
+- Einzelnutzer; Auth optional via `NEXO_AUTH_PASSWORD` (empfohlen außerhalb lokalem Dev)
 - Chat-Verlauf löschen: noch nicht implementiert (Erinnerungen bleiben davon unberührt)
 - Live-Modell: OpenAI-kompatibles JSON-Format; bei Fehlern Fallback prüfen
 

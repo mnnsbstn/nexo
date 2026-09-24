@@ -8,7 +8,13 @@ export function SettingsView() {
     responseLanguage: "de",
     timezone: "Europe/Berlin",
   });
-  const [status, setStatus] = useState<{ mode: string; hint: string; liveConfigured: boolean } | null>(
+  const [status, setStatus] = useState<{
+    mode: string;
+    hint: string;
+    liveConfigured: boolean;
+    authRequired?: boolean;
+  } | null>(null);
+  const [session, setSession] = useState<{ authRequired: boolean; authenticated: boolean } | null>(
     null,
   );
   const [saved, setSaved] = useState(false);
@@ -21,7 +27,15 @@ export function SettingsView() {
     fetch("/api/status")
       .then((r) => r.json())
       .then(setStatus);
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then(setSession);
   }, []);
+
+  async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/anmelden";
+  }
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -46,6 +60,15 @@ export function SettingsView() {
         <h1 className="text-2xl font-semibold">Einstellungen</h1>
         <p className="text-sm text-stone-600 mt-1">Einzelnutzer-MVP · Secrets nur serverseitig</p>
       </div>
+
+      {session?.authRequired && (
+        <div className="rounded-xl p-4 text-sm bg-stone-50 border border-stone-200 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-stone-700">Anmeldung aktiv (Einzelnutzer).</p>
+          <button type="button" onClick={logout} className="text-sm px-3 py-1.5 border rounded-lg">
+            Abmelden
+          </button>
+        </div>
+      )}
 
       {status && (
         <div
