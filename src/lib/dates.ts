@@ -120,6 +120,34 @@ export function isDueToday(
   return false;
 }
 
+export function taskDueDateKey(
+  dueDate: string | null | undefined,
+  dueAt: Date | null | undefined,
+  timezone: string,
+): string | null {
+  if (dueDate) return dueDate;
+  if (dueAt) return todayDateKey(timezone, dueAt);
+  return null;
+}
+
+/** Open tasks due after today within the next `withinDays` calendar days (timezone-aware). */
+export function isDueSoon(
+  dueDate: string | null | undefined,
+  dueAt: Date | null | undefined,
+  timezone: string,
+  withinDays = 7,
+  now: Date = new Date(),
+): boolean {
+  const key = taskDueDateKey(dueDate, dueAt, timezone);
+  if (!key) return false;
+  if (isDueToday(dueDate, dueAt, timezone, now)) return false;
+  if (isOverdue(dueDate, dueAt, timezone, now)) return false;
+  const today = todayDateKey(timezone, now);
+  const zoned = toZonedTime(now, getTimezone(timezone));
+  const horizon = formatInTimeZone(addDays(zoned, withinDays), getTimezone(timezone), "yyyy-MM-dd");
+  return key > today && key <= horizon;
+}
+
 export function dayBoundsUtc(timezone: string, dayKey: string): { start: Date; end: Date } {
   const start = fromZonedTime(`${dayKey}T00:00:00`, getTimezone(timezone));
   const end = fromZonedTime(`${dayKey}T23:59:59.999`, getTimezone(timezone));

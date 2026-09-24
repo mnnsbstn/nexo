@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import {
   isDueToday,
+  isDueSoon,
   isOverdue,
   todayDateKey,
   formatDueDisplay,
@@ -49,6 +50,7 @@ export async function getDailyContext() {
       !isDueToday(t.dueDate, t.dueAt, tz),
   );
   const noDate = openTasks.filter((t) => !t.dueDate && !t.dueAt);
+  const dueSoon = openTasks.filter((t) => isDueSoon(t.dueDate, t.dueAt, tz));
   const priorities = buildPrioritySuggestions(openTasks, tz).slice(0, 3);
   const memories = await prisma.memory.findMany({
     where: { isActive: true },
@@ -64,6 +66,7 @@ export async function getDailyContext() {
     today,
     dueToday,
     overdue,
+    dueSoon,
     noDate,
     priorities,
     recentMemories: memories,

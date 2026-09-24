@@ -14,6 +14,7 @@ export async function GET() {
     today: ctx.today,
     dueToday: ctx.dueToday.map(serializeTask),
     overdue: ctx.overdue.map(serializeTask),
+    dueSoon: ctx.dueSoon.map(serializeTask),
     noDate: ctx.noDate.map(serializeTask),
     priorities: ctx.priorities,
     briefing: ctx.latestBriefing
@@ -27,7 +28,7 @@ export async function GET() {
         }
       : null,
     dueLabels: Object.fromEntries(
-      [...ctx.dueToday, ...ctx.overdue, ...ctx.noDate].map((t) => [
+      [...ctx.dueToday, ...ctx.overdue, ...ctx.dueSoon, ...ctx.noDate].map((t) => [
         t.id,
         formatDueDisplay(t.dueDate, t.dueAt, settings.timezone),
       ]),
