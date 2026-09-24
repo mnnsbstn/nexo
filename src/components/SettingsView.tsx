@@ -62,6 +62,12 @@ export function SettingsView() {
               <code className="text-xs bg-white px-1 rounded">.env.example</code>).
             </p>
           )}
+          {status.liveConfigured && (
+            <p className="mt-2 text-stone-600 text-xs">
+              Live-Agent: feste Tool-Allowlist, max. 4 Tool-Schritte, Schreibaktionen nur via Freigabe.
+              Bei Provider-Fehlern: Demo-Fallback mit Kennzeichnung.
+            </p>
+          )}
         </div>
       )}
 

@@ -7,7 +7,13 @@ type Message = {
   id: string;
   role: string;
   content: string;
-  metadata?: { proposalIds?: string[]; demo?: boolean } | null;
+  metadata?: {
+    proposalIds?: string[];
+    demo?: boolean;
+    live?: boolean;
+    liveFallback?: boolean;
+    error?: boolean;
+  } | null;
   createdAt: string;
 };
 
@@ -120,12 +126,13 @@ export function ChatView() {
         {messages.map((m) => (
           <div
             key={m.id}
-            className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ${
+            className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap space-y-2 ${
               m.role === "user"
                 ? "ml-auto bg-teal-700 text-white"
                 : "bg-white border border-stone-200 text-stone-800"
             }`}
           >
+            {m.role === "assistant" && <AssistantBadge metadata={m.metadata} />}
             {m.content}
           </div>
         ))}
@@ -213,4 +220,41 @@ export function ChatView() {
       </form>
     </div>
   );
+}
+
+function AssistantBadge({
+  metadata,
+}: {
+  metadata?: Message["metadata"];
+}) {
+  if (!metadata) return null;
+  if (metadata.error) {
+    return (
+      <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-900">
+        Fehler
+      </span>
+    );
+  }
+  if (metadata.liveFallback) {
+    return (
+      <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">
+        Demo-Fallback (Live fehlgeschlagen)
+      </span>
+    );
+  }
+  if (metadata.live) {
+    return (
+      <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-teal-100 text-teal-900">
+        Live
+      </span>
+    );
+  }
+  if (metadata.demo) {
+    return (
+      <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-stone-200 text-stone-800">
+        Demo
+      </span>
+    );
+  }
+  return null;
 }

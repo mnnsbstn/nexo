@@ -25,12 +25,14 @@ Das Modell schreibt **nicht** direkt in die DB. Schreibpfad: Vorschlag → `awai
 
 ## Agent-Tools (Allowlist)
 
-Lesend (implementiert als TypeScript-Funktionen, vom Demo-/Live-Agent aufgerufen):
+Lesend (Demo-Agent direkt; Live-Agent über OpenAI Tool-Calls → `agent-tools.ts`):
 
 - `list_tasks` / `get_task`
 - `search_memories`
 - `get_daily_context`
-- `propose_action` (legt `ActionProposal` an)
+- `propose_action` (legt `ActionProposal` an, max. 4 Tool-Runden)
+
+Live-Modus: begrenzte Chat-Historie, Retries bei transienten API-Fehlern, Demo-Fallback mit Kennzeichnung.
 
 ## Daten
 

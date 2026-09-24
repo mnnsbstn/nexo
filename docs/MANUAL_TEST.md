@@ -82,6 +82,14 @@ Badge **Demo** in der Navigation = regelbasierte Antworten (kein `OPENAI_API_KEY
 1. Browser schmal ziehen oder DevTools Device Mode
 2. **Chat** Eingabe + Bestätigungskarten bedienbar, Navigation erreichbar
 
+## Live-Modus (optional)
+
+Nur mit gesetztem `OPENAI_API_KEY` in `.env` (Nav-Badge **Live**).
+
+1. Kurze Frage zu offenen Aufgaben stellen
+2. Assistenten-Nachricht mit Badge **Live**
+3. Bei API-Fehler: Badge **Demo-Fallback** und Fehlerhinweis im Text
+
 ## Demo-Daten (optional)
 
 **Einstellungen** → „Demo-Daten laden“ → Einträge mit Präfix `[Demo]`
