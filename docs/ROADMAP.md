@@ -63,9 +63,23 @@ Reihenfolge ist Vorschlag; ein Satz genügt zum Umstellen.
 | **23** | E-Mail SMTP-Versand | Nach Entwurf + **manueller** Senden-Button; SMTP-Env; E2E-Mock | ✅ merged (#24) |
 | **24** | Kalender extern lesen | Read-only: nächste Termine (verbundener Provider) | ✅ merged (#25) |
 | **26** | iCloud Kalender + Mail | CalDAV Export/Lesen; SMTP + IMAP read-only; Einstellungen-Form | ✅ merged (#26) |
-| **25** | Multi-Kalender | Google + Microsoft + iCloud parallel | Export-Ziel wählbar, read merged |
+| **25** | Multi-Kalender | Google + Microsoft + iCloud parallel | ✅ merged (#27) |
+| **27** | E2E Multi-Kalender | Playwright: zwei Mock-Provider, Export-Ziel | CI grün, UI-Assertions aktuell |
 
 Leitplanken Phase 5: weiter **Freigabe vor Wirkung**, Single-User, SQLite.
+
+---
+
+## Phase 6 — Ausblick (optional, noch nicht priorisiert)
+
+| Thema | Inhalt | Leitplanken |
+|-------|--------|-------------|
+| **Sync-Tiefe** | z. B. wiederkehrende Termine lesen, Konflikt-Hinweise | Weiter read-only oder Freigabe — kein Hintergrund-Sync |
+| **Push / Erinnerungen** | Fällige Aufgaben optional per Push (Opt-in) | Kein Marketing-Push; bestehende Browser/In-App-Flags respektieren |
+| **Weitere Provider** | z. B. CalDAV generisch, CardDAV Kontakte | Ein PR pro Provider |
+| **Teams / Multi-User** | — | Bewusst **nicht** Ziel für Nexo MVP |
+
+Reihenfolge per Satz anpassen, bevor der nächste PR startet.
 
 ---
 
