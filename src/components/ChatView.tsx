@@ -21,6 +21,8 @@ export function ChatView() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async () => {
@@ -78,6 +80,31 @@ export function ChatView() {
     }
   }
 
+  async function clearChat() {
+    setClearing(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/chat/clear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId: conversationId ?? undefined, confirm: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Chat konnte nicht geleert werden.");
+        return;
+      }
+      setShowClearDialog(false);
+      setMessages([]);
+      setProposals([]);
+      await load();
+    } catch {
+      setError("Netzwerkfehler beim Leeren des Chats.");
+    } finally {
+      setClearing(false);
+    }
+  }
+
   async function refreshProposals() {
     const [chatRes, actRes] = await Promise.all([
       fetch("/api/chat"),
@@ -96,13 +123,23 @@ export function ChatView() {
 
   return (
     <div className="flex flex-col gap-4 h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)]">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Chat</h1>
-        <p className="text-sm text-stone-600 mt-1">
-          Zentraleingang für Nexo. Schreibende Änderungen brauchen deine Bestätigung. Chat und
-          Gedächtnis sind getrennt — Erinnerungen bleiben beim Löschen des Chats erhalten (Chat-Löschung
-          folgt später).
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Chat</h1>
+          <p className="text-sm text-stone-600 mt-1 max-w-xl">
+            Schreibende Änderungen brauchen deine Bestätigung. Der Chatverlauf ist getrennt vom
+            persönlichen Gedächtnis — Erinnerungen, Aufgaben und erledigte Aktionen bleiben beim Leeren
+            erhalten.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowClearDialog(true)}
+          disabled={messages.length === 0 && proposals.length === 0}
+          className="text-sm px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Chatverlauf leeren
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-4 pr-1">
@@ -138,6 +175,47 @@ export function ChatView() {
           <button type="button" className="underline" onClick={() => send()}>
             Wiederholen
           </button>
+        </div>
+      )}
+
+      {showClearDialog && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full space-y-4 shadow-lg">
+            <h2 className="font-medium text-lg">Chatverlauf leeren?</h2>
+            <ul className="text-sm text-stone-700 space-y-2 list-disc pl-5">
+              <li>
+                <strong>Wird entfernt:</strong> alle Nachrichten in diesem Chat
+              </li>
+              <li>
+                <strong>Wird abgelehnt:</strong> offene Freigaben, die noch auf Bestätigung warten
+              </li>
+              <li>
+                <strong>Bleibt erhalten:</strong> Aufgaben, Gedächtnis, bereits ausgeführte oder
+                abgelehnte Aktionen (Historie)
+              </li>
+            </ul>
+            <p className="text-xs text-stone-500">
+              Der Chatverlauf wird nicht ins Gedächtnis übernommen. Gelöschte Nachrichten können nicht
+              wiederhergestellt werden.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowClearDialog(false)}
+                className="px-3 py-2 text-sm border rounded-lg"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={clearChat}
+                disabled={clearing}
+                className="px-3 py-2 text-sm bg-red-700 text-white rounded-lg disabled:opacity-50"
+              >
+                {clearing ? "Leere…" : "Verlauf endgültig leeren"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

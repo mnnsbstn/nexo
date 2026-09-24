@@ -46,12 +46,19 @@ Badge **Demo** in der Navigation = regelbasierte Antworten (kein `OPENAI_API_KEY
 5. Löschen → Suche erneut → **kein** Treffer
 6. Chat: `Was habe ich mir zu kurzen Antworten gemerkt?` → **keine** gelöschte Erinnerung
 
-## 6. Zusammenfassung & Prioritäten
+## 6. Chat leeren
+
+1. **Chat** mit ein paar Nachrichten füllen; optional offene Freigabe stehen lassen
+2. **Chatverlauf leeren** → bestätigen
+3. **Erwartung:** Keine Nachrichten mehr; **Aufgaben** und **Gedächtnis** unverändert
+4. Offene Freigaben erscheinen nicht mehr als wartend
+
+## 7. Zusammenfassung & Prioritäten
 
 1. Chat: `Was ist heute wichtig?` / `Plane meinen Tag`
 2. **Erwartung:** Bezug auf gespeicherte Aufgaben, Kennzeichnung als Vorschlag/Demo, kein E-Mail/Kalender
 
-## 7. Mobil (kurz)
+## 8. Mobil (kurz)
 
 1. Browser schmal ziehen oder DevTools Device Mode
 2. **Chat** Eingabe + Bestätigungskarten bedienbar, Navigation erreichbar
