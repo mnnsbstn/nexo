@@ -1,3 +1,4 @@
+import { parseGermanDuePhrase } from "@/lib/dates";
 import { isE2eCalendarMockEnabled } from "@/lib/e2e-calendar-mock";
 import { getSettings } from "@/lib/settings";
 import type { CalendarProvider } from "@/server/integrations/calendar-provider";
@@ -37,10 +38,16 @@ export type ListExternalCalendarEventsResult = {
   };
 };
 
-function mockEvents(provider: CalendarProvider): ExternalCalendarEvent[] {
-  const start = new Date();
-  start.setDate(start.getDate() + 1);
-  start.setHours(10, 0, 0, 0);
+function mockEvents(
+  provider: CalendarProvider,
+  syncInsightsEnabled?: boolean,
+  timezone = "Europe/Berlin",
+): ExternalCalendarEvent[] {
+  const due = parseGermanDuePhrase("morgen um 10 Uhr", timezone);
+  const start = due?.dueAt ?? new Date();
+  if (!due?.dueAt) {
+    start.setHours(10, 0, 0, 0);
+  }
   const end = new Date(start.getTime() + 60 * 60 * 1000);
   return [
     {
@@ -50,6 +57,7 @@ function mockEvents(provider: CalendarProvider): ExternalCalendarEvent[] {
       endAt: end.toISOString(),
       allDay: false,
       provider,
+      recurring: syncInsightsEnabled ? true : undefined,
     },
   ];
 }
@@ -217,11 +225,26 @@ export async function listExternalCalendarEvents(options?: {
   const providers = connections.map((c) => parseCalendarProvider(c.provider));
 
   if (isE2eCalendarMockEnabled()) {
+    const events = mockEvents(
+      providers[0] ?? "google",
+      insightsEnabled,
+      settings.timezone,
+    );
+    const recurringEventCount = events.filter((e) => e.recurring).length;
+    const draftOverlaps = insightsEnabled ? await findCalendarDraftOverlaps(events) : [];
     return {
       connected: true,
       provider: providers[0] ?? null,
-      events: mockEvents(providers[0] ?? "google"),
+      events,
       message: "Read-only Vorschau (E2E-Mock, kein Live-Abruf).",
+      syncInsights: insightsEnabled
+        ? {
+            enabled: true,
+            daysAhead,
+            recurringEventCount,
+            draftOverlaps,
+          }
+        : undefined,
     };
   }
 

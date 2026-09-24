@@ -129,6 +129,29 @@ Details: [INTEGRATIONS.md](./INTEGRATIONS.md)
 5. Mit SMTP in `.env`: **E-Mail senden…** → Browser-Bestätigung → Status **Gesendet** (ohne SMTP: kein Senden-Button)
 6. Mit deaktivierter Integration: Chat-Hinweis, keine Karte
 
+## 12. Multi-Kalender & Sync-Einblicke (Phase 5–6)
+
+1. **Einstellungen** → Kalender-Integration an → optional Google/Microsoft/iCloud/CalDAV verbinden (oder nur Entwürfe + `.ics`)
+2. Mehrere Provider parallel → Liste **Verbundene Kalender**; **Export-Ziel** wählen
+3. **Sync-Einblicke (read-only)** aktivieren → **Integration speichern**
+4. Block **Externe Termine** → **Aktualisieren** → längerer Zeitraum (bis 90 Tage); Hinweis auf wiederkehrende Termine, falls vorhanden
+5. Kalender-Entwurf mit **gleichem Tag/Uhrzeit** wie externer Termin → nach Aktualisieren Hinweis auf **Überschneidung** (kein automatisches Schreiben)
+
+## 13. Web Push & CalDAV (Phase 6)
+
+**Web Push (optional, Hosting):**
+
+1. In `.env`: `NEXO_VAPID_PUBLIC_KEY`, `NEXO_VAPID_PRIVATE_KEY`, `NEXO_VAPID_SUBJECT` (mailto:…), `NEXO_PUBLIC_URL` = öffentliche App-URL
+2. **Einstellungen** → Erinnerungen → **Web Push** aktivieren → Browser-Berechtigung
+3. Heute fällige Aufgabe → **Heute** laden → höchstens **eine** Push-Nachricht pro Tag (Opt-in)
+
+**CalDAV (optional):**
+
+1. **Einstellungen** → Server-URL, Benutzer, Passwort/App-Token → **CalDAV verbinden**
+2. Entwurf freigeben → Export wie bei iCloud; **Externe Termine** read-only
+
+Details: [INTEGRATIONS.md](./INTEGRATIONS.md)
+
 ## Nach Deploy (Hosting)
 
 Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
@@ -144,7 +167,7 @@ Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
 npm run test:e2e:chromium
 ```
 
-Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan, Kalender- und E-Mail-Entwürfe, `.ics`-Download und Mock-Google-Export (nur mit `NEXO_E2E_CALENDAR_MOCK=1` in Playwright) ab.
+Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan, Kalender- und E-Mail-Entwürfe, `.ics`-Download, Mock-Google-Export, Sync-Einblicke-API, CalDAV-Fixture und VAPID-Status (nur mit `NEXO_E2E_CALENDAR_MOCK=1` in Playwright) ab.
 
 ## Demo-Daten (optional)
 

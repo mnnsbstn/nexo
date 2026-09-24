@@ -21,7 +21,7 @@ export async function setCalendarIntegration(page: Page, enabled: boolean) {
 
 export async function seedCalendarConnection(
   page: Page,
-  provider: "google" | "microsoft" = "google",
+  provider: "google" | "microsoft" | "caldav" = "google",
 ) {
   const res = await page.request.post("/api/e2e/calendar/connection", {
     data: { provider },
@@ -48,7 +48,7 @@ export async function confirmCalendarDraftFromChat(
   title: string,
 ): Promise<void> {
   await page.goto("/chat");
-  await page.getByLabel("Nachricht").fill(`Kalender Termin: ${title} morgen 10 Uhr`);
+  await page.getByLabel("Nachricht").fill(`Kalender Termin: ${title} morgen um 10 Uhr`);
   await page.getByRole("button", { name: "Senden" }).click();
 
   const card = page
