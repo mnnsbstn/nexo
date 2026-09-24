@@ -1,11 +1,26 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { serializeProposal } from "@/lib/serialize";
+import { statusesForFilter, type ActionFilter } from "@/lib/action-labels";
 
-export async function GET() {
-  const actions = await prisma.actionProposal.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 30,
+const querySchema = z.object({
+  filter: z.enum(["all", "open", "done", "failed"]).default("all"),
+  limit: z.coerce.number().min(1).max(100).default(30),
+});
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const { filter, limit } = querySchema.parse({
+    filter: searchParams.get("filter") ?? "all",
+    limit: searchParams.get("limit") ?? "30",
   });
-  return NextResponse.json({ actions: actions.map(serializeProposal) });
+
+  const statuses = statusesForFilter(filter as ActionFilter);
+  const actions = await prisma.actionProposal.findMany({
+    where: statuses ? { status: { in: statuses } } : undefined,
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+  return NextResponse.json({ actions: actions.map(serializeProposal), filter, limit });
 }

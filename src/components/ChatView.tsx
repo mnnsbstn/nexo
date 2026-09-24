@@ -1,10 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ActionConfirmationCard,
-  type ProposalClient,
-} from "@/components/ActionConfirmationCard";
+import { ActivityFeed } from "@/components/ActivityFeed";
 
 type Message = {
   id: string;
@@ -16,13 +13,13 @@ type Message = {
 
 export function ChatView() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [proposals, setProposals] = useState<ProposalClient[]>([]);
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [activityRefresh, setActivityRefresh] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async () => {
@@ -30,7 +27,6 @@ export function ChatView() {
     const data = await res.json();
     setConversationId(data.conversationId);
     setMessages(data.messages);
-    setProposals(data.pendingProposals ?? []);
   }, []);
 
   useEffect(() => {
@@ -39,7 +35,7 @@ export function ChatView() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, proposals]);
+  }, [messages, activityRefresh]);
 
   async function send(e?: React.FormEvent) {
     e?.preventDefault();
@@ -62,16 +58,7 @@ export function ChatView() {
       }
       setConversationId(data.conversationId);
       setMessages((prev) => [...prev, data.userMessage, data.assistantMessage]);
-      if (data.proposals?.length) {
-        setProposals((prev) => {
-          const ids = new Set(prev.map((p) => p.id));
-          const merged = [...prev];
-          for (const p of data.proposals as ProposalClient[]) {
-            if (!ids.has(p.id)) merged.push(p);
-          }
-          return merged;
-        });
-      }
+      setActivityRefresh((n) => n + 1);
     } catch {
       setError("Netzwerkfehler — bitte erneut versuchen.");
       setInput(content);
@@ -96,29 +83,13 @@ export function ChatView() {
       }
       setShowClearDialog(false);
       setMessages([]);
-      setProposals([]);
+      setActivityRefresh((n) => n + 1);
       await load();
     } catch {
       setError("Netzwerkfehler beim Leeren des Chats.");
     } finally {
       setClearing(false);
     }
-  }
-
-  async function refreshProposals() {
-    const [chatRes, actRes] = await Promise.all([
-      fetch("/api/chat"),
-      fetch("/api/actions/recent"),
-    ]);
-    const chat = await chatRes.json();
-    const act = await actRes.json();
-    setMessages(chat.messages);
-    const pending = (act.actions as ProposalClient[]).filter((a) =>
-      ["awaiting_confirmation", "executing", "succeeded", "failed", "rejected"].includes(
-        a.status,
-      ),
-    );
-    setProposals(pending.slice(0, 15));
   }
 
   return (
@@ -135,7 +106,7 @@ export function ChatView() {
         <button
           type="button"
           onClick={() => setShowClearDialog(true)}
-          disabled={messages.length === 0 && proposals.length === 0}
+          disabled={messages.length === 0}
           className="text-sm px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Chatverlauf leeren
@@ -158,14 +129,14 @@ export function ChatView() {
             {m.content}
           </div>
         ))}
-        {proposals.length > 0 && (
-          <div className="space-y-3 pt-2">
-            <h2 className="text-sm font-medium text-stone-700">Freigaben & Aktivitäten</h2>
-            {proposals.map((p) => (
-              <ActionConfirmationCard key={p.id} proposal={p} onUpdated={refreshProposals} />
-            ))}
-          </div>
-        )}
+
+        <ActivityFeed
+          compact
+          showHeuteLink
+          refreshToken={activityRefresh}
+          onPendingChange={() => setActivityRefresh((n) => n + 1)}
+        />
+
         <div ref={bottomRef} />
       </div>
 
@@ -191,7 +162,7 @@ export function ChatView() {
               </li>
               <li>
                 <strong>Bleibt erhalten:</strong> Aufgaben, Gedächtnis, bereits ausgeführte oder
-                abgelehnte Aktionen (Historie)
+                abgelehnte Aktionen (Historie unter Heute → Aktivitäten)
               </li>
             </ul>
             <p className="text-xs text-stone-500">

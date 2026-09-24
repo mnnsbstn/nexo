@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { actionStatusLabels } from "@/lib/action-labels";
 
 export type ProposalClient = {
   id: string;
@@ -11,15 +12,7 @@ export type ProposalClient = {
   status: string;
   payload: unknown;
   errorMessage?: string | null;
-};
-
-const statusLabels: Record<string, string> = {
-  proposed: "Vorgeschlagen",
-  awaiting_confirmation: "Wartet auf Bestätigung",
-  executing: "Wird ausgeführt",
-  succeeded: "Erfolgreich",
-  failed: "Fehlgeschlagen",
-  rejected: "Abgelehnt",
+  createdAt: string;
 };
 
 export function ActionConfirmationCard({
@@ -68,7 +61,7 @@ export function ActionConfirmationCard({
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-medium uppercase tracking-wide text-stone-500">Aktion</span>
         <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100">
-          {statusLabels[proposal.status] ?? proposal.status}
+          {actionStatusLabels[proposal.status] ?? proposal.status}
         </span>
         <span className="text-xs px-2 py-0.5 rounded-full bg-teal-50 text-teal-800">
           {proposal.scope === "local" ? "Nur lokal in Nexo" : "Extern"}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ActivityFeed } from "@/components/ActivityFeed";
 
 type Task = { id: string; title: string; status: string; priority: string | null };
 type Priority = {
@@ -109,6 +110,8 @@ export function TodayView() {
         dueLabels={data.dueLabels}
         empty="Keine offenen Aufgaben ohne Datum."
       />
+
+      <ActivityFeed />
     </div>
   );
 }
