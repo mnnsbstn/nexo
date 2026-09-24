@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { saveDayPlanPayloadSchema } from "@/server/daily/day-plan";
 
 export const taskPrioritySchema = z.enum(["low", "medium", "high"]).optional();
 
@@ -53,6 +54,7 @@ export const actionTypeSchema = z.enum([
   "create_memory",
   "update_memory",
   "delete_memory",
+  "save_day_plan",
 ]);
 
 export type ActionType = z.infer<typeof actionTypeSchema>;
@@ -64,6 +66,7 @@ export const actionPayloadSchema = z.discriminatedUnion("actionType", [
   z.object({ actionType: z.literal("create_memory"), data: createMemoryPayloadSchema }),
   z.object({ actionType: z.literal("update_memory"), data: updateMemoryPayloadSchema }),
   z.object({ actionType: z.literal("delete_memory"), data: deleteMemoryPayloadSchema }),
+  z.object({ actionType: z.literal("save_day_plan"), data: saveDayPlanPayloadSchema }),
 ]);
 
 export type ActionPayload = z.infer<typeof actionPayloadSchema>;

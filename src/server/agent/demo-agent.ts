@@ -3,6 +3,7 @@ import { proposeAction } from "@/server/actions/propose";
 import { parseGermanDuePhrase, formatDueDisplay } from "@/lib/dates";
 import { getSettings } from "@/lib/settings";
 import type { ActionPayload } from "@/server/schemas/actions";
+import { buildDayPlanDraft, formatDayPlanPreview } from "@/server/daily/day-plan";
 
 export type AgentTurnResult = {
   reply: string;
@@ -41,25 +42,32 @@ export async function runDemoAgent(
   }
 
   if (/plane meinen tag|tagesplan/.test(lower)) {
-    const daily = await getDailyContext();
-    const blocks: string[] = [
-      "**Demo-Antwort** — Tagesplan als Vorschlag (blockiert nichts extern):",
+    const draft = await buildDayPlanDraft();
+    const preview = formatDayPlanPreview(draft);
+    const payload: ActionPayload = {
+      actionType: "save_day_plan",
+      data: draft,
+    };
+    const proposal = await proposeAction({
+      conversationId: ctx.conversationId,
+      triggerMessageId: ctx.messageId,
+      payload,
+      summary: `Tagesplan für ${draft.planDate} speichern`,
+      affectedData: preview,
+      scope: "local",
+    });
+    proposalIds.push(proposal.id);
+
+    const reply = [
+      "**Demo-Antwort** — Tagesplan als Entwurf (nur Nexo, kein Kalender):",
       "",
-    ];
-    let i = 1;
-    for (const t of [...daily.overdue, ...daily.dueToday].slice(0, 5)) {
-      blocks.push(`${i}. ${t.title} (${formatDueDisplay(t.dueDate, t.dueAt, settings.timezone)})`);
-      i++;
-    }
-    for (const p of daily.priorities.slice(0, 3)) {
-      if (blocks.length > 8) break;
-      blocks.push(`${i}. ${p.title} (Vorschlag: ${p.reason})`);
-      i++;
-    }
-    if (i === 1) {
-      blocks.push("Keine datierten Aufgaben — starte mit einer offenen Aufgabe ohne Datum.");
-    }
-    return { reply: blocks.join("\n"), proposalIds, demo: true };
+      preview,
+      "",
+      "_Aufgaben werden erst durch separate Freigaben geändert._",
+      "",
+      "Bitte bestätige die Aktionskarte, um den Plan unter **Heute** zu speichern.",
+    ].join("\n");
+    return { reply, proposalIds, demo: true };
   }
 
   const taskCreate =
