@@ -49,4 +49,6 @@ Tokens liegen verschlüsselt in SQLite (`CalendarConnection`, AES-GCM via `NEXO_
 
 ### Nächste Ausbaustufe (Phase 4)
 
-Siehe [ROADMAP.md](./ROADMAP.md): Kalender härten (ICS, Token), E2E Export, Microsoft OAuth, E-Mail-Skelett.
+Siehe [ROADMAP.md](./ROADMAP.md): Microsoft OAuth, E-Mail-Skelett.
+
+**E2E (Playwright):** Mit `NEXO_E2E_CALENDAR_MOCK=1` (nur in `playwright.config.ts`) seedet `POST /api/e2e/calendar/connection` eine Fake-Verbindung; der Export liefert Mock-Event-IDs ohne Google-API.
