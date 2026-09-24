@@ -98,6 +98,14 @@ Nur mit gesetztem `OPENAI_API_KEY` in `.env` (Nav-Badge **Live**).
 2. Assistenten-Nachricht mit Badge **Live**
 3. Bei API-Fehler: Badge **Demo-Fallback** und Fehlerhinweis im Text
 
+## Automatisiert (E2E)
+
+```bash
+npm run test:e2e:chromium
+```
+
+Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan ab.
+
 ## Demo-Daten (optional)
 
 **Einstellungen** → „Demo-Daten laden“ → Einträge mit Präfix `[Demo]`
