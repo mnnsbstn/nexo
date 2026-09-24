@@ -78,7 +78,7 @@ export async function exportDraftToExternalCalendar(
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Export fehlgeschlagen";
-    await prisma.externalCalendarDraft.update({
+    await prisma.externalCalendarDraft.updateMany({
       where: { id: draftId },
       data: { status: "export_failed", exportError: message },
     });
