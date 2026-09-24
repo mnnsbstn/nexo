@@ -134,7 +134,7 @@ Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
 npm run test:e2e:chromium
 ```
 
-Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan, Kalender-Entwurf ab.
+Deckt u. a. Navigation, Aufgaben-Persistenz, Chat Bestätigen/Ablehnen, Tagesplan, Kalender-Entwurf, `.ics`-Download und Mock-Google-Export (nur mit `NEXO_E2E_CALENDAR_MOCK=1` in Playwright) ab.
 
 ## Demo-Daten (optional)
 

@@ -56,4 +56,31 @@ describe("exportDraftToGoogle", () => {
     const updated = await prisma.externalCalendarDraft.findUnique({ where: { id: draft.id } });
     expect(updated?.status).toBe("exported");
   });
+
+  it("uses E2E mock export without calling Google API", async () => {
+    vi.stubEnv("NEXO_E2E_CALENDAR_MOCK", "1");
+    await prisma.calendarConnection.create({
+      data: {
+        id: "default",
+        accessToken: "token",
+        expiresAt: new Date(Date.now() + 3600_000),
+      },
+    });
+    const draft = await prisma.externalCalendarDraft.create({
+      data: {
+        title: "E2E Mock",
+        startAt: new Date("2026-09-25T10:00:00.000Z"),
+      },
+    });
+
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const result = await exportDraftToGoogle(draft.id);
+    expect(result.exported).toBe(true);
+    expect(result.externalEventId).toMatch(/^e2e-mock-event-/);
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    vi.unstubAllEnvs();
+  });
 });

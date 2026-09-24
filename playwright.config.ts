@@ -33,6 +33,10 @@ export default defineConfig({
       NEXO_AUTH_PASSWORD: "",
       NEXO_SESSION_SECRET: "",
       OPENAI_API_KEY: "",
+      NEXO_E2E_CALENDAR_MOCK: "1",
+      NEXO_PUBLIC_URL: baseURL,
+      GOOGLE_CLIENT_ID: "e2e-not-a-real-client",
+      GOOGLE_CLIENT_SECRET: "e2e-not-a-real-secret",
     },
   },
 });
