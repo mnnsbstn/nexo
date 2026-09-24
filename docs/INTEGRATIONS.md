@@ -66,18 +66,37 @@ Export erfolgt über **Microsoft Graph** (`POST /me/events`).
 | `exported` | Im verbundenen Kalender (`externalEventId`, `exportProvider` google/microsoft) |
 | `export_failed` | Export versucht, Fehler in `exportError` |
 
-## E-Mail (Entwürfe, Beta)
+## E-Mail (Entwürfe + optional SMTP)
 
-**Flow:** Opt-in → Chat-Entwurf mit Freigabe → Speicherung in Nexo — **kein Versand** (SMTP/API folgt später).
+**Flow:** Opt-in → Chat-Freigabe speichert Entwurf → **manueller** Versand in Einstellungen (zweiter Schritt, mit Bestätigungsdialog).
+
+### 1. Entwurf (wie Phase 4)
 
 1. **Einstellungen** → „E-Mail-Entwürfe erlauben“
 2. Im **Chat** (Demo): z. B. `E-Mail an team@beispiel.de Betreff: Update Nachricht: Kurzer Text`
-3. **Aktionskarte** → Bestätigen
-4. Entwurf unter **Einstellungen** (Status `saved`)
+3. **Aktionskarte** → Bestätigen → Status `saved`
+
+### 2. SMTP-Versand (optional, Server-Env)
+
+| Variable | Zweck |
+|----------|--------|
+| `SMTP_HOST` | Relay/Provider |
+| `SMTP_FROM` | Absender-Adresse |
+| `SMTP_PORT` | Optional, Standard `587` |
+| `SMTP_USER` / `SMTP_PASS` | Optional, wenn Auth nötig |
+| `SMTP_SECURE` | `true` für Port 465 |
+
+In **Einstellungen** bei gespeichertem Entwurf → **E-Mail senden…** (Browser-Bestätigung). Kein Versand aus dem Chat heraus.
+
+| status | Bedeutung |
+|--------|-----------|
+| `saved` | Bereit zum manuellen Senden |
+| `sent` | SMTP-Versand ausgeführt |
+| `send_failed` | Fehler in `sendError` |
 
 | Tool | Typ | Zweck |
 |------|-----|--------|
-| `get_email_integration_status` | read | Opt-in aktiv?, Hinweis kein Versand |
+| `get_email_integration_status` | read | Opt-in, SMTP konfiguriert? |
 | `list_email_drafts` | read | Gespeicherte Entwürfe |
 | `propose_action` + `external_email_draft` | write (Freigabe) | `scope: external` |
 

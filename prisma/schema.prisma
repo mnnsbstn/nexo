@@ -43,6 +43,9 @@ model ExternalEmailDraft {
   status     String   @default("draft")
   proposalId String?  @unique
   savedNote  String?
+  sendError  String?
+  sentAt     DateTime?
+  externalMessageId String?
   createdAt  DateTime @default(now())
 }
 
