@@ -20,6 +20,17 @@ export async function getTask(taskId: string) {
   return prisma.task.findUnique({ where: { id: taskId } });
 }
 
+export async function listPendingProposals(conversationId: string, limit = 10) {
+  return prisma.actionProposal.findMany({
+    where: {
+      conversationId,
+      status: { in: ["awaiting_confirmation", "proposed", "executing"] },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+}
+
 export async function searchMemories(query: string, limit = 20) {
   const q = query.trim().toLowerCase();
   const memories = await prisma.memory.findMany({

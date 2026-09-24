@@ -4,12 +4,11 @@ Stand nach **Phase 4** (Kalender härten, E2E Export). Die verbindliche PR-Reihe
 
 ## Als Nächstes (empfohlen)
 
-1. **Schritt 20 — Live-Agent** — verständliche Fehler, Kontextlimits kommunizieren
+1. **Schritt 21 — E-Mail-Skelett** — Opt-in + Freigabe, wie Kalender Beta
 
 ## Danach
 
-2. **Schritt 21 — E-Mail-Skelett** (Opt-in + Freigabe, wie Kalender Beta)
-3. **Schritt 22 — Microsoft Kalender** (zweiter Provider)
+2. **Schritt 22 — Microsoft Kalender** (zweiter Provider)
 
 ## Erledigt (Kurz)
 

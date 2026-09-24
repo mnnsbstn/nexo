@@ -37,6 +37,7 @@ export function SettingsView() {
     hint: string;
     liveConfigured: boolean;
     authRequired?: boolean;
+    liveLimits?: { toolRoundsMax: number; historyMessagesMax: number };
   } | null>(null);
   const [session, setSession] = useState<{ authRequired: boolean; authenticated: boolean } | null>(
     null,
@@ -168,8 +169,12 @@ export function SettingsView() {
           )}
           {status.liveConfigured && (
             <p className="mt-2 text-stone-600 text-xs">
-              Live-Agent: feste Tool-Allowlist, max. 4 Tool-Schritte, Schreibaktionen nur via Freigabe.
-              Bei Provider-Fehlern: Demo-Fallback mit Kennzeichnung.
+              Live-Agent: feste Tool-Allowlist
+              {status.liveLimits
+                ? ` (max. ${status.liveLimits.toolRoundsMax} Tool-Runden, ${status.liveLimits.historyMessagesMax} Chat-Nachrichten Kontext)`
+                : ""}
+              , Schreibaktionen nur via Freigabe. Bei Provider-Fehlern: Demo-Fallback mit Kennzeichnung.
+              Im Chat siehst du pro Live-Antwort das Kontextbudget.
             </p>
           )}
         </div>

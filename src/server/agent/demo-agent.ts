@@ -5,10 +5,13 @@ import { getSettings } from "@/lib/settings";
 import type { ActionPayload } from "@/server/schemas/actions";
 import { buildDayPlanDraft, formatDayPlanPreview } from "@/server/daily/day-plan";
 
+import type { LiveAgentMeta } from "@/server/agent/live-meta";
+
 export type AgentTurnResult = {
   reply: string;
   proposalIds: string[];
   demo: boolean;
+  liveMeta?: LiveAgentMeta;
 };
 
 export async function runDemoAgent(
