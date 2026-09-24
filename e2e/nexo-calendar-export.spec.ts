@@ -48,7 +48,9 @@ test.describe("Kalender Export & ICS (E2E)", () => {
     await confirmCalendarDraftFromChat(page, title);
 
     await page.goto("/einstellungen");
-    await expect(page.getByText("Verbunden: e2e@nexo.test")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/Verbunden \(Google\).*e2e@nexo\.test/)).toBeVisible({
+      timeout: 10_000,
+    });
     await expect(page.locator("li", { hasText: title }).getByText(/ · Google/)).toBeVisible({
       timeout: 10_000,
     });

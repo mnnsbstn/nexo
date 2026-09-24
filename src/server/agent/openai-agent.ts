@@ -70,7 +70,7 @@ export async function runLiveAgent(
   });
 
   const calendarLine = settings.calendarIntegrationEnabled
-    ? "Kalender: get_calendar_integration_status — external_calendar_draft (scope external) nach Freigabe; Export nur wenn verbunden; nie behaupten, der Termin liege bereits extern."
+    ? "Kalender: get_calendar_integration_status — external_calendar_draft (scope external) nach Freigabe; Export nach Google/Outlook wenn verbunden; nie behaupten, der Termin liege bereits extern."
     : "Kalender: Entwürfe deaktiviert — keine external_calendar_draft vorschlagen.";
 
   const emailLine = settings.emailIntegrationEnabled

@@ -31,12 +31,16 @@ export function SettingsView() {
       status: string;
       externalEventId?: string | null;
       exportError?: string | null;
+      exportProvider?: string | null;
       icsUrl?: string;
     }[]
   >([]);
   const [calendarStatus, setCalendarStatus] = useState<{
     oauthConfigured: boolean;
+    googleOAuthConfigured?: boolean;
+    microsoftOAuthConfigured?: boolean;
     connected: boolean;
+    provider?: string | null;
     accountEmail: string | null;
     message: string;
   } | null>(null);
@@ -67,7 +71,10 @@ export function SettingsView() {
         setCalendarDrafts(d.drafts ?? []);
         setCalendarStatus({
           oauthConfigured: Boolean(d.oauthConfigured),
+          googleOAuthConfigured: Boolean(d.googleOAuthConfigured),
+          microsoftOAuthConfigured: Boolean(d.microsoftOAuthConfigured),
           connected: Boolean(d.connected),
+          provider: d.provider ?? null,
           accountEmail: d.accountEmail ?? null,
           message: d.message ?? "",
         });
@@ -82,7 +89,9 @@ export function SettingsView() {
       const params = new URLSearchParams(window.location.search);
       const cal = params.get("calendar");
       if (cal === "connected") setCalendarBanner("Google Kalender verbunden.");
-      if (cal === "error") setCalendarBanner("Verbindung fehlgeschlagen — bitte erneut versuchen.");
+      if (cal === "error") setCalendarBanner("Google-Verbindung fehlgeschlagen — bitte erneut versuchen.");
+      if (cal === "ms_connected") setCalendarBanner("Microsoft Kalender verbunden.");
+      if (cal === "ms_error") setCalendarBanner("Microsoft-Verbindung fehlgeschlagen — bitte erneut versuchen.");
     }
     fetch("/api/status")
       .then((r) => r.json())
@@ -125,7 +134,10 @@ export function SettingsView() {
     setCalendarDrafts(d.drafts ?? []);
     setCalendarStatus({
       oauthConfigured: Boolean(d.oauthConfigured),
+      googleOAuthConfigured: Boolean(d.googleOAuthConfigured),
+      microsoftOAuthConfigured: Boolean(d.microsoftOAuthConfigured),
       connected: Boolean(d.connected),
+      provider: d.provider ?? null,
       accountEmail: d.accountEmail ?? null,
       message: d.message ?? "",
     });
@@ -142,10 +154,18 @@ export function SettingsView() {
     const d = await res.json();
     setCalendarStatus({
       oauthConfigured: Boolean(d.oauthConfigured),
+      googleOAuthConfigured: Boolean(d.googleOAuthConfigured),
+      microsoftOAuthConfigured: Boolean(d.microsoftOAuthConfigured),
       connected: Boolean(d.connected),
+      provider: d.provider ?? null,
       accountEmail: d.accountEmail ?? null,
       message: d.message ?? "",
     });
+  }
+
+  function exportProviderLabel(provider?: string | null) {
+    if (provider === "microsoft") return " · Outlook";
+    return " · Google";
   }
 
   async function loadDemo() {
@@ -305,8 +325,8 @@ export function SettingsView() {
         <div>
           <h2 className="font-medium text-sm">Kalender-Entwürfe (Beta)</h2>
           <p className="text-xs text-stone-600 mt-1">
-            Opt-in für freigabepflichtige Termin-Entwürfe. Mit Google verbunden → Export in den
-            Kalender nach Bestätigung; sonst nur Entwurf in Nexo.
+            Opt-in für freigabepflichtige Termin-Entwürfe. Mit Google oder Microsoft verbunden →
+            Export nach Bestätigung; sonst nur Entwurf in Nexo (+ .ics).
           </p>
         </div>
         {calendarBanner && (
@@ -317,7 +337,7 @@ export function SettingsView() {
         {calendarStatus && (
           <p className="text-xs text-stone-600">{calendarStatus.message}</p>
         )}
-        {calendarStatus?.oauthConfigured && !calendarStatus.connected && (
+        {!calendarStatus?.connected && calendarStatus?.googleOAuthConfigured && (
           <a
             href="/api/integrations/calendar/connect"
             className="inline-block text-sm px-3 py-2 rounded-lg bg-white border border-stone-300 hover:bg-stone-50"
@@ -325,10 +345,20 @@ export function SettingsView() {
             Mit Google verbinden
           </a>
         )}
+        {!calendarStatus?.connected && calendarStatus?.microsoftOAuthConfigured && (
+          <a
+            href="/api/integrations/calendar/microsoft/connect"
+            className="inline-block text-sm px-3 py-2 rounded-lg bg-white border border-stone-300 hover:bg-stone-50 ml-0 sm:ml-2 mt-2 sm:mt-0"
+          >
+            Mit Microsoft verbinden
+          </a>
+        )}
         {calendarStatus?.connected && (
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <span className="text-stone-700">
-              Verbunden{calendarStatus.accountEmail ? `: ${calendarStatus.accountEmail}` : ""}
+              Verbunden (
+              {calendarStatus.provider === "microsoft" ? "Microsoft" : "Google"})
+              {calendarStatus.accountEmail ? `: ${calendarStatus.accountEmail}` : ""}
             </span>
             <button
               type="button"
@@ -365,7 +395,7 @@ export function SettingsView() {
                   <span className="text-xs text-stone-500 shrink-0">
                     {d.startLabel}
                     {d.status === "exported"
-                      ? " · Google"
+                      ? exportProviderLabel(d.exportProvider)
                       : d.status === "export_failed"
                         ? " · Export fehlgeschlagen"
                         : " · Entwurf"}

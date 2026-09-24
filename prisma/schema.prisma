@@ -55,6 +55,7 @@ model ExternalCalendarDraft {
   timezone        String?
   status          String    @default("draft")
   externalEventId String?
+  exportProvider  String?
   exportError     String?
   exportedAt      DateTime?
   proposalId      String?   @unique

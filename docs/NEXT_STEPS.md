@@ -4,11 +4,11 @@ Stand nach **Phase 4** (Kalender härten, E2E Export). Die verbindliche PR-Reihe
 
 ## Als Nächstes (empfohlen)
 
-1. **Schritt 22 — Microsoft Kalender** (zweiter Provider)
+1. **Phase 5 planen** — z. B. E-Mail-Versand, Multi-Provider parallel, Sync lesen
 
 ## Danach
 
-2. Optional: E-Mail-Versand-Provider (SMTP/API) — erst nach explizitem Produkt-Scope
+2. Produktentscheidungen in [ROADMAP.md](./ROADMAP.md) ergänzen
 
 ## Erledigt (Kurz)
 
