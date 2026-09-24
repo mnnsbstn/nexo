@@ -13,6 +13,7 @@ import {
   getCalendarIntegrationStatus,
   listCalendarDrafts,
 } from "@/server/integrations/calendar";
+import { listExternalCalendarEvents } from "@/server/integrations/calendar-read";
 import {
   getEmailIntegrationStatus,
   listEmailDrafts,
@@ -124,6 +125,26 @@ async function executeAgentToolInner(
       const settings = await getSettings();
       const status = await getCalendarIntegrationStatus(settings);
       return { output: JSON.stringify(status) };
+    }
+    case "list_external_calendar_events": {
+      const settings = await getSettings();
+      if (!settings.calendarIntegrationEnabled) {
+        return {
+          output: JSON.stringify({
+            error: "Kalender-Integration deaktiviert.",
+          }),
+        };
+      }
+      const schema = z.object({
+        limit: z.number().int().min(1).max(25).optional(),
+        daysAhead: z.number().int().min(1).max(60).optional(),
+      });
+      const parsed = schema.parse(args);
+      const result = await listExternalCalendarEvents({
+        limit: parsed.limit,
+        daysAhead: parsed.daysAhead,
+      });
+      return { output: JSON.stringify(result) };
     }
     case "list_calendar_drafts": {
       const schema = z.object({ limit: z.number().int().min(1).max(20).optional() });
@@ -309,6 +330,21 @@ export const openAiToolDefinitions = [
       parameters: {
         type: "object",
         properties: { limit: { type: "integer", minimum: 1, maximum: 20 } },
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "list_external_calendar_events",
+      description:
+        "Liest kommende Termine aus dem verbundenen Google/Outlook-Kalender (read-only, kein Schreiben/Sync).",
+      parameters: {
+        type: "object",
+        properties: {
+          limit: { type: "integer", minimum: 1, maximum: 25 },
+          daysAhead: { type: "integer", minimum: 1, maximum: 60 },
+        },
       },
     },
   },

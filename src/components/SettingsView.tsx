@@ -49,6 +49,10 @@ export function SettingsView() {
     message: string;
   } | null>(null);
   const [calendarBanner, setCalendarBanner] = useState<string | null>(null);
+  const [externalCalendarEvents, setExternalCalendarEvents] = useState<
+    { id: string; title: string; startLabel: string }[]
+  >([]);
+  const [externalCalendarReadHint, setExternalCalendarReadHint] = useState<string | null>(null);
   const [browserPermission, setBrowserPermission] = useState<
     NotificationPermission | "unsupported" | "loading"
   >("loading");
@@ -82,6 +86,18 @@ export function SettingsView() {
           accountEmail: d.accountEmail ?? null,
           message: d.message ?? "",
         });
+        if (d.connected && d.enabled) {
+          fetch("/api/integrations/calendar/events?limit=8")
+            .then((r) => r.json())
+            .then((ev) => {
+              setExternalCalendarEvents(ev.events ?? []);
+              setExternalCalendarReadHint(
+                ev.readError
+                  ? `${ev.message ?? ""} ${ev.readError}`.trim()
+                  : (ev.message ?? null),
+              );
+            });
+        }
       });
     fetch("/api/integrations/email")
       .then((r) => r.json())
@@ -135,6 +151,24 @@ export function SettingsView() {
     setTimeout(() => setSaved(false), 2000);
   }
 
+  async function reloadExternalCalendarEvents() {
+    const res = await fetch("/api/integrations/calendar/events?limit=8");
+    if (!res.ok) {
+      setExternalCalendarEvents([]);
+      setExternalCalendarReadHint(null);
+      return;
+    }
+    const d = (await res.json()) as {
+      events?: { id: string; title: string; startLabel: string }[];
+      message?: string;
+      readError?: string;
+    };
+    setExternalCalendarEvents(d.events ?? []);
+    setExternalCalendarReadHint(
+      d.readError ? `${d.message ?? ""} ${d.readError}`.trim() : (d.message ?? null),
+    );
+  }
+
   async function reloadCalendarDrafts() {
     const res = await fetch("/api/integrations/calendar");
     const d = await res.json();
@@ -148,6 +182,12 @@ export function SettingsView() {
       accountEmail: d.accountEmail ?? null,
       message: d.message ?? "",
     });
+    if (d.connected && d.enabled) {
+      await reloadExternalCalendarEvents();
+    } else {
+      setExternalCalendarEvents([]);
+      setExternalCalendarReadHint(null);
+    }
   }
 
   async function retryCalendarExport(draftId: string) {
@@ -403,6 +443,25 @@ export function SettingsView() {
             >
               Trennen
             </button>
+          </div>
+        )}
+        {calendarStatus?.connected && (
+          <div className="border border-stone-100 rounded-lg p-3 space-y-2 bg-stone-50/50">
+            <p className="text-xs font-medium text-stone-700">Externe Termine (read-only)</p>
+            {externalCalendarEvents.length > 0 ? (
+              <ul className="text-xs space-y-1 text-stone-800">
+                {externalCalendarEvents.map((ev) => (
+                  <li key={ev.id}>
+                    <span className="text-stone-500">{ev.startLabel}</span> — {ev.title}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-stone-500">Keine Termine im Vorschau-Zeitraum geladen.</p>
+            )}
+            {externalCalendarReadHint && (
+              <p className="text-xs text-stone-500">{externalCalendarReadHint}</p>
+            )}
           </div>
         )}
         <label className="flex gap-3 text-sm items-start">

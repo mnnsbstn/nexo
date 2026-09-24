@@ -30,7 +30,7 @@ Lesend (Demo-Agent direkt; Live-Agent über OpenAI Tool-Calls → `agent-tools.t
 - `list_tasks` / `get_task`
 - `search_memories`
 - `get_daily_context`
-- `get_calendar_integration_status` / `list_calendar_drafts`
+- `get_calendar_integration_status` / `list_external_calendar_events` / `list_calendar_drafts`
 - `get_email_integration_status` / `list_email_drafts`
 - `list_pending_proposals`
 - `propose_action` (legt `ActionProposal` an, max. 4 Tool-Runden)

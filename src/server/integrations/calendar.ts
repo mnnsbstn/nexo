@@ -47,6 +47,7 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
     googleOAuthConfigured,
     microsoftOAuthConfigured,
     connected,
+    canReadExternal: connected,
     provider,
     accountEmail: connection?.accountEmail ?? null,
     message,

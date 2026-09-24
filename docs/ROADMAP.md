@@ -60,7 +60,7 @@ Reihenfolge ist Vorschlag; ein Satz genügt zum Umstellen.
 
 | # | PR-Thema | Inhalt (kurz) | Erfolgskriterium |
 |---|----------|---------------|------------------|
-| **23** | E-Mail SMTP-Versand | Nach Entwurf + **manueller** Senden-Button; SMTP-Env; E2E-Mock | Kein Auto-Send aus Chat |
+| **23** | E-Mail SMTP-Versand | Nach Entwurf + **manueller** Senden-Button; SMTP-Env; E2E-Mock | ✅ merged (#24) |
 | **24** | Kalender extern lesen | Read-only: nächste Termine (verbundener Provider) | Tool + ehrliche UX |
 | **25** | Multi-Kalender (optional) | Google + Microsoft parallel | Zwei Verbindungen, Export-Ziel wählbar |
 
