@@ -10,6 +10,7 @@
 2. Im **Chat** (Demo): z. B. `Kalender Termin: Arzt morgen 10 Uhr`
 3. **Aktionskarte** → Bestätigen
 4. Entwurf in Nexo; mit Google verbunden → zusätzlich Event in Google Kalender
+5. **Ohne Google:** in Einstellungen **Als .ics laden** (Import in Kalender-App deiner Wahl — kein Sync)
 
 ### 2. Google OAuth (optional, Server-Env)
 
@@ -27,7 +28,9 @@ In `.env` (nie committen):
 
 Dann in **Einstellungen** → **Mit Google verbinden**.
 
-Tokens liegen in SQLite (`CalendarConnection`, Single-User). Bei gehostetem Betrieb: Auth (`NEXO_AUTH_PASSWORD`) empfohlen.
+Tokens liegen verschlüsselt in SQLite (`CalendarConnection`, AES-GCM via `NEXO_TOKEN_ENCRYPTION_KEY` oder abgeleitet). Bei gehostetem Betrieb: Auth (`NEXO_AUTH_PASSWORD`) empfohlen.
+
+**Export erneut:** bei `export_failed` in Einstellungen „Export erneut versuchen“ (wenn Google verbunden).
 
 ### 3. Agent-Tools
 

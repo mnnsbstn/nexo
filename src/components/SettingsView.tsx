@@ -18,6 +18,8 @@ export function SettingsView() {
       startLabel: string;
       status: string;
       externalEventId?: string | null;
+      exportError?: string | null;
+      icsUrl?: string;
     }[]
   >([]);
   const [calendarStatus, setCalendarStatus] = useState<{
@@ -96,6 +98,23 @@ export function SettingsView() {
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  async function reloadCalendarDrafts() {
+    const res = await fetch("/api/integrations/calendar");
+    const d = await res.json();
+    setCalendarDrafts(d.drafts ?? []);
+    setCalendarStatus({
+      oauthConfigured: Boolean(d.oauthConfigured),
+      connected: Boolean(d.connected),
+      accountEmail: d.accountEmail ?? null,
+      message: d.message ?? "",
+    });
+  }
+
+  async function retryCalendarExport(draftId: string) {
+    await fetch(`/api/integrations/calendar/drafts/${draftId}/export`, { method: "POST" });
+    await reloadCalendarDrafts();
   }
 
   async function disconnectGoogle() {
@@ -317,12 +336,39 @@ export function SettingsView() {
         {calendarDrafts.length > 0 && (
           <ul className="text-sm space-y-2 border-t border-stone-100 pt-3">
             {calendarDrafts.map((d) => (
-              <li key={d.id} className="flex flex-wrap justify-between gap-2 text-stone-700">
-                <span>{d.title}</span>
-                <span className="text-xs text-stone-500 shrink-0">
-                  {d.startLabel}
-                  {d.status === "exported" ? " · Google" : d.status === "export_failed" ? " · Export fehlgeschlagen" : " · Entwurf"}
-                </span>
+              <li key={d.id} className="border border-stone-100 rounded-lg p-3 space-y-1">
+                <div className="flex flex-wrap justify-between gap-2 text-stone-800">
+                  <span className="font-medium">{d.title}</span>
+                  <span className="text-xs text-stone-500 shrink-0">
+                    {d.startLabel}
+                    {d.status === "exported"
+                      ? " · Google"
+                      : d.status === "export_failed"
+                        ? " · Export fehlgeschlagen"
+                        : " · Entwurf"}
+                  </span>
+                </div>
+                {d.exportError && (
+                  <p className="text-xs text-red-700" role="alert">
+                    {d.exportError}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {d.icsUrl && (
+                    <a href={d.icsUrl} className="text-teal-800 underline">
+                      Als .ics laden
+                    </a>
+                  )}
+                  {d.status === "export_failed" && calendarStatus?.connected && (
+                    <button
+                      type="button"
+                      onClick={() => retryCalendarExport(d.id)}
+                      className="text-stone-700 underline"
+                    >
+                      Export erneut versuchen
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
