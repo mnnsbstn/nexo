@@ -21,6 +21,8 @@ export async function GET() {
       endAt: d.endAt?.toISOString() ?? null,
       status: d.status,
       externalEventId: d.externalEventId,
+      exportError: d.exportError,
+      icsUrl: `/api/integrations/calendar/drafts/${d.id}/ics`,
       startLabel: formatInTimeZone(d.startAt, settings.timezone, "d. MMM yyyy, HH:mm", {
         locale: de,
       }),

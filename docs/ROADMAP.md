@@ -35,7 +35,7 @@ Reihenfolge ist Vorschlag; ein Satz genügt zum Umstellen.
 
 | # | PR-Thema | Inhalt (kurz) | Erfolgskriterium |
 |---|----------|---------------|------------------|
-| **18** | Kalender härten | Token-Sicherheit (Verschlüsselung at rest), Export-Fehler in UI, optional `.ics`-Download ohne OAuth | Klare Fehler + Fallback |
+| **18** | Kalender härten | Token-Sicherheit (Verschlüsselung at rest), Export-Fehler in UI, `.ics`-Download ohne OAuth | Klare Fehler + Fallback |
 | **19** | E2E Google-Pfad | Playwright mit gemocktem Export oder „connected“-Fixture; CI ohne echte Google-Keys | Grüner CI-Check |
 | **20** | Live-Agent | Kontextbudget sichtbar, bessere Tool-Fehler, optional 1–2 read-only Tools | Live-Chat robuster |
 | **21** | E-Mail-Skelett | Wie Kalender: Opt-in, `external_*`-Aktion, **kein** Versand ohne Freigabe | Erster E-Mail-Entwurf |

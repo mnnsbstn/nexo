@@ -1,26 +1,25 @@
 import { prisma } from "@/lib/db";
 import { refreshGoogleAccessToken } from "@/server/integrations/google-oauth";
 import type { ExternalCalendarDraft } from "@prisma/client";
+import {
+  decryptConnectionTokens,
+  updateCalendarAccessToken,
+} from "@/server/integrations/calendar-connection";
 
 async function getValidAccessToken(): Promise<string | null> {
   const conn = await prisma.calendarConnection.findUnique({ where: { id: "default" } });
   if (!conn) return null;
 
+  const { accessToken, refreshToken } = decryptConnectionTokens(conn);
   const now = Date.now();
   const expires = conn.expiresAt?.getTime() ?? 0;
-  if (conn.accessToken && expires > now + 60_000) {
-    return conn.accessToken;
+  if (accessToken && expires > now + 60_000) {
+    return accessToken;
   }
-  if (!conn.refreshToken) return conn.accessToken || null;
+  if (!refreshToken) return accessToken || null;
 
-  const refreshed = await refreshGoogleAccessToken(conn.refreshToken);
-  await prisma.calendarConnection.update({
-    where: { id: "default" },
-    data: {
-      accessToken: refreshed.accessToken,
-      expiresAt: refreshed.expiresAt,
-    },
-  });
+  const refreshed = await refreshGoogleAccessToken(refreshToken);
+  await updateCalendarAccessToken(refreshed.accessToken, refreshed.expiresAt);
   return refreshed.accessToken;
 }
 
@@ -73,7 +72,8 @@ export async function exportDraftToGoogle(draftId: string): Promise<{
     return {
       exported: false,
       connected: false,
-      message: "Entwurf gespeichert — Google-Kalender ist nicht verbunden.",
+      message:
+        "Entwurf gespeichert — Google nicht verbunden. .ics-Download in Einstellungen möglich.",
     };
   }
 

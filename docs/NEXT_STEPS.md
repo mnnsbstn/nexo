@@ -4,9 +4,8 @@ Stand nach **Phase 3** (Kalender-Entwurf, Google OAuth, E2E). Die verbindliche P
 
 ## Als Nächstes (empfohlen)
 
-1. **Schritt 18 — Kalender härten** — Export-Fehler in der UI, optional ICS-Fallback, Tokens nicht im Klartext in SQLite (Key aus `NEXO_SESSION_SECRET` o. Ä.)
-2. **Schritt 19 — E2E Export-Pfad** — CI-sicher testen, ohne Google Cloud Credentials im Repo
-3. **Schritt 20 — Live-Agent** — verständliche Fehler, Kontextlimits kommunizieren
+1. **Schritt 19 — E2E Export-Pfad** — CI-sicher testen, ohne Google Cloud Credentials im Repo
+2. **Schritt 20 — Live-Agent** — verständliche Fehler, Kontextlimits kommunizieren
 
 ## Danach
 
