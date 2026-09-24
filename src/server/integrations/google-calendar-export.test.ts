@@ -13,6 +13,7 @@ describe("exportDraftToGoogle", () => {
   });
 
   it("returns not connected without calendar connection", async () => {
+    await prisma.calendarConnection.deleteMany();
     const draft = await prisma.externalCalendarDraft.create({
       data: {
         title: "Test",

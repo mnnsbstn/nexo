@@ -1,7 +1,12 @@
 import { prisma } from "@/lib/db";
 import { getCalendarConnection } from "@/server/integrations/calendar-connection";
-import { getValidCalendarAccessToken } from "@/server/integrations/calendar-token";
+import type { CalendarProvider } from "@/server/integrations/calendar-provider";
+import {
+  getICloudCalendarCredentials,
+  getValidCalendarAccessToken,
+} from "@/server/integrations/calendar-token";
 import { createGoogleCalendarEvent } from "@/server/integrations/google-calendar-event";
+import { createICloudCalendarEvent } from "@/server/integrations/icloud-caldav";
 import { createMicrosoftCalendarEvent } from "@/server/integrations/microsoft-calendar-export";
 
 export type CalendarExportResult = {
@@ -9,7 +14,7 @@ export type CalendarExportResult = {
   connected: boolean;
   message: string;
   externalEventId?: string;
-  exportProvider?: "google" | "microsoft";
+  exportProvider?: CalendarProvider;
 };
 
 export async function exportDraftToExternalCalendar(
@@ -35,10 +40,18 @@ export async function exportDraftToExternalCalendar(
   const provider = auth.provider;
 
   try {
-    const eventId =
-      provider === "microsoft"
-        ? await createMicrosoftCalendarEvent(draft, auth.token)
-        : await createGoogleCalendarEvent(draft, auth.token);
+    let eventId: string;
+    if (provider === "microsoft") {
+      eventId = await createMicrosoftCalendarEvent(draft, auth.token);
+    } else if (provider === "icloud") {
+      const icloud = await getICloudCalendarCredentials();
+      if (!icloud?.calendarUrl) {
+        throw new Error("iCloud Kalender nicht vollständig verbunden.");
+      }
+      eventId = await createICloudCalendarEvent(draft, icloud, icloud.calendarUrl);
+    } else {
+      eventId = await createGoogleCalendarEvent(draft, auth.token);
+    }
 
     await prisma.externalCalendarDraft.update({
       where: { id: draftId },
@@ -59,11 +72,13 @@ export async function exportDraftToExternalCalendar(
       message:
         provider === "microsoft"
           ? "Termin in Outlook-Kalender erstellt."
-          : "Termin in Google Kalender erstellt.",
+          : provider === "icloud"
+            ? "Termin in iCloud-Kalender erstellt."
+            : "Termin in Google Kalender erstellt.",
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Export fehlgeschlagen";
-    await prisma.externalCalendarDraft.update({
+    await prisma.externalCalendarDraft.updateMany({
       where: { id: draftId },
       data: { status: "export_failed", exportError: message },
     });

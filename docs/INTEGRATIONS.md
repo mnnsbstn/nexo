@@ -47,9 +47,26 @@ Tokens liegen verschlüsselt in SQLite (`CalendarConnection`, AES-GCM via `NEXO_
 
 **API-Berechtigung:** `Calendars.ReadWrite`, `User.Read` (delegiert).
 
-In **Einstellungen** → **Mit Microsoft verbinden**. Pro Nexo-Instanz ist **ein** Provider aktiv (Google *oder* Microsoft).
+In **Einstellungen** → **Mit Microsoft verbinden**. Pro Nexo-Instanz ist **ein** Provider aktiv (Google *oder* Microsoft *oder* iCloud).
 
 Export erfolgt über **Microsoft Graph** (`POST /me/events`).
+
+### 2c. iCloud Kalender + Mail (optional, ohne Server-OAuth)
+
+Keine `.env`-Keys nötig. In **Einstellungen** → **Mit iCloud verbinden**:
+
+| Eingabe | Zweck |
+|---------|--------|
+| Apple-ID (E-Mail) | CalDAV + SMTP/IMAP Benutzername |
+| App-spezifisches Passwort | Von [appleid.apple.com](https://account.apple.com/account/manage) — **nicht** das normale Apple-Passwort |
+
+Ein Klick verbindet **Kalender (CalDAV)** und **Mail (SMTP-Versand + IMAP read-only)**. Credentials liegen verschlüsselt in SQLite (`CalendarConnection` + `EmailConnection`).
+
+- Kalender-Export: CalDAV `https://caldav.icloud.com`
+- Mail-Versand: `smtp.mail.me.com:587` (manuell in Einstellungen, wie SMTP-.env)
+- Posteingang-Vorschau: IMAP read-only in Einstellungen (kein Sync)
+
+Pro Instanz weiter **ein** Kalender-Provider aktiv; iCloud ersetzt Google/Microsoft beim Verbinden.
 
 ### 3. Extern lesen (read-only)
 
@@ -62,7 +79,8 @@ Export erfolgt über **Microsoft Graph** (`POST /me/events`).
 | Tool | Typ | Zweck |
 |------|-----|--------|
 | `get_calendar_integration_status` | read | Aktiv, OAuth konfiguriert, verbunden |
-| `list_external_calendar_events` | read | Kommende Termine (Google/Outlook) |
+| `list_external_calendar_events` | read | Kommende Termine (Google/Outlook/iCloud) |
+| `list_external_inbox_messages` | read | iCloud Posteingang (read-only) |
 | `list_calendar_drafts` | read | Nexo-Entwürfe |
 | `propose_action` + `external_calendar_draft` | write (Freigabe) | `scope: external` |
 
@@ -71,7 +89,7 @@ Export erfolgt über **Microsoft Graph** (`POST /me/events`).
 | status | Bedeutung |
 |--------|-----------|
 | `draft` | Nur lokal (Google nicht verbunden) |
-| `exported` | Im verbundenen Kalender (`externalEventId`, `exportProvider` google/microsoft) |
+| `exported` | Im verbundenen Kalender (`externalEventId`, `exportProvider` google/microsoft/icloud) |
 | `export_failed` | Export versucht, Fehler in `exportError` |
 
 ## E-Mail (Entwürfe + optional SMTP)
@@ -95,6 +113,10 @@ Export erfolgt über **Microsoft Graph** (`POST /me/events`).
 | `SMTP_SECURE` | `true` für Port 465 |
 
 In **Einstellungen** bei gespeichertem Entwurf → **E-Mail senden…** (Browser-Bestätigung). Kein Versand aus dem Chat heraus.
+
+**Alternativ iCloud:** Wenn iCloud verbunden ist und kein SMTP in `.env` gesetzt ist, nutzt Nexo automatisch iCloud SMTP mit der gespeicherten Apple-ID.
+
+API Posteingang: `GET /api/integrations/email/messages?limit=8`
 
 | status | Bedeutung |
 |--------|-----------|

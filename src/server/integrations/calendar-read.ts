@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/db";
 import { isE2eCalendarMockEnabled } from "@/lib/e2e-calendar-mock";
-import { getValidCalendarAccessToken } from "@/server/integrations/calendar-token";
+import type { CalendarProvider } from "@/server/integrations/calendar-provider";
+import { calendarProviderLabel } from "@/server/integrations/calendar-provider";
+import {
+  getICloudCalendarCredentials,
+  getValidCalendarAccessToken,
+} from "@/server/integrations/calendar-token";
+import { listICloudCalendarEvents } from "@/server/integrations/icloud-caldav";
 
 export type ExternalCalendarEvent = {
   id: string;
@@ -8,18 +14,18 @@ export type ExternalCalendarEvent = {
   startAt: string;
   endAt: string | null;
   allDay: boolean;
-  provider: "google" | "microsoft";
+  provider: CalendarProvider;
 };
 
 export type ListExternalCalendarEventsResult = {
   connected: boolean;
-  provider: "google" | "microsoft" | null;
+  provider: CalendarProvider | null;
   events: ExternalCalendarEvent[];
   message: string;
   readError?: string;
 };
 
-function mockEvents(provider: "google" | "microsoft"): ExternalCalendarEvent[] {
+function mockEvents(provider: CalendarProvider): ExternalCalendarEvent[] {
   const start = new Date();
   start.setDate(start.getDate() + 1);
   start.setHours(10, 0, 0, 0);
@@ -159,10 +165,24 @@ export async function listExternalCalendarEvents(options?: {
   }
 
   try {
-    const events =
-      auth.provider === "microsoft"
-        ? await listMicrosoftEvents(auth.token, limit, daysAhead)
-        : await listGoogleEvents(auth.token, limit, daysAhead);
+    let events: ExternalCalendarEvent[];
+    if (auth.provider === "microsoft") {
+      events = await listMicrosoftEvents(auth.token, limit, daysAhead);
+    } else if (auth.provider === "icloud") {
+      const icloud = await getICloudCalendarCredentials();
+      if (!icloud?.calendarUrl) {
+        throw new Error("iCloud Kalender nicht vollständig verbunden.");
+      }
+      const rows = await listICloudCalendarEvents(
+        { appleId: icloud.appleId, appPassword: icloud.appPassword },
+        icloud.calendarUrl,
+        limit,
+        daysAhead,
+      );
+      events = rows.map((row) => ({ ...row, provider: "icloud" as const }));
+    } else {
+      events = await listGoogleEvents(auth.token, limit, daysAhead);
+    }
 
     return {
       connected: true,
@@ -170,7 +190,7 @@ export async function listExternalCalendarEvents(options?: {
       events,
       message:
         events.length > 0
-          ? `${events.length} Termin(e) aus ${auth.provider === "microsoft" ? "Outlook" : "Google"} (read-only, kein Sync).`
+          ? `${events.length} Termin(e) aus ${calendarProviderLabel(auth.provider)} (read-only, kein Sync).`
           : "Keine Termine im gewählten Zeitraum gefunden.",
     };
   } catch (err) {

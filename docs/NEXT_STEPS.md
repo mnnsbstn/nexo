@@ -4,7 +4,8 @@ Stand nach **Phase 4** (vollständig) und Start **Phase 5**. PR-Reihenfolge: **[
 
 ## Als Nächstes (empfohlen)
 
-1. **Schritt 25 — Multi-Kalender** (optional, Produktentscheidung)
+1. **Schritt 26 — iCloud** (Kalender + Mail) — in Arbeit
+2. **Schritt 25 — Multi-Kalender** (optional, Produktentscheidung)
 
 ## Danach
 

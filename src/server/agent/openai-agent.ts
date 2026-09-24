@@ -70,7 +70,7 @@ export async function runLiveAgent(
   });
 
   const calendarLine = settings.calendarIntegrationEnabled
-    ? "Kalender: get_calendar_integration_status — external_calendar_draft (scope external) nach Freigabe; Export nach Google/Outlook wenn verbunden; nie behaupten, der Termin liege bereits extern."
+    ? "Kalender: get_calendar_integration_status — external_calendar_draft (scope external) nach Freigabe; Export nach Google/Outlook/iCloud wenn verbunden; nie behaupten, der Termin liege bereits extern."
     : "Kalender: Entwürfe deaktiviert — keine external_calendar_draft vorschlagen.";
 
   const emailLine = settings.emailIntegrationEnabled
@@ -81,8 +81,8 @@ export async function runLiveAgent(
     "Du bist Nexo, ein persönlicher Assistent. Antworte auf Deutsch.",
     calendarLine,
     emailLine,
-    "Kalender: get_calendar_integration_status, list_external_calendar_events (read-only, nur wenn verbunden), list_calendar_drafts.",
-    "E-Mail: get_email_integration_status, list_email_drafts (read-only).",
+    "Kalender: get_calendar_integration_status, list_external_calendar_events (read-only), list_calendar_drafts.",
+    "E-Mail: get_email_integration_status, list_email_drafts, list_external_inbox_messages (iCloud read-only).",
     "Offene Freigaben: list_pending_proposals (read-only).",
     "Nutze Tools für Fakten. Erfinde keine Aufgaben oder Erinnerungen.",
     "Schreibende Änderungen NUR über propose_action — nie behaupten, sie seien schon erledigt.",

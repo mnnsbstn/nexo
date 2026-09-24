@@ -12,10 +12,26 @@ describe("email integration", () => {
   beforeEach(async () => {
     await ensureDefaultSettings();
     await prisma.externalEmailDraft.deleteMany();
+    await prisma.emailConnection.deleteMany();
     await prisma.userSettings.update({
       where: { id: "default" },
       data: { emailIntegrationEnabled: true },
     });
+  });
+
+  it("reports sendConfigured when iCloud mail connected", async () => {
+    await prisma.emailConnection.create({
+      data: {
+        id: "default",
+        provider: "icloud",
+        accessToken: "app-pass",
+        accountEmail: "user@icloud.com",
+      },
+    });
+    const settings = await getSettings();
+    const status = await getEmailIntegrationStatus(settings);
+    expect(status.sendConfigured).toBe(true);
+    expect(status.icloudConnected).toBe(true);
   });
 
   it("reports sendConfigured when SMTP env set", async () => {

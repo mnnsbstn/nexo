@@ -1,16 +1,18 @@
 import { prisma } from "@/lib/db";
 import { decryptSecret, encryptSecret } from "@/lib/token-crypto";
+import type { CalendarProvider } from "@/server/integrations/calendar-provider";
 
 export async function getCalendarConnection() {
   return prisma.calendarConnection.findUnique({ where: { id: "default" } });
 }
 
 export async function saveCalendarConnection(input: {
-  provider: "google" | "microsoft";
+  provider: CalendarProvider;
   accessToken: string;
   refreshToken: string | null;
   expiresAt: Date | null;
   accountEmail?: string | null;
+  calendarId?: string;
 }) {
   return prisma.calendarConnection.upsert({
     where: { id: "default" },
@@ -21,14 +23,31 @@ export async function saveCalendarConnection(input: {
       refreshToken: input.refreshToken ? encryptSecret(input.refreshToken) : null,
       expiresAt: input.expiresAt,
       accountEmail: input.accountEmail ?? null,
+      calendarId: input.calendarId ?? "primary",
     },
     update: {
       provider: input.provider,
       accessToken: encryptSecret(input.accessToken),
-      refreshToken: input.refreshToken ? encryptSecret(input.refreshToken) : undefined,
+      refreshToken: input.refreshToken ? encryptSecret(input.refreshToken) : null,
       expiresAt: input.expiresAt,
       accountEmail: input.accountEmail ?? undefined,
+      calendarId: input.calendarId ?? undefined,
     },
+  });
+}
+
+export async function saveICloudCalendarConnection(input: {
+  appleId: string;
+  appPassword: string;
+  calendarUrl: string;
+}) {
+  return saveCalendarConnection({
+    provider: "icloud",
+    accessToken: input.appPassword,
+    refreshToken: null,
+    expiresAt: null,
+    accountEmail: input.appleId,
+    calendarId: input.calendarUrl,
   });
 }
 

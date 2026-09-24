@@ -32,6 +32,16 @@ model CalendarConnection {
   updatedAt    DateTime  @updatedAt
 }
 
+/// iCloud Mail (App-Passwort) oder später weitere Provider — unabhängig von SMTP-.env.
+model EmailConnection {
+  id           String   @id @default("default")
+  provider     String   @default("icloud")
+  accessToken  String
+  accountEmail String
+  connectedAt  DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 /// Kalender-Entwurf; Export nach Google wenn verbunden.
 /// E-Mail-Entwurf; kein Versand ohne spätere Provider-Anbindung.
 model ExternalEmailDraft {

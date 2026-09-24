@@ -17,7 +17,8 @@ Lebendes Log für wiederkehrende „Warum so?“-Fragen. Kein Ersatz für Issues
 | Phase 4 | E-Mail nur Entwurf, kein Versand | Gleiches Freigabe-Muster wie Kalender; SMTP/API bewusst später |
 | Phase 5 | E-Mail: zwei Schritte | Chat-Freigabe = Entwurf; Versand nur manuell in Einstellungen + Confirm |
 | Phase 5 | Kalender lesen read-only | Kein Sync; Live-Agent/Settings zeigen Vorschau, ehrlich gekennzeichnet |
-| Phase 4 | Ein Kalender-Provider aktiv | `CalendarConnection` id `default` — Google *oder* Microsoft, kein Parallelbetrieb |
+| Phase 4 | Ein Kalender-Provider aktiv | `CalendarConnection` id `default` — Google *oder* Microsoft *oder* iCloud, kein Parallelbetrieb |
+| Phase 5 | iCloud via CalDAV + App-Passwort | Kein Apple-OAuth; gleiche Credentials für Kalender + Mail; verschlüsselt at rest |
 | Phase 4 (Plan) | Kein Multi-Tenant | Nexo bleibt persönlicher Assistent, kein Team-Produkt |
 
 Neue Zeilen bei PRs ergänzen, wenn eine Entscheidung festgezogen wird.
