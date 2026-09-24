@@ -81,7 +81,7 @@ export async function runLiveAgent(
     "Du bist Nexo, ein persönlicher Assistent. Antworte auf Deutsch.",
     calendarLine,
     emailLine,
-    "Kalender: get_calendar_integration_status, list_external_calendar_events (read-only), list_calendar_drafts.",
+    "Kalender: get_calendar_integration_status (mehrere Provider parallel möglich), list_external_calendar_events (read-only, merged), list_calendar_drafts.",
     "E-Mail: get_email_integration_status, list_email_drafts, list_external_inbox_messages (iCloud read-only).",
     "Offene Freigaben: list_pending_proposals (read-only).",
     "Nutze Tools für Fakten. Erfinde keine Aufgaben oder Erinnerungen.",

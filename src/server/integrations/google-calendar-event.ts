@@ -11,7 +11,7 @@ export async function createGoogleCalendarEvent(
     return `e2e-mock-event-${draft.id.slice(0, 8)}`;
   }
 
-  const conn = await prisma.calendarConnection.findUnique({ where: { id: "default" } });
+  const conn = await prisma.calendarConnection.findUnique({ where: { id: "google" } });
   const calendarId = encodeURIComponent(conn?.calendarId ?? "primary");
   const end = draft.endAt ?? new Date(draft.startAt.getTime() + 60 * 60 * 1000);
   const timeZone = draft.timezone ?? "Europe/Berlin";

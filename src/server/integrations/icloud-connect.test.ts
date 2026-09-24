@@ -18,7 +18,7 @@ describe("connectICloud", () => {
       appPassword: "abcd-efgh-ijkl-mnop",
     });
 
-    const cal = await prisma.calendarConnection.findUnique({ where: { id: "default" } });
+    const cal = await prisma.calendarConnection.findUnique({ where: { id: "icloud" } });
     expect(cal?.provider).toBe("icloud");
     expect(cal?.accountEmail).toBe("user@icloud.com");
     expect(cal?.calendarId).toContain("caldav");

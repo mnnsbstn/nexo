@@ -1,9 +1,53 @@
 import { prisma } from "@/lib/db";
 import { decryptSecret, encryptSecret } from "@/lib/token-crypto";
 import type { CalendarProvider } from "@/server/integrations/calendar-provider";
+import { parseCalendarProvider } from "@/server/integrations/calendar-provider";
 
-export async function getCalendarConnection() {
-  return prisma.calendarConnection.findUnique({ where: { id: "default" } });
+export function connectionIdForProvider(provider: CalendarProvider): string {
+  return provider;
+}
+
+let legacyMigrationDone = false;
+
+/** Einmalig: alte Zeile `id=default` → `id=<provider>`. */
+export async function migrateLegacyDefaultCalendarConnection(): Promise<void> {
+  if (legacyMigrationDone) return;
+  const legacy = await prisma.calendarConnection.findUnique({ where: { id: "default" } });
+  if (!legacy) {
+    legacyMigrationDone = true;
+    return;
+  }
+  const provider = parseCalendarProvider(legacy.provider);
+  const newId = connectionIdForProvider(provider);
+  await prisma.$transaction(async (tx) => {
+    await tx.calendarConnection.deleteMany({ where: { id: newId } });
+    await tx.calendarConnection.create({
+      data: {
+        id: newId,
+        provider: legacy.provider,
+        accessToken: legacy.accessToken,
+        refreshToken: legacy.refreshToken,
+        expiresAt: legacy.expiresAt,
+        calendarId: legacy.calendarId,
+        accountEmail: legacy.accountEmail,
+        connectedAt: legacy.connectedAt,
+      },
+    });
+    await tx.calendarConnection.delete({ where: { id: "default" } });
+  });
+  legacyMigrationDone = true;
+}
+
+export async function listCalendarConnections() {
+  await migrateLegacyDefaultCalendarConnection();
+  return prisma.calendarConnection.findMany({ orderBy: { provider: "asc" } });
+}
+
+export async function getCalendarConnection(provider: CalendarProvider) {
+  await migrateLegacyDefaultCalendarConnection();
+  return prisma.calendarConnection.findUnique({
+    where: { id: connectionIdForProvider(provider) },
+  });
 }
 
 export async function saveCalendarConnection(input: {
@@ -14,10 +58,12 @@ export async function saveCalendarConnection(input: {
   accountEmail?: string | null;
   calendarId?: string;
 }) {
+  await migrateLegacyDefaultCalendarConnection();
+  const id = connectionIdForProvider(input.provider);
   return prisma.calendarConnection.upsert({
-    where: { id: "default" },
+    where: { id },
     create: {
-      id: "default",
+      id,
       provider: input.provider,
       accessToken: encryptSecret(input.accessToken),
       refreshToken: input.refreshToken ? encryptSecret(input.refreshToken) : null,
@@ -69,9 +115,13 @@ export async function saveMicrosoftCalendarConnection(input: {
   return saveCalendarConnection({ ...input, provider: "microsoft" });
 }
 
-export async function updateCalendarAccessToken(accessToken: string, expiresAt: Date | null) {
+export async function updateCalendarAccessToken(
+  provider: CalendarProvider,
+  accessToken: string,
+  expiresAt: Date | null,
+) {
   await prisma.calendarConnection.update({
-    where: { id: "default" },
+    where: { id: connectionIdForProvider(provider) },
     data: {
       accessToken: encryptSecret(accessToken),
       expiresAt,
@@ -89,6 +139,14 @@ export function decryptConnectionTokens(conn: {
   };
 }
 
-export async function disconnectCalendar() {
-  await prisma.calendarConnection.deleteMany({ where: { id: "default" } });
+export async function disconnectCalendar(provider: CalendarProvider) {
+  await migrateLegacyDefaultCalendarConnection();
+  await prisma.calendarConnection.deleteMany({
+    where: { id: connectionIdForProvider(provider) },
+  });
+}
+
+export async function disconnectAllCalendars() {
+  await migrateLegacyDefaultCalendarConnection();
+  await prisma.calendarConnection.deleteMany();
 }

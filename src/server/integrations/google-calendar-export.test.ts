@@ -28,7 +28,8 @@ describe("exportDraftToGoogle", () => {
   it("exports when connection and API succeed", async () => {
     await prisma.calendarConnection.create({
       data: {
-        id: "default",
+        id: "google",
+        provider: "google",
         accessToken: "token",
         expiresAt: new Date(Date.now() + 3600_000),
       },
@@ -63,7 +64,8 @@ describe("exportDraftToGoogle", () => {
     vi.stubEnv("NEXO_E2E_CALENDAR_MOCK", "1");
     await prisma.calendarConnection.create({
       data: {
-        id: "default",
+        id: "google",
+        provider: "google",
         accessToken: "token",
         expiresAt: new Date(Date.now() + 3600_000),
       },

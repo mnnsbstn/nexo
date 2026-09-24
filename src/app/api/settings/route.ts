@@ -15,6 +15,7 @@ const patchSchema = z.object({
   notifyInAppDueTasks: z.boolean().optional(),
   notifyBrowserDueTasks: z.boolean().optional(),
   calendarIntegrationEnabled: z.boolean().optional(),
+  calendarExportProvider: z.enum(["google", "microsoft", "icloud"]).nullable().optional(),
   emailIntegrationEnabled: z.boolean().optional(),
 });
 
@@ -33,6 +34,7 @@ export async function PATCH(req: Request) {
       notifyInAppDueTasks: updated.notifyInAppDueTasks,
       notifyBrowserDueTasks: updated.notifyBrowserDueTasks,
       calendarIntegrationEnabled: updated.calendarIntegrationEnabled,
+      calendarExportProvider: updated.calendarExportProvider,
       emailIntegrationEnabled: updated.emailIntegrationEnabled,
     },
   });

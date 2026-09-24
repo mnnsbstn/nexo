@@ -8,6 +8,7 @@ import {
 describe("calendar integration", () => {
   beforeEach(async () => {
     await prisma.externalCalendarDraft.deleteMany();
+    await prisma.calendarConnection.deleteMany();
   });
 
   it("reports disabled status", async () => {
@@ -18,6 +19,8 @@ describe("calendar integration", () => {
       notifyInAppDueTasks: false,
       notifyBrowserDueTasks: false,
       calendarIntegrationEnabled: false,
+      calendarExportProvider: null,
+      emailIntegrationEnabled: false,
     });
     expect(status.connected).toBe(false);
     expect(status.enabled).toBe(false);

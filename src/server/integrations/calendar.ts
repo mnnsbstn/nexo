@@ -6,10 +6,11 @@ import {
   calendarProviderLabel,
   parseCalendarProvider,
 } from "@/server/integrations/calendar-provider";
+import { resolveCalendarExportProvider } from "@/server/integrations/calendar-export-target";
 import { getEmailConnection } from "@/server/integrations/email-connection";
 import { isGoogleCalendarOAuthConfigured } from "@/server/integrations/google-config";
 import { isMicrosoftCalendarOAuthConfigured } from "@/server/integrations/microsoft-config";
-import { getCalendarConnection } from "@/server/integrations/calendar-connection";
+import { listCalendarConnections } from "@/server/integrations/calendar-connection";
 import { exportDraftToExternalCalendar } from "@/server/integrations/calendar-export";
 
 export type CalendarDraftInput = z.infer<typeof externalCalendarDraftPayloadSchema>;
@@ -18,13 +19,17 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
   const googleOAuthConfigured = isGoogleCalendarOAuthConfigured();
   const microsoftOAuthConfigured = isMicrosoftCalendarOAuthConfigured();
   const oauthConfigured = googleOAuthConfigured || microsoftOAuthConfigured;
-  const connection = await getCalendarConnection();
-  const provider = connection ? parseCalendarProvider(connection.provider) : null;
-  const icloudConnected = provider === "icloud";
-  const oauthConnected = Boolean(
-    connection && (provider === "google" || provider === "microsoft") && oauthConfigured,
-  );
-  const connected = icloudConnected || oauthConnected;
+  const connections = await listCalendarConnections();
+  const connectedProviders = connections.map((c) => parseCalendarProvider(c.provider));
+  const connected = connectedProviders.length > 0;
+
+  const googleConnected = connectedProviders.includes("google");
+  const microsoftConnected = connectedProviders.includes("microsoft");
+  const icloudConnected = connectedProviders.includes("icloud");
+
+  const exportProvider = connected
+    ? await resolveCalendarExportProvider(settings)
+    : null;
 
   let message: string;
   if (!settings.calendarIntegrationEnabled) {
@@ -37,9 +42,12 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
     const parts: string[] = ["iCloud"];
     if (googleOAuthConfigured) parts.push("Google");
     if (microsoftOAuthConfigured) parts.push("Microsoft");
-    message = `Verbindung möglich (${parts.join(" / ")}) — in Einstellungen verbinden.`;
-  } else if (provider) {
-    message = `Verbunden mit ${calendarProviderLabel(provider)}${connection?.accountEmail ? ` (${connection.accountEmail})` : ""}. Bestätigte Entwürfe werden exportiert.`;
+    message = `Verbindung möglich (${parts.join(" / ")}) — mehrere Provider parallel möglich.`;
+  } else if (connectedProviders.length === 1 && exportProvider) {
+    const conn = connections[0];
+    message = `Verbunden mit ${calendarProviderLabel(exportProvider)}${conn?.accountEmail ? ` (${conn.accountEmail})` : ""}. Export dorthin nach Bestätigung.`;
+  } else if (exportProvider) {
+    message = `${connectedProviders.length} Kalender verbunden — Export-Ziel: ${calendarProviderLabel(exportProvider)} (in Einstellungen änderbar).`;
   } else {
     message = "Kalender verbunden.";
   }
@@ -53,12 +61,21 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
     googleOAuthConfigured,
     microsoftOAuthConfigured,
     icloudAvailable: true,
+    googleConnected,
+    microsoftConnected,
     icloudConnected,
     icloudMailConnected,
     connected,
     canReadExternal: connected,
-    provider,
-    accountEmail: connection?.accountEmail ?? null,
+    connections: connections.map((c) => ({
+      provider: parseCalendarProvider(c.provider),
+      accountEmail: c.accountEmail ?? null,
+    })),
+    exportProvider,
+    provider: exportProvider,
+    accountEmail:
+      connections.find((c) => parseCalendarProvider(c.provider) === exportProvider)
+        ?.accountEmail ?? null,
     message,
   };
 }

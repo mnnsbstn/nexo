@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { isE2eCalendarMockEnabled } from "@/lib/e2e-calendar-mock";
 import {
-  disconnectCalendar,
+  disconnectAllCalendars,
   saveGoogleCalendarConnection,
 } from "@/server/integrations/calendar-connection";
 
@@ -24,6 +24,6 @@ export async function POST() {
 
 export async function DELETE() {
   if (!isE2eCalendarMockEnabled()) return notFound();
-  await disconnectCalendar();
+  await disconnectAllCalendars();
   return NextResponse.json({ ok: true });
 }

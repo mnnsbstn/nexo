@@ -15,6 +15,7 @@ model UserSettings {
   notifyInAppDueTasks        Boolean  @default(false)
   notifyBrowserDueTasks      Boolean  @default(false)
   calendarIntegrationEnabled Boolean  @default(false)
+  calendarExportProvider     String?
   emailIntegrationEnabled    Boolean  @default(false)
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt

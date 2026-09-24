@@ -1,7 +1,4 @@
-import {
-  disconnectCalendar,
-  saveICloudCalendarConnection,
-} from "@/server/integrations/calendar-connection";
+import { disconnectCalendar, saveICloudCalendarConnection } from "@/server/integrations/calendar-connection";
 import {
   disconnectEmail,
   saveICloudEmailConnection,
@@ -29,6 +26,6 @@ export async function connectICloud(input: { appleId: string; appPassword: strin
 }
 
 export async function disconnectICloud() {
-  await disconnectCalendar();
+  await disconnectCalendar("icloud");
   await disconnectEmail();
 }
