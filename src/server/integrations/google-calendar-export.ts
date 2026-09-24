@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { isE2eCalendarMockEnabled } from "@/lib/e2e-calendar-mock";
 import { refreshGoogleAccessToken } from "@/server/integrations/google-oauth";
 import type { ExternalCalendarDraft } from "@prisma/client";
 import {
@@ -27,6 +28,11 @@ export async function createGoogleCalendarEvent(
   draft: ExternalCalendarDraft,
   accessToken: string,
 ): Promise<string> {
+  if (isE2eCalendarMockEnabled()) {
+    void accessToken;
+    return `e2e-mock-event-${draft.id.slice(0, 8)}`;
+  }
+
   const conn = await prisma.calendarConnection.findUnique({ where: { id: "default" } });
   const calendarId = encodeURIComponent(conn?.calendarId ?? "primary");
   const end = draft.endAt ?? new Date(draft.startAt.getTime() + 60 * 60 * 1000);

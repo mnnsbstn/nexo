@@ -12,6 +12,7 @@ Lebendes Log für wiederkehrende „Warum so?“-Fragen. Kein Ersatz für Issues
 | Phase 3 | Export nur nach Freigabe | Entwurf lokal → Bestätigen → optional Google Event |
 | Phase 4 (Plan) | ICS-Fallback | Nutzen ohne OAuth; ehrlich als Download, kein Sync |
 | Phase 4 | OAuth-Tokens verschlüsselt at rest | SQLite-Datei allein soll keine Klartext-Tokens preisgeben |
+| Phase 4 | E2E: `NEXO_E2E_CALENDAR_MOCK=1` | Playwright seedet Verbindung + Mock-Export ohne echte Google-API |
 | Phase 4 (Plan) | Kein Multi-Tenant | Nexo bleibt persönlicher Assistent, kein Team-Produkt |
 
 Neue Zeilen bei PRs ergänzen, wenn eine Entscheidung festgezogen wird.
