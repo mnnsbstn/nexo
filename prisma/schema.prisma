@@ -19,17 +19,32 @@ model UserSettings {
   updatedAt                  DateTime @updatedAt
 }
 
-/// Lokaler Entwurf für spätere OAuth-Kalender-Anbindung (noch kein Export).
+model CalendarConnection {
+  id           String    @id @default("default")
+  provider     String    @default("google")
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime?
+  calendarId   String    @default("primary")
+  accountEmail String?
+  connectedAt  DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+/// Kalender-Entwurf; Export nach Google wenn verbunden.
 model ExternalCalendarDraft {
-  id          String   @id @default(cuid())
-  title       String
-  startAt     DateTime
-  endAt       DateTime?
-  description String?
-  timezone    String?
-  status      String   @default("draft")
-  proposalId  String?  @unique
-  createdAt   DateTime @default(now())
+  id              String    @id @default(cuid())
+  title           String
+  startAt         DateTime
+  endAt           DateTime?
+  description     String?
+  timezone        String?
+  status          String    @default("draft")
+  externalEventId String?
+  exportError     String?
+  exportedAt      DateTime?
+  proposalId      String?   @unique
+  createdAt       DateTime  @default(now())
 }
 
 model Conversation {

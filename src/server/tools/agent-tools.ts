@@ -89,7 +89,7 @@ export async function executeAgentTool(
     }
     case "get_calendar_integration_status": {
       const settings = await getSettings();
-      const status = getCalendarIntegrationStatus(settings);
+      const status = await getCalendarIntegrationStatus(settings);
       return { output: JSON.stringify(status) };
     }
     case "propose_action": {

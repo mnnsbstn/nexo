@@ -77,7 +77,7 @@ Browser-UI auf Desktop/Mobil: nicht automatisiert in CI; lokal über `npm run de
 
 ## Grenzen (MVP)
 
-- Kalender: nur **Entwürfe** mit Freigabe (Beta) — kein OAuth/Export yet; kein E-Mail/Messenger
+- Kalender: Entwürfe mit Freigabe; optional **Google OAuth** + Export (siehe `docs/INTEGRATIONS.md`); kein E-Mail/Messenger
 - Erinnerungen nur **Opt-in** (Heute-Banner und optional Browser-Hinweis beim Öffnen von Heute — kein Hintergrund-Push)
 - Fälligkeiten ohne Opt-in: normale Listen auf Heute/Aufgaben
 - Einzelnutzer; Auth optional via `NEXO_AUTH_PASSWORD` (empfohlen außerhalb lokalem Dev)

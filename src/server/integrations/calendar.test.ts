@@ -10,8 +10,8 @@ describe("calendar integration", () => {
     await prisma.externalCalendarDraft.deleteMany();
   });
 
-  it("reports disabled status", () => {
-    const status = getCalendarIntegrationStatus({
+  it("reports disabled status", async () => {
+    const status = await getCalendarIntegrationStatus({
       uiLanguage: "de",
       responseLanguage: "de",
       timezone: "Europe/Berlin",
