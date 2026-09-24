@@ -10,6 +10,12 @@ Badge **Demo** in der Navigation = regelbasierte Antworten (kein `OPENAI_API_KEY
 2. Seite neu laden (F5)
 3. **Erwartung:** Aufgabe ist noch da
 
+## 1b. Aufgabe bearbeiten
+
+1. Bei „Test Persistenz“ → **Bearbeiten** → Titel anpassen → **Änderungen speichern**
+2. Seite neu laden
+3. **Erwartung:** Geänderter Titel bleibt; optional Datum leeren → „Ohne Datum“
+
 ## 2. Chat → Freigabe → Aufgabe
 
 1. **Chat** → senden: `Erstelle eine Aufgabe: Termin vereinbaren, morgen um 10 Uhr.`
