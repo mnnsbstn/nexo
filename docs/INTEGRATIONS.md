@@ -44,7 +44,6 @@ Tokens liegen in SQLite (`CalendarConnection`, Single-User). Bei gehostetem Betr
 | `exported` | In Google Kalender (`externalEventId`) |
 | `export_failed` | Export versucht, Fehler in `exportError` |
 
-### Nächste Ausbaustufe
+### Nächste Ausbaustufe (Phase 4)
 
-- Microsoft Outlook OAuth
-- E-Mail-Kanal analog, freigabepflichtig
+Siehe [ROADMAP.md](./ROADMAP.md): Kalender härten (ICS, Token), E2E Export, Microsoft OAuth, E-Mail-Skelett.

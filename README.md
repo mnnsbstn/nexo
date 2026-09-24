@@ -84,6 +84,6 @@ Browser-UI auf Desktop/Mobil: nicht automatisiert in CI; lokal über `npm run de
 - Chat-Verlauf leeren: in Chat mit Bestätigung (Erinnerungen/Aufgaben bleiben)
 - Live-Modell: OpenAI-kompatibles JSON-Format; bei Fehlern Fallback prüfen
 
-**Erste Tests:** [docs/MANUAL_TEST.md](docs/MANUAL_TEST.md) · **Hosting:** [docs/HOSTING.md](docs/HOSTING.md) · **PR-Roadmap:** [docs/ROADMAP.md](docs/ROADMAP.md)
+**Erste Tests:** [docs/MANUAL_TEST.md](docs/MANUAL_TEST.md) · **Hosting:** [docs/HOSTING.md](docs/HOSTING.md) · **Roadmap (Phase 4):** [docs/ROADMAP.md](docs/ROADMAP.md)
 
-Weitere Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md)
+Weitere Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md) · [docs/DECISIONS.md](docs/DECISIONS.md)

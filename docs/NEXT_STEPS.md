@@ -1,10 +1,23 @@
-# Nexo — Nächste Schritte (Phase 2)
+# Nexo — Nächste Schritte
 
-Die MVP-Roadmap (Schritte 1–10) ist abgeschlossen. Weiter in **`docs/ROADMAP.md`** (Phase 2, PR-für-PR).
+Stand nach **Phase 3** (Kalender-Entwurf, Google OAuth, E2E). Die verbindliche PR-Reihenfolge steht in **[ROADMAP.md](./ROADMAP.md) — Phase 4**.
 
-Kurzüberblick der offenen Produktlinien:
+## Als Nächstes (empfohlen)
 
-1. **Externe Integrationen** — Kalender/E-Mail als separate, freigabepflichtige Tools
-3. **Live-Agent vertiefen** — Kontextlimits, bessere Fehler-UX, optional mehr Tools
+1. **Schritt 18 — Kalender härten** — Export-Fehler in der UI, optional ICS-Fallback, Tokens nicht im Klartext in SQLite (Key aus `NEXO_SESSION_SECRET` o. Ä.)
+2. **Schritt 19 — E2E Export-Pfad** — CI-sicher testen, ohne Google Cloud Credentials im Repo
+3. **Schritt 20 — Live-Agent** — verständliche Fehler, Kontextlimits kommunizieren
 
-Bereits umgesetzt (ehemals in dieser Liste): Auth, Chat leeren, Live-Agent-Basis, Erinnerungen bearbeiten/Konflikte, Tagesplan, E2E lokal.
+## Danach
+
+4. **E-Mail-Skelett** (Opt-in + Freigabe, wie Kalender Beta)
+5. **Microsoft Kalender** (zweiter Provider)
+
+## Erledigt (Kurz)
+
+Auth, Chat leeren, Aktivitäten, Erinnerungen bearbeiten, Tagesplan, Live-Agent-Basis, CI, Hosting-Runbook, Opt-in-Erinnerungen, Kalender-Entwürfe, Google OAuth/Export, E2E Kern + Kalender.
+
+## Manuell testen
+
+- [MANUAL_TEST.md](./MANUAL_TEST.md)
+- Google Kalender: [INTEGRATIONS.md](./INTEGRATIONS.md) + `.env.example`
