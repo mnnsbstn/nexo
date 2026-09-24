@@ -2,8 +2,7 @@ import { prisma, ensureDefaultSettings } from "@/lib/db";
 import { getModelMode } from "@/server/model/provider";
 import { runDemoAgent } from "@/server/agent/demo-agent";
 import { runLiveAgent } from "@/server/agent/openai-agent";
-
-const MAX_AGENT_STEPS = 3;
+import { MAX_LIVE_TOOL_ROUNDS } from "@/server/agent/config";
 
 export async function getOrCreateDefaultConversation() {
   await ensureDefaultSettings();
@@ -20,7 +19,12 @@ export async function handleChatMessage(conversationId: string, content: string)
   });
 
   const mode = getModelMode();
-  let result;
+  let result: Awaited<ReturnType<typeof runDemoAgent>> & {
+    liveFallback?: boolean;
+    liveError?: string;
+  };
+  let effectiveMode: "live" | "demo" = mode;
+
   try {
     if (mode === "live") {
       result = await runLiveAgent(content, {
@@ -34,17 +38,49 @@ export async function handleChatMessage(conversationId: string, content: string)
       });
     }
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Agent-Fehler";
-    const assistantMsg = await prisma.message.create({
-      data: {
-        conversationId,
-        role: "assistant",
-        content: `Fehler bei der Verarbeitung: ${message}. Du kannst es erneut versuchen.`,
-        metadata: JSON.stringify({ error: true }),
-      },
-    });
-    return { userMsg, assistantMsg, proposals: [], mode, error: message };
+    const liveError = err instanceof Error ? err.message : "Agent-Fehler";
+
+    if (mode === "live") {
+      try {
+        const demo = await runDemoAgent(content, {
+          conversationId,
+          messageId: userMsg.id,
+        });
+        result = {
+          ...demo,
+          reply: [
+            "**Live-Modus fehlgeschlagen** — automatischer Demo-Fallback (keine echte Live-Ausgabe):",
+            "",
+            `_Fehler: ${liveError}_`,
+            "",
+            demo.reply,
+          ].join("\n"),
+          liveFallback: true,
+          liveError,
+        };
+        effectiveMode = "demo";
+      } catch {
+        const assistantMsg = await prisma.message.create({
+          data: {
+            conversationId,
+            role: "assistant",
+            content: `**Live-Modus fehlgeschlagen**\n\n${liveError}\n\nBitte API-Konfiguration prüfen oder später erneut versuchen.`,
+            metadata: JSON.stringify({ error: true, live: true }),
+          },
+        });
+        return { userMsg, assistantMsg, proposals: [], mode: "live", error: liveError };
+      }
+    } else {
+      const assistantMsg = await prisma.message.create({
+        data: {
+          conversationId,
+          role: "assistant",
+          content: `Fehler bei der Verarbeitung: ${liveError}. Du kannst es erneut versuchen.`,
+          metadata: JSON.stringify({ error: true, demo: true }),
+        },
+      });
+      return { userMsg, assistantMsg, proposals: [], mode, error: liveError };
+    }
   }
 
   const assistantMsg = await prisma.message.create({
@@ -54,7 +90,10 @@ export async function handleChatMessage(conversationId: string, content: string)
       content: result.reply,
       metadata: JSON.stringify({
         proposalIds: result.proposalIds,
-        demo: result.demo ?? mode === "demo",
+        demo: result.demo ?? effectiveMode === "demo",
+        live: effectiveMode === "live" && !result.liveFallback,
+        liveFallback: result.liveFallback ?? false,
+        liveError: result.liveError,
       }),
     },
   });
@@ -75,7 +114,8 @@ export async function handleChatMessage(conversationId: string, content: string)
     userMsg,
     assistantMsg,
     proposals,
-    mode,
-    stepsUsed: MAX_AGENT_STEPS,
+    mode: effectiveMode,
+    stepsUsed: MAX_LIVE_TOOL_ROUNDS,
+    liveFallback: result.liveFallback,
   };
 }

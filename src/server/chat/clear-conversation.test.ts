@@ -29,14 +29,15 @@ describe("clearConversationChat", () => {
       summary: "s",
       affectedData: "a",
     });
-    await prisma.task.create({ data: { title: "Bleibt", status: "open" } });
+    const keepTitle = `Bleibt-${Date.now()}`;
+    await prisma.task.create({ data: { title: keepTitle, status: "open" } });
 
     const result = await clearConversationChat(conv.id);
     expect(result.messagesDeleted).toBe(2);
     expect(result.proposalsRejected).toBe(1);
 
     expect(await prisma.message.count({ where: { conversationId: conv.id } })).toBe(0);
-    expect(await prisma.task.count({ where: { title: "Bleibt" } })).toBe(1);
+    expect(await prisma.task.count({ where: { title: keepTitle } })).toBe(1);
     const proposal = await prisma.actionProposal.findFirst({ where: { conversationId: conv.id } });
     expect(proposal?.status).toBe("rejected");
   });
