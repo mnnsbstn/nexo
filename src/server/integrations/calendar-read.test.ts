@@ -22,7 +22,7 @@ describe("listExternalCalendarEvents", () => {
     vi.stubEnv("NEXO_E2E_CALENDAR_MOCK", "1");
     await prisma.calendarConnection.create({
       data: {
-        id: "default",
+        id: "google",
         provider: "google",
         accessToken: "tok",
         expiresAt: new Date(Date.now() + 3600_000),
@@ -37,7 +37,8 @@ describe("listExternalCalendarEvents", () => {
   it("parses Google API response", async () => {
     await prisma.calendarConnection.create({
       data: {
-        id: "default",
+        id: "google",
+        provider: "google",
         accessToken: "tok",
         expiresAt: new Date(Date.now() + 3600_000),
       },

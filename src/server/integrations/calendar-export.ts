@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
-import { getCalendarConnection } from "@/server/integrations/calendar-connection";
+import { getSettings } from "@/lib/settings";
 import type { CalendarProvider } from "@/server/integrations/calendar-provider";
+import { resolveCalendarExportProvider } from "@/server/integrations/calendar-export-target";
 import {
   getICloudCalendarCredentials,
   getValidCalendarAccessToken,
@@ -20,10 +21,11 @@ export type CalendarExportResult = {
 export async function exportDraftToExternalCalendar(
   draftId: string,
 ): Promise<CalendarExportResult> {
-  const connection = await getCalendarConnection();
-  const auth = await getValidCalendarAccessToken();
+  const settings = await getSettings();
+  const exportProvider = await resolveCalendarExportProvider(settings);
+  const auth = exportProvider ? await getValidCalendarAccessToken(exportProvider) : null;
 
-  if (!connection || !auth) {
+  if (!exportProvider || !auth) {
     return {
       exported: false,
       connected: false,
@@ -37,7 +39,7 @@ export async function exportDraftToExternalCalendar(
     return { exported: false, connected: true, message: "Entwurf nicht gefunden." };
   }
 
-  const provider = auth.provider;
+  const provider = exportProvider;
 
   try {
     let eventId: string;

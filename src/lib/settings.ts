@@ -1,4 +1,6 @@
 import { prisma, ensureDefaultSettings } from "@/lib/db";
+import type { CalendarProvider } from "@/server/integrations/calendar-provider";
+import { parseCalendarProvider } from "@/server/integrations/calendar-provider";
 
 export type AppSettings = {
   uiLanguage: string;
@@ -7,6 +9,7 @@ export type AppSettings = {
   notifyInAppDueTasks: boolean;
   notifyBrowserDueTasks: boolean;
   calendarIntegrationEnabled: boolean;
+  calendarExportProvider: CalendarProvider | null;
   emailIntegrationEnabled: boolean;
 };
 
@@ -20,6 +23,9 @@ export async function getSettings(): Promise<AppSettings> {
     notifyInAppDueTasks: s.notifyInAppDueTasks,
     notifyBrowserDueTasks: s.notifyBrowserDueTasks,
     calendarIntegrationEnabled: s.calendarIntegrationEnabled,
+    calendarExportProvider: s.calendarExportProvider
+      ? parseCalendarProvider(s.calendarExportProvider)
+      : null,
     emailIntegrationEnabled: s.emailIntegrationEnabled,
   };
 }

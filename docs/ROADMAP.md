@@ -62,8 +62,8 @@ Reihenfolge ist Vorschlag; ein Satz genügt zum Umstellen.
 |---|----------|---------------|------------------|
 | **23** | E-Mail SMTP-Versand | Nach Entwurf + **manueller** Senden-Button; SMTP-Env; E2E-Mock | ✅ merged (#24) |
 | **24** | Kalender extern lesen | Read-only: nächste Termine (verbundener Provider) | ✅ merged (#25) |
-| **26** | iCloud Kalender + Mail | CalDAV Export/Lesen; SMTP + IMAP read-only; Einstellungen-Form | Ein Connect für Kalender + Mail |
-| **25** | Multi-Kalender (optional) | Google + Microsoft parallel | Zwei Verbindungen, Export-Ziel wählbar |
+| **26** | iCloud Kalender + Mail | CalDAV Export/Lesen; SMTP + IMAP read-only; Einstellungen-Form | ✅ merged (#26) |
+| **25** | Multi-Kalender | Google + Microsoft + iCloud parallel | Export-Ziel wählbar, read merged |
 
 Leitplanken Phase 5: weiter **Freigabe vor Wirkung**, Single-User, SQLite.
 

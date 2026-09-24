@@ -66,7 +66,7 @@ Ein Klick verbindet **Kalender (CalDAV)** und **Mail (SMTP-Versand + IMAP read-o
 - Mail-Versand: `smtp.mail.me.com:587` (manuell in Einstellungen, wie SMTP-.env)
 - Posteingang-Vorschau: IMAP read-only in Einstellungen (kein Sync)
 
-Pro Instanz weiter **ein** Kalender-Provider aktiv; iCloud ersetzt Google/Microsoft beim Verbinden.
+Mehrere Kalender können **parallel** verbunden sein; in Einstellungen wählst du das **Export-Ziel**. iCloud-Mail bleibt an `EmailConnection` gekoppelt.
 
 ### 3. Extern lesen (read-only)
 

@@ -10,6 +10,7 @@ export function SettingsView() {
     notifyInAppDueTasks: false,
     notifyBrowserDueTasks: false,
     calendarIntegrationEnabled: false,
+    calendarExportProvider: null as string | null,
     emailIntegrationEnabled: false,
   });
   const [emailDrafts, setEmailDrafts] = useState<
@@ -50,9 +51,13 @@ export function SettingsView() {
     googleOAuthConfigured?: boolean;
     microsoftOAuthConfigured?: boolean;
     icloudAvailable?: boolean;
+    googleConnected?: boolean;
+    microsoftConnected?: boolean;
     icloudConnected?: boolean;
     connected: boolean;
     provider?: string | null;
+    exportProvider?: string | null;
+    connections?: { provider: string; accountEmail: string | null }[];
     accountEmail: string | null;
     message: string;
   } | null>(null);
@@ -81,6 +86,24 @@ export function SettingsView() {
   const [saved, setSaved] = useState(false);
   const [demoMsg, setDemoMsg] = useState<string | null>(null);
 
+  function calendarStatusFromApi(d: Record<string, unknown>) {
+    return {
+      oauthConfigured: Boolean(d.oauthConfigured),
+      googleOAuthConfigured: Boolean(d.googleOAuthConfigured),
+      microsoftOAuthConfigured: Boolean(d.microsoftOAuthConfigured),
+      icloudAvailable: d.icloudAvailable !== false,
+      googleConnected: Boolean(d.googleConnected),
+      microsoftConnected: Boolean(d.microsoftConnected),
+      icloudConnected: Boolean(d.icloudConnected),
+      connected: Boolean(d.connected),
+      provider: (d.provider as string | null) ?? null,
+      exportProvider: (d.exportProvider as string | null) ?? null,
+      connections: (d.connections as { provider: string; accountEmail: string | null }[]) ?? [],
+      accountEmail: (d.accountEmail as string | null) ?? null,
+      message: (d.message as string) ?? "",
+    };
+  }
+
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => r.json())
@@ -89,17 +112,13 @@ export function SettingsView() {
       .then((r) => r.json())
       .then((d) => {
         setCalendarDrafts(d.drafts ?? []);
-        setCalendarStatus({
-          oauthConfigured: Boolean(d.oauthConfigured),
-          googleOAuthConfigured: Boolean(d.googleOAuthConfigured),
-          microsoftOAuthConfigured: Boolean(d.microsoftOAuthConfigured),
-          icloudAvailable: d.icloudAvailable !== false,
-          icloudConnected: Boolean(d.icloudConnected),
-          connected: Boolean(d.connected),
-          provider: d.provider ?? null,
-          accountEmail: d.accountEmail ?? null,
-          message: d.message ?? "",
-        });
+        setCalendarStatus(calendarStatusFromApi(d));
+        if (d.exportProvider && !settings.calendarExportProvider) {
+          setSettings((s) => ({
+            ...s,
+            calendarExportProvider: (d.exportProvider as string) ?? null,
+          }));
+        }
         if (d.connected && d.enabled) {
           fetch("/api/integrations/calendar/events?limit=8")
             .then((r) => r.json())
@@ -201,17 +220,7 @@ export function SettingsView() {
     const res = await fetch("/api/integrations/calendar");
     const d = await res.json();
     setCalendarDrafts(d.drafts ?? []);
-    setCalendarStatus({
-      oauthConfigured: Boolean(d.oauthConfigured),
-      googleOAuthConfigured: Boolean(d.googleOAuthConfigured),
-      microsoftOAuthConfigured: Boolean(d.microsoftOAuthConfigured),
-      icloudAvailable: d.icloudAvailable !== false,
-      icloudConnected: Boolean(d.icloudConnected),
-      connected: Boolean(d.connected),
-      provider: d.provider ?? null,
-      accountEmail: d.accountEmail ?? null,
-      message: d.message ?? "",
-    });
+    setCalendarStatus(calendarStatusFromApi(d));
     if (d.connected && d.enabled) {
       await reloadExternalCalendarEvents();
     } else {
@@ -281,8 +290,14 @@ export function SettingsView() {
     await reloadCalendarDrafts();
   }
 
-  async function disconnectGoogle() {
-    await fetch("/api/integrations/calendar/connection", { method: "DELETE" });
+  async function disconnectCalendarProvider(provider: string) {
+    if (provider === "icloud") {
+      await disconnectICloud();
+      return;
+    }
+    await fetch(`/api/integrations/calendar/connection?provider=${provider}`, {
+      method: "DELETE",
+    });
     await reloadCalendarDrafts();
   }
 
@@ -485,7 +500,7 @@ export function SettingsView() {
           <h2 className="font-medium text-sm">Kalender-Entwürfe (Beta)</h2>
           <p className="text-xs text-stone-600 mt-1">
             Opt-in für freigabepflichtige Termin-Entwürfe. Mit Google, Microsoft oder iCloud
-            verbunden → Export nach Bestätigung; sonst nur Entwurf in Nexo (+ .ics).
+            verbunden (auch mehrere parallel) → Export nach Bestätigung; Export-Ziel wählbar.
           </p>
         </div>
         {calendarBanner && (
@@ -496,7 +511,7 @@ export function SettingsView() {
         {calendarStatus && (
           <p className="text-xs text-stone-600">{calendarStatus.message}</p>
         )}
-        {!calendarStatus?.connected && calendarStatus?.googleOAuthConfigured && (
+        {!calendarStatus?.googleConnected && calendarStatus?.googleOAuthConfigured && (
           <a
             href="/api/integrations/calendar/connect"
             className="inline-block text-sm px-3 py-2 rounded-lg bg-white border border-stone-300 hover:bg-stone-50"
@@ -504,7 +519,7 @@ export function SettingsView() {
             Mit Google verbinden
           </a>
         )}
-        {!calendarStatus?.connected && calendarStatus?.microsoftOAuthConfigured && (
+        {!calendarStatus?.microsoftConnected && calendarStatus?.microsoftOAuthConfigured && (
           <a
             href="/api/integrations/calendar/microsoft/connect"
             className="inline-block text-sm px-3 py-2 rounded-lg bg-white border border-stone-300 hover:bg-stone-50 ml-0 sm:ml-2 mt-2 sm:mt-0"
@@ -512,7 +527,7 @@ export function SettingsView() {
             Mit Microsoft verbinden
           </a>
         )}
-        {!calendarStatus?.connected && calendarStatus?.icloudAvailable !== false && (
+        {!calendarStatus?.icloudConnected && calendarStatus?.icloudAvailable !== false && (
           <div className="border border-stone-200 rounded-lg p-3 space-y-2 bg-stone-50/80">
             <p className="text-xs font-medium text-stone-700">iCloud (Kalender + Mail)</p>
             <p className="text-xs text-stone-600">
@@ -558,30 +573,56 @@ export function SettingsView() {
             </button>
           </div>
         )}
-        {calendarStatus?.connected && (
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="text-stone-700">
-              Verbunden ({connectedProviderLabel(calendarStatus.provider)})
-              {calendarStatus.accountEmail ? `: ${calendarStatus.accountEmail}` : ""}
+        {(calendarStatus?.connections?.length ?? 0) > 0 && (
+          <ul className="text-sm space-y-2">
+            {calendarStatus?.connections?.map((c) => (
+              <li
+                key={c.provider}
+                className="flex flex-wrap items-center gap-2 border border-stone-100 rounded-lg px-3 py-2"
+              >
+                <span className="text-stone-700">
+                  {connectedProviderLabel(c.provider)}
+                  {c.accountEmail ? `: ${c.accountEmail}` : ""}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => disconnectCalendarProvider(c.provider)}
+                  className="text-xs px-2 py-1 border border-stone-300 rounded-lg"
+                >
+                  Trennen
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {calendarStatus?.connected && (calendarStatus.connections?.length ?? 0) > 0 && (
+          <label className="block text-sm">
+            <span className="font-medium">Export-Ziel</span>
+            <span className="block text-xs text-stone-600 mb-1">
+              Wohin bestätigte Termin-Entwürfe geschrieben werden.
             </span>
-            {calendarStatus.provider === "icloud" ? (
-              <button
-                type="button"
-                onClick={disconnectICloud}
-                className="text-xs px-2 py-1 border border-stone-300 rounded-lg"
-              >
-                iCloud trennen
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={disconnectGoogle}
-                className="text-xs px-2 py-1 border border-stone-300 rounded-lg"
-              >
-                Trennen
-              </button>
-            )}
-          </div>
+            <select
+              className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm"
+              value={
+                settings.calendarExportProvider ??
+                calendarStatus.exportProvider ??
+                calendarStatus.connections?.[0]?.provider ??
+                "google"
+              }
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  calendarExportProvider: e.target.value || null,
+                })
+              }
+            >
+              {calendarStatus.connections?.map((c) => (
+                <option key={c.provider} value={c.provider}>
+                  {connectedProviderLabel(c.provider)}
+                </option>
+              ))}
+            </select>
+          </label>
         )}
         {calendarStatus?.connected && (
           <div className="border border-stone-100 rounded-lg p-3 space-y-2 bg-stone-50/50">

@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/db";
 import { isE2eCalendarMockEnabled } from "@/lib/e2e-calendar-mock";
 import type { CalendarProvider } from "@/server/integrations/calendar-provider";
-import { calendarProviderLabel } from "@/server/integrations/calendar-provider";
+import { calendarProviderLabel, parseCalendarProvider } from "@/server/integrations/calendar-provider";
+import { listCalendarConnections } from "@/server/integrations/calendar-connection";
 import {
   getICloudCalendarCredentials,
   getValidCalendarAccessToken,
@@ -46,9 +46,9 @@ async function listGoogleEvents(
   accessToken: string,
   limit: number,
   daysAhead: number,
+  calendarIdRaw?: string,
 ): Promise<ExternalCalendarEvent[]> {
-  const conn = await prisma.calendarConnection.findUnique({ where: { id: "default" } });
-  const calendarId = encodeURIComponent(conn?.calendarId ?? "primary");
+  const calendarId = encodeURIComponent(calendarIdRaw ?? "primary");
   const timeMin = new Date().toISOString();
   const timeMax = new Date(Date.now() + daysAhead * 86_400_000).toISOString();
   const params = new URLSearchParams({
@@ -138,6 +138,32 @@ async function listMicrosoftEvents(
   }));
 }
 
+async function listEventsForProvider(
+  provider: CalendarProvider,
+  auth: { token: string },
+  connCalendarId: string,
+  limit: number,
+  daysAhead: number,
+): Promise<ExternalCalendarEvent[]> {
+  if (provider === "microsoft") {
+    return listMicrosoftEvents(auth.token, limit, daysAhead);
+  }
+  if (provider === "icloud") {
+    const icloud = await getICloudCalendarCredentials();
+    if (!icloud?.calendarUrl) {
+      throw new Error("iCloud Kalender nicht vollständig verbunden.");
+    }
+    const rows = await listICloudCalendarEvents(
+      { appleId: icloud.appleId, appPassword: icloud.appPassword },
+      icloud.calendarUrl,
+      limit,
+      daysAhead,
+    );
+    return rows.map((row) => ({ ...row, provider: "icloud" as const }));
+  }
+  return listGoogleEvents(auth.token, limit, daysAhead, connCalendarId);
+}
+
 export async function listExternalCalendarEvents(options?: {
   limit?: number;
   daysAhead?: number;
@@ -145,8 +171,8 @@ export async function listExternalCalendarEvents(options?: {
   const limit = Math.min(Math.max(options?.limit ?? 10, 1), 25);
   const daysAhead = Math.min(Math.max(options?.daysAhead ?? 14, 1), 60);
 
-  const auth = await getValidCalendarAccessToken();
-  if (!auth) {
+  const connections = await listCalendarConnections();
+  if (connections.length === 0) {
     return {
       connected: false,
       provider: null,
@@ -155,52 +181,56 @@ export async function listExternalCalendarEvents(options?: {
     };
   }
 
+  const providers = connections.map((c) => parseCalendarProvider(c.provider));
+
   if (isE2eCalendarMockEnabled()) {
     return {
       connected: true,
-      provider: auth.provider,
-      events: mockEvents(auth.provider),
+      provider: providers[0] ?? null,
+      events: mockEvents(providers[0] ?? "google"),
       message: "Read-only Vorschau (E2E-Mock, kein Live-Abruf).",
     };
   }
 
-  try {
-    let events: ExternalCalendarEvent[];
-    if (auth.provider === "microsoft") {
-      events = await listMicrosoftEvents(auth.token, limit, daysAhead);
-    } else if (auth.provider === "icloud") {
-      const icloud = await getICloudCalendarCredentials();
-      if (!icloud?.calendarUrl) {
-        throw new Error("iCloud Kalender nicht vollständig verbunden.");
-      }
-      const rows = await listICloudCalendarEvents(
-        { appleId: icloud.appleId, appPassword: icloud.appPassword },
-        icloud.calendarUrl,
+  const merged: ExternalCalendarEvent[] = [];
+  const errors: string[] = [];
+
+  for (const conn of connections) {
+    const provider = parseCalendarProvider(conn.provider);
+    const auth = await getValidCalendarAccessToken(provider);
+    if (!auth) continue;
+    try {
+      const chunk = await listEventsForProvider(
+        provider,
+        auth,
+        conn.calendarId,
         limit,
         daysAhead,
       );
-      events = rows.map((row) => ({ ...row, provider: "icloud" as const }));
-    } else {
-      events = await listGoogleEvents(auth.token, limit, daysAhead);
+      merged.push(...chunk);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Lesen fehlgeschlagen";
+      errors.push(`${calendarProviderLabel(provider)}: ${msg}`);
     }
-
-    return {
-      connected: true,
-      provider: auth.provider,
-      events,
-      message:
-        events.length > 0
-          ? `${events.length} Termin(e) aus ${calendarProviderLabel(auth.provider)} (read-only, kein Sync).`
-          : "Keine Termine im gewählten Zeitraum gefunden.",
-    };
-  } catch (err) {
-    const readError = err instanceof Error ? err.message : "Kalender lesen fehlgeschlagen";
-    return {
-      connected: true,
-      provider: auth.provider,
-      events: [],
-      message: "Externe Termine konnten nicht geladen werden.",
-      readError,
-    };
   }
+
+  merged.sort((a, b) => a.startAt.localeCompare(b.startAt));
+  const events = merged.slice(0, limit);
+  const providerLabel =
+    providers.length === 1
+      ? calendarProviderLabel(providers[0]!)
+      : `${providers.length} Kalender`;
+
+  return {
+    connected: true,
+    provider: providers.length === 1 ? providers[0]! : null,
+    events,
+    message:
+      events.length > 0
+        ? `${events.length} Termin(e) aus ${providerLabel} (read-only, kein Sync).`
+        : errors.length > 0
+          ? "Externe Termine konnten nicht geladen werden."
+          : "Keine Termine im gewählten Zeitraum gefunden.",
+    readError: errors.length > 0 ? errors.join(" · ") : undefined,
+  };
 }

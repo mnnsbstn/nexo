@@ -15,7 +15,7 @@ describe("exportDraftToExternalCalendar", () => {
   it("exports via Microsoft Graph when provider is microsoft", async () => {
     await prisma.calendarConnection.create({
       data: {
-        id: "default",
+        id: "microsoft",
         provider: "microsoft",
         accessToken: "token",
         expiresAt: new Date(Date.now() + 3600_000),
@@ -51,7 +51,7 @@ describe("exportDraftToExternalCalendar", () => {
     vi.stubEnv("NEXO_E2E_CALENDAR_MOCK", "1");
     await prisma.calendarConnection.create({
       data: {
-        id: "default",
+        id: "icloud",
         provider: "icloud",
         accessToken: "app-pass",
         accountEmail: "user@icloud.com",

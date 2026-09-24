@@ -1,48 +1,49 @@
-import { prisma } from "@/lib/db";
+import type { CalendarProvider } from "@/server/integrations/calendar-provider";
+import { parseCalendarProvider } from "@/server/integrations/calendar-provider";
 import {
   decryptConnectionTokens,
+  getCalendarConnection,
   updateCalendarAccessToken,
 } from "@/server/integrations/calendar-connection";
-import { parseCalendarProvider } from "@/server/integrations/calendar-provider";
 import { refreshGoogleAccessToken } from "@/server/integrations/google-oauth";
 import { refreshMicrosoftAccessToken } from "@/server/integrations/microsoft-oauth";
 
-export async function getValidCalendarAccessToken(): Promise<{
+export async function getValidCalendarAccessToken(provider: CalendarProvider): Promise<{
   token: string;
-  provider: ReturnType<typeof parseCalendarProvider>;
+  provider: CalendarProvider;
   accountEmail: string | null;
 } | null> {
-  const conn = await prisma.calendarConnection.findUnique({ where: { id: "default" } });
+  const conn = await getCalendarConnection(provider);
   if (!conn) return null;
 
-  const provider = parseCalendarProvider(conn.provider);
+  const parsed = parseCalendarProvider(conn.provider);
   const { accessToken, refreshToken } = decryptConnectionTokens(conn);
 
-  if (provider === "icloud") {
+  if (parsed === "icloud") {
     return accessToken
-      ? { token: accessToken, provider, accountEmail: conn.accountEmail ?? null }
+      ? { token: accessToken, provider: parsed, accountEmail: conn.accountEmail ?? null }
       : null;
   }
 
   const now = Date.now();
   const expires = conn.expiresAt?.getTime() ?? 0;
   if (accessToken && expires > now + 60_000) {
-    return { token: accessToken, provider, accountEmail: conn.accountEmail ?? null };
+    return { token: accessToken, provider: parsed, accountEmail: conn.accountEmail ?? null };
   }
   if (!refreshToken) {
     return accessToken
-      ? { token: accessToken, provider, accountEmail: conn.accountEmail ?? null }
+      ? { token: accessToken, provider: parsed, accountEmail: conn.accountEmail ?? null }
       : null;
   }
 
   const refreshed =
-    provider === "microsoft"
+    parsed === "microsoft"
       ? await refreshMicrosoftAccessToken(refreshToken)
       : await refreshGoogleAccessToken(refreshToken);
-  await updateCalendarAccessToken(refreshed.accessToken, refreshed.expiresAt);
+  await updateCalendarAccessToken(parsed, refreshed.accessToken, refreshed.expiresAt);
   return {
     token: refreshed.accessToken,
-    provider,
+    provider: parsed,
     accountEmail: conn.accountEmail ?? null,
   };
 }
@@ -52,7 +53,7 @@ export async function getICloudCalendarCredentials(): Promise<{
   appPassword: string;
   calendarUrl: string;
 } | null> {
-  const conn = await prisma.calendarConnection.findUnique({ where: { id: "default" } });
+  const conn = await getCalendarConnection("icloud");
   if (!conn || conn.provider !== "icloud") return null;
   const { accessToken } = decryptConnectionTokens(conn);
   const appleId = conn.accountEmail?.trim();
