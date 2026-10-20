@@ -45,11 +45,13 @@ Tokens liegen verschlüsselt in SQLite (`CalendarConnection`, AES-GCM via `NEXO_
 
 `{NEXO_PUBLIC_URL}/api/integrations/calendar/microsoft/callback`
 
-**API-Berechtigung:** `Calendars.ReadWrite`, `User.Read` (delegiert).
+**API-Berechtigung:** `Calendars.ReadWrite`, `Mail.Read`, `User.Read` (delegiert).
 
 In **Einstellungen** → **Mit Microsoft verbinden**. Mehrere Provider parallel möglich — **Export-Ziel** wählen.
 
 Export erfolgt über **Microsoft Graph** (`POST /me/events`).
+
+**Posteingang (read-only):** Wenn Microsoft-Kalender verbunden ist, liest Nexo den Outlook-Posteingang über Graph (`GET /me/mailFolders/inbox/messages`) — kein Versand, kein Sync. Nach Scope-Erweiterung (`Mail.Read`) ggf. **Microsoft erneut verbinden**, damit das Token die Mail-Berechtigung enthält.
 
 ### 2c. iCloud Kalender + Mail (optional, ohne Server-OAuth)
 
@@ -91,7 +93,7 @@ In **Einstellungen** → **CalDAV verbinden**: Server-URL (z. B. Nextcloud `/r
 |------|-----|--------|
 | `get_calendar_integration_status` | read | Aktiv, OAuth konfiguriert, verbunden |
 | `list_external_calendar_events` | read | Kommende Termine (Google/Outlook/iCloud) |
-| `list_external_inbox_messages` | read | iCloud Posteingang (read-only) |
+| `list_external_inbox_messages` | read | Outlook- und/oder iCloud-Posteingang (read-only) |
 | `list_calendar_drafts` | read | Nexo-Entwürfe |
 | `propose_action` + `external_calendar_draft` | write (Freigabe) | `scope: external` |
 

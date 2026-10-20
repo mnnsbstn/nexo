@@ -1,15 +1,15 @@
 # Nexo — Nächste Schritte
 
-Stand nach **Phase 7 Schritt 29** (VAPID-E2E, in PR). Details: **[ROADMAP.md](./ROADMAP.md)**.
+Stand nach **Phase 7 Schritt 30** (Outlook read-only, in PR). Details: **[ROADMAP.md](./ROADMAP.md)**.
 
 ## Als Nächstes (empfohlen)
 
-1. **Staging/Prod:** [MANUAL_TEST.md](./MANUAL_TEST.md) §12–13 mit **eigenen** VAPID-Keys (nicht die Playwright-Fixture-Keys)
-2. **Phase 7 Schritt 30:** Priorität setzen (Microsoft-Mail read-only, OAuth-Härtung, …)
+1. **Staging/Prod:** Microsoft **neu verbinden** (Mail.Read), dann Posteingang in Einstellungen prüfen — [MANUAL_TEST.md](./MANUAL_TEST.md)
+2. **Phase 7+ / Phase 8:** OAuth-Härtung, Microsoft-Mail + SMTP-Send, weitere Provider — Priorität per Satz
 
 ## Erledigt (Kurz)
 
-Phase 6, Hosting-Runbook (#31), E2E Sync-Einblicke/CalDAV (#30), VAPID-E2E-Fixture (#29 PR).
+Phase 6–7 (#29–#32), Hosting-Runbook, E2E Sync/Push/CalDAV, Outlook-Posteingang read-only (#30 PR).
 
 ## Manuell testen
 

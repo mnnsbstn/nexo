@@ -20,4 +20,4 @@ export function microsoftRedirectUri(): string {
 }
 
 export const MICROSOFT_CALENDAR_SCOPE =
-  "offline_access openid profile email Calendars.ReadWrite User.Read";
+  "offline_access openid profile email Calendars.ReadWrite Mail.Read User.Read";

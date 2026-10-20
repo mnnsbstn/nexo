@@ -31,9 +31,11 @@ export function SettingsView() {
     sendConfigured?: boolean;
     icloudConnected?: boolean;
     icloudAccountEmail?: string | null;
+    microsoftInboxAvailable?: boolean;
+    externalInboxAvailable?: boolean;
   } | null>(null);
   const [externalInboxMessages, setExternalInboxMessages] = useState<
-    { id: string; subject: string; from: string; dateLabel: string }[]
+    { id: string; subject: string; from: string; dateLabel: string; provider?: string }[]
   >([]);
   const [externalInboxHint, setExternalInboxHint] = useState<string | null>(null);
   const [calendarDrafts, setCalendarDrafts] = useState<
@@ -165,8 +167,10 @@ export function SettingsView() {
           sendConfigured: Boolean(d.sendConfigured),
           icloudConnected: Boolean(d.icloudConnected),
           icloudAccountEmail: d.icloudAccountEmail ?? null,
+          microsoftInboxAvailable: Boolean(d.microsoftInboxAvailable),
+          externalInboxAvailable: Boolean(d.externalInboxAvailable),
         });
-        if (d.icloudConnected && d.enabled) {
+        if (d.externalInboxAvailable && d.enabled) {
           fetch("/api/integrations/email/messages?limit=6")
             .then((r) => r.json())
             .then((inbox) => {
@@ -280,8 +284,10 @@ export function SettingsView() {
         sendConfigured: Boolean(emailData.sendConfigured),
         icloudConnected: Boolean(emailData.icloudConnected),
         icloudAccountEmail: emailData.icloudAccountEmail ?? null,
+        microsoftInboxAvailable: Boolean(emailData.microsoftInboxAvailable),
+        externalInboxAvailable: Boolean(emailData.externalInboxAvailable),
       });
-      if (emailData.icloudConnected && settings.emailIntegrationEnabled) {
+      if (emailData.externalInboxAvailable && settings.emailIntegrationEnabled) {
         const inboxRes = await fetch("/api/integrations/email/messages?limit=6");
         const inbox = await inboxRes.json();
         setExternalInboxMessages(inbox.messages ?? []);
@@ -304,6 +310,8 @@ export function SettingsView() {
       sendConfigured: Boolean(emailData.sendConfigured),
       icloudConnected: Boolean(emailData.icloudConnected),
       icloudAccountEmail: emailData.icloudAccountEmail ?? null,
+      microsoftInboxAvailable: Boolean(emailData.microsoftInboxAvailable),
+      externalInboxAvailable: Boolean(emailData.externalInboxAvailable),
     });
     setExternalInboxMessages([]);
     setExternalInboxHint(null);
@@ -887,15 +895,25 @@ export function SettingsView() {
           </p>
         </div>
         {emailStatus && <p className="text-xs text-stone-600">{emailStatus.message}</p>}
-        {emailStatus?.icloudConnected && (
+        {emailStatus?.externalInboxAvailable && (
           <div className="border border-stone-100 rounded-lg p-3 space-y-2 bg-stone-50/50">
-            <p className="text-xs font-medium text-stone-700">iCloud Posteingang (read-only)</p>
+            <p className="text-xs font-medium text-stone-700">
+              Externer Posteingang (read-only)
+              {emailStatus.microsoftInboxAvailable && emailStatus.icloudConnected
+                ? " · Outlook + iCloud"
+                : emailStatus.microsoftInboxAvailable
+                  ? " · Outlook"
+                  : " · iCloud"}
+            </p>
             {externalInboxMessages.length > 0 ? (
               <ul className="text-xs space-y-1 text-stone-800">
                 {externalInboxMessages.map((m) => (
-                  <li key={m.id}>
+                  <li key={`${m.provider ?? "mail"}-${m.id}`}>
                     <span className="text-stone-500">{m.dateLabel}</span> — {m.subject}
                     <span className="text-stone-500"> · {m.from}</span>
+                    {m.provider === "microsoft" && (
+                      <span className="text-stone-400"> · Outlook</span>
+                    )}
                   </li>
                 ))}
               </ul>

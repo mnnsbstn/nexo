@@ -82,7 +82,7 @@ export async function runLiveAgent(
     calendarLine,
     emailLine,
     "Kalender: get_calendar_integration_status (mehrere Provider parallel möglich), list_external_calendar_events (read-only, merged), list_calendar_drafts.",
-    "E-Mail: get_email_integration_status, list_email_drafts, list_external_inbox_messages (iCloud read-only).",
+    "E-Mail: get_email_integration_status, list_email_drafts, list_external_inbox_messages (Outlook/iCloud read-only).",
     "Offene Freigaben: list_pending_proposals (read-only).",
     "Nutze Tools für Fakten. Erfinde keine Aufgaben oder Erinnerungen.",
     "Schreibende Änderungen NUR über propose_action — nie behaupten, sie seien schon erledigt.",

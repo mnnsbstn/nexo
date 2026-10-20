@@ -128,6 +128,7 @@ Details: [INTEGRATIONS.md](./INTEGRATIONS.md)
 4. **Bestätigen** → Entwurf unter Einstellungen (Status **Gespeichert**)
 5. Mit SMTP in `.env`: **E-Mail senden…** → Browser-Bestätigung → Status **Gesendet** (ohne SMTP: kein Senden-Button)
 6. Mit deaktivierter Integration: Chat-Hinweis, keine Karte
+7. **Posteingang (read-only):** iCloud Mail verbunden **oder** Microsoft-Kalender mit `Mail.Read` → Block **Externer Posteingang** in Einstellungen (nach Microsoft-Neuverbindung bei Scope-Update)
 
 ## 12. Multi-Kalender & Sync-Einblicke (Phase 5–6)
 
