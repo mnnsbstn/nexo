@@ -49,6 +49,8 @@ Tokens liegen verschlüsselt in SQLite (`CalendarConnection`, AES-GCM via `NEXO_
 
 In **Einstellungen** → **Mit Microsoft verbinden**. Mehrere Provider parallel möglich — **Export-Ziel** wählen.
 
+Bei abgelaufenen Tokens zeigt Nexo unter **Verbundene Kalender** einen Hinweis und **Erneut verbinden** (Google/Microsoft).
+
 Export erfolgt über **Microsoft Graph** (`POST /me/events`).
 
 **Posteingang (read-only):** Wenn Microsoft-Kalender verbunden ist, liest Nexo den Outlook-Posteingang über Graph (`GET /me/mailFolders/inbox/messages`) — kein Versand, kein Sync. Nach Scope-Erweiterung (`Mail.Read`) ggf. **Microsoft erneut verbinden**, damit das Token die Mail-Berechtigung enthält.

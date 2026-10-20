@@ -4,6 +4,7 @@ import { getSettings } from "@/lib/settings";
 import type { CalendarProvider } from "@/server/integrations/calendar-provider";
 import { calendarProviderLabel, parseCalendarProvider } from "@/server/integrations/calendar-provider";
 import { listCalendarConnections } from "@/server/integrations/calendar-connection";
+import { oauthReconnectHint } from "@/server/integrations/calendar-oauth-health";
 import { findCalendarDraftOverlaps } from "@/server/integrations/calendar-sync-insights";
 import type { CalendarDraftOverlap } from "@/server/integrations/calendar-sync-insights";
 import { listCalDavCalendarEvents } from "@/server/integrations/caldav";
@@ -254,7 +255,11 @@ export async function listExternalCalendarEvents(options?: {
   for (const conn of connections) {
     const provider = parseCalendarProvider(conn.provider);
     const auth = await getValidCalendarAccessToken(provider);
-    if (!auth) continue;
+    if (!auth) {
+      const hint = oauthReconnectHint(provider);
+      if (hint) errors.push(hint);
+      continue;
+    }
     try {
       const chunk = await listEventsForProvider(provider, auth, conn, limit, daysAhead);
       merged.push(...chunk);

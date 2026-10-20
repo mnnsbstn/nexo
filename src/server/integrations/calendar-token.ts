@@ -36,16 +36,20 @@ export async function getValidCalendarAccessToken(provider: CalendarProvider): P
       : null;
   }
 
-  const refreshed =
-    parsed === "microsoft"
-      ? await refreshMicrosoftAccessToken(refreshToken)
-      : await refreshGoogleAccessToken(refreshToken);
-  await updateCalendarAccessToken(parsed, refreshed.accessToken, refreshed.expiresAt);
-  return {
-    token: refreshed.accessToken,
-    provider: parsed,
-    accountEmail: conn.accountEmail ?? null,
-  };
+  try {
+    const refreshed =
+      parsed === "microsoft"
+        ? await refreshMicrosoftAccessToken(refreshToken)
+        : await refreshGoogleAccessToken(refreshToken);
+    await updateCalendarAccessToken(parsed, refreshed.accessToken, refreshed.expiresAt);
+    return {
+      token: refreshed.accessToken,
+      provider: parsed,
+      accountEmail: conn.accountEmail ?? null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function getCalDavCalendarCredentials(): Promise<{

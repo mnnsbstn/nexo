@@ -1,5 +1,6 @@
 import { ImapFlow } from "imapflow";
 import { isE2eEmailMockEnabled } from "@/lib/e2e-email-mock";
+import { oauthReconnectHint } from "@/server/integrations/calendar-oauth-health";
 import { getCalendarConnection } from "@/server/integrations/calendar-connection";
 import { getValidCalendarAccessToken } from "@/server/integrations/calendar-token";
 import {
@@ -183,12 +184,18 @@ export async function listExternalInboxMessages(options?: {
   const errors: string[] = [];
   let merged: ExternalInboxMessage[] = [];
 
+  const msConn = await getCalendarConnection("microsoft");
   const msAuth = await getValidCalendarAccessToken("microsoft");
-  if (msAuth) {
-    activeProviders.push("microsoft");
-    const ms = await listMicrosoftInboxMessages(msAuth.token, perSourceLimit);
-    merged.push(...ms.messages);
-    if (ms.readError) errors.push(ms.readError);
+  if (msConn) {
+    if (msAuth) {
+      activeProviders.push("microsoft");
+      const ms = await listMicrosoftInboxMessages(msAuth.token, perSourceLimit);
+      merged.push(...ms.messages);
+      if (ms.readError) errors.push(ms.readError);
+    } else {
+      const hint = oauthReconnectHint("microsoft");
+      if (hint) errors.push(hint);
+    }
   }
 
   const icloudConn = await getEmailConnection();
