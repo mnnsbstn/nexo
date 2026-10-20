@@ -19,6 +19,21 @@ describe("email integration", () => {
     });
   });
 
+  it("reports microsoft inbox when Outlook calendar connected", async () => {
+    await prisma.calendarConnection.create({
+      data: {
+        id: "microsoft",
+        provider: "microsoft",
+        accessToken: "tok",
+        expiresAt: new Date(Date.now() + 3600_000),
+      },
+    });
+    const settings = await getSettings();
+    const status = await getEmailIntegrationStatus(settings);
+    expect(status.microsoftInboxAvailable).toBe(true);
+    expect(status.externalInboxAvailable).toBe(true);
+  });
+
   it("reports sendConfigured when iCloud mail connected", async () => {
     await prisma.emailConnection.create({
       data: {

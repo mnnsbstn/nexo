@@ -89,8 +89,8 @@ Leitplanken Phase 5: weiter **Freigabe vor Wirkung**, Single-User, SQLite.
 
 | # | PR-Thema | Inhalt (kurz) | Erfolgskriterium |
 |---|----------|---------------|------------------|
-| **29** | VAPID E2E-Fixture | Playwright-Env + Mock-Versand; API-Tests Subscribe/check-due | CI grün ohne echte Push-Infrastruktur |
-| **30** | (offen) | z. B. Microsoft-Mail read-only, OAuth-Härtung | nach Priorität |
+| **29** | VAPID E2E-Fixture | Playwright-Env + Mock-Versand; API-Tests Subscribe/check-due | ✅ merged (#32) |
+| **30** | Microsoft-Mail read-only | Graph `Mail.Read` + Posteingang neben iCloud IMAP | Einstellungen + E2E |
 
 ---
 

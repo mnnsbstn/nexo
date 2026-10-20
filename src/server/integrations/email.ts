@@ -3,6 +3,7 @@ import type { AppSettings } from "@/lib/settings";
 import type { externalEmailDraftPayloadSchema } from "@/server/schemas/actions";
 import type { z } from "zod";
 import { isE2eEmailMockEnabled } from "@/lib/e2e-email-mock";
+import { getCalendarConnection } from "@/server/integrations/calendar-connection";
 import { getEmailConnection } from "@/server/integrations/email-connection";
 import { isEmailSendConfigured, isSmtpSendConfigured } from "@/server/integrations/smtp-config";
 import { sendViaSmtp } from "@/server/integrations/smtp-send";
@@ -13,6 +14,7 @@ export async function getEmailIntegrationStatus(settings: AppSettings) {
   const enabled = settings.emailIntegrationEnabled;
   const icloudMail = await getEmailConnection();
   const icloudConnected = icloudMail?.provider === "icloud";
+  const microsoftInboxAvailable = Boolean(await getCalendarConnection("microsoft"));
   const sendConfigured =
     (await isEmailSendConfigured()) || isE2eEmailMockEnabled();
   let message: string;
@@ -34,6 +36,8 @@ export async function getEmailIntegrationStatus(settings: AppSettings) {
     sendConfigured,
     icloudConnected,
     icloudAccountEmail: icloudConnected ? icloudMail?.accountEmail ?? null : null,
+    microsoftInboxAvailable,
+    externalInboxAvailable: icloudConnected || microsoftInboxAvailable,
     smtpFromEnv: isSmtpSendConfigured(),
     message,
   };

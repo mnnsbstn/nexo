@@ -50,5 +50,15 @@ STATUS=$(curl -sf "$BASE/api/integrations/calendar")
 echo "$STATUS" | grep -q '"caldavConnected":true'
 echo "✓ CalDAV-Fixture verbunden"
 
+curl -sf -X POST "$BASE/api/e2e/calendar/connection" \
+  -H "Content-Type: application/json" \
+  -d '{"provider":"microsoft"}' >/dev/null
+curl -sf -X PATCH "$BASE/api/settings" \
+  -H "Content-Type: application/json" \
+  -d '{"emailIntegrationEnabled":true}' >/dev/null
+INBOX=$(curl -sf "$BASE/api/integrations/email/messages?limit=3")
+echo "$INBOX" | grep -q '"provider":"microsoft"'
+echo "✓ Outlook Posteingang (E2E-Mock)"
+
 echo ""
 echo "Staging-Smoke §12–13 (API) erfolgreich."
