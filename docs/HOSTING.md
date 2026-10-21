@@ -2,6 +2,8 @@
 
 Leitfaden für ein **Single-User-Deployment** (VPS, PaaS oder Node-Hosting). Nexo ist kein Multi-Tenant-Produkt — ein Passwort, eine SQLite-Datei, ein Prozess.
 
+**Hostinger Schritt-für-Schritt:** [HOSTINGER-DEPLOY.md](./HOSTINGER-DEPLOY.md)
+
 ## Checkliste vor Go-Live
 
 | Punkt | Empfehlung |
