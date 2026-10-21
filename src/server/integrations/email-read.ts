@@ -187,8 +187,8 @@ export async function listExternalInboxMessages(options?: {
   const msConn = await getCalendarConnection("microsoft");
   const msAuth = await getValidCalendarAccessToken("microsoft");
   if (msConn) {
+    activeProviders.push("microsoft");
     if (msAuth) {
-      activeProviders.push("microsoft");
       const ms = await listMicrosoftInboxMessages(msAuth.token, perSourceLimit);
       merged.push(...ms.messages);
       if (ms.readError) errors.push(ms.readError);

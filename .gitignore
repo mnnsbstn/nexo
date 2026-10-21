@@ -50,3 +50,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 prisma/ci-fresh.db
+/prisma/staging-reconnect.db

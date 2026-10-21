@@ -162,6 +162,16 @@ Siehe [HOSTING.md](./HOSTING.md). Kurz-Check auf der Live-URL:
 3. Eine Test-Aufgabe anlegen → Reload → noch vorhanden
 4. Optional: `./scripts/backup-db.sh` auf dem Server ausführen
 
+## Staging-Smoke: OAuth Reconnect
+
+Mit laufender App (`NEXO_E2E_CALENDAR_MOCK=1` + Google/Microsoft-OAuth-Env wie in Playwright):
+
+```bash
+./scripts/staging-oauth-reconnect-smoke.sh http://127.0.0.1:3012
+```
+
+Simuliert abgelaufene Google/Microsoft-Tokens und prüft `oauthHealth`, Kalender-Lesen und Outlook-Posteingang auf Reconnect-Hinweise.
+
 ## Staging-Smoke (API, §12–13)
 
 Mit laufender App (Mock + VAPID wie in Playwright, **nur Staging/Dev**):
