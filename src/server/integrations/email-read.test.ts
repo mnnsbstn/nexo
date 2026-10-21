@@ -19,6 +19,24 @@ describe("listExternalInboxMessages", () => {
     expect(result.messages).toHaveLength(0);
   });
 
+  it("includes reconnect hint for stale Microsoft in E2E mock mode", async () => {
+    vi.stubEnv("NEXO_E2E_EMAIL_MOCK", "1");
+    vi.stubEnv("NEXO_E2E_CALENDAR_MOCK", "1");
+    await prisma.calendarConnection.create({
+      data: {
+        id: "microsoft",
+        provider: "microsoft",
+        accessToken: "tok",
+        refreshToken: "bad",
+        expiresAt: new Date(Date.now() - 86_400_000),
+        accountEmail: "staging-ms@nexo.test",
+      },
+    });
+    const result = await listExternalInboxMessages({ limit: 3 });
+    expect(result.connected).toBe(true);
+    expect(result.readError?.toLowerCase()).toContain("erneut verbinden");
+  });
+
   it("returns Microsoft mock inbox when MS calendar connected in E2E mode", async () => {
     vi.stubEnv("NEXO_E2E_EMAIL_MOCK", "1");
     vi.stubEnv("NEXO_E2E_CALENDAR_MOCK", "1");

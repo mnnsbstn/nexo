@@ -152,11 +152,19 @@ export async function listExternalInboxMessages(options?: {
   if (isE2eEmailMockEnabled()) {
     const providers: InboxProvider[] = [];
     const merged: ExternalInboxMessage[] = [];
+    const errors: string[] = [];
     const msConn = await getCalendarConnection("microsoft");
     if (msConn) {
       providers.push("microsoft");
+      const msAuth = await getValidCalendarAccessToken("microsoft");
       const ms = await listMicrosoftInboxMessages("e2e-token", perSourceLimit);
       merged.push(...ms.messages);
+      if (!msAuth) {
+        const hint = oauthReconnectHint("microsoft");
+        if (hint) errors.push(hint);
+      } else if (ms.readError) {
+        errors.push(ms.readError);
+      }
     }
     const icloudConn = await getEmailConnection();
     if (icloudConn?.provider === "icloud") {
@@ -177,6 +185,7 @@ export async function listExternalInboxMessages(options?: {
       provider: providers.length === 1 ? providers[0]! : null,
       messages: merged.slice(0, limit),
       message: "Read-only Posteingang (E2E-Mock, kein Live-Abruf).",
+      readError: errors.length > 0 ? errors.join(" · ") : undefined,
     };
   }
 
