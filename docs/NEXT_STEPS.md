@@ -1,15 +1,15 @@
 # Nexo — Nächste Schritte
 
-Stand nach **Phase 7 Schritt 31** (OAuth-Härtung, in PR). Details: **[ROADMAP.md](./ROADMAP.md)**.
+Stand nach **Phase 7** (#29–#34 merged). Details: **[ROADMAP.md](./ROADMAP.md)**.
 
 ## Als Nächstes (empfohlen)
 
-1. **Staging:** Abgelaufene Google/Microsoft-Verbindung simulieren → Hinweis + **Erneut verbinden** in Einstellungen
-2. **Phase 7+:** Outlook **Mail.Send** (nur manuell, analog SMTP) oder weitere Provider — kurz priorisieren
+1. **Staging:** Abgelaufene Google/Microsoft-Verbindung → Hinweis + **Erneut verbinden** testen ([INTEGRATIONS.md](./INTEGRATIONS.md))
+2. **Phase 8 / nächster PR:** z. B. Outlook **Mail.Send** (nur manuell, analog SMTP) — Priorität kurz setzen
 
 ## Erledigt (Kurz)
 
-Phase 6–7 (#29–#33), Outlook read-only, VAPID-E2E, Hosting-Runbook; OAuth-Health (#31 PR).
+Phase 6–7: Sync-Einblicke, Push, CalDAV, VAPID-E2E, Outlook read-only (#33), OAuth-Health (#34), Hosting-Runbook.
 
 ## Manuell testen
 
