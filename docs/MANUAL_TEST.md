@@ -172,6 +172,18 @@ Mit laufender App (`NEXO_E2E_CALENDAR_MOCK=1` + Google/Microsoft-OAuth-Env wie i
 
 Simuliert abgelaufene Google/Microsoft-Tokens und prüft `oauthHealth`, Kalender-Lesen und Outlook-Posteingang auf Reconnect-Hinweise.
 
+**Automatisierung (lokal/CI):** `./scripts/staging-oauth-reconnect-smoke.sh` + `npx playwright test e2e/nexo-oauth-reconnect.spec.ts`
+
+## Staging/Prod: OAuth Reconnect (ohne E2E-Mock)
+
+Nur auf Instanzen **ohne** `NEXO_E2E_CALENDAR_MOCK` (echtes Hosting). Es gibt kein `oauth-stale`-API — abgelaufene Tokens entstehen natürlich oder nach Widerruf in Google/Microsoft.
+
+1. **Einstellungen** → Google und/oder Microsoft verbunden (echte Konten).
+2. Token absichtlich ungültig machen, z. B. App-Zugriff im Google-Konto / Microsoft Entra widerrufen, oder warten bis `expiresAt` + fehlender Refresh.
+3. **Einstellungen** neu laden → gelbe Hinweise + **Erneut verbinden**.
+4. **Erneut verbinden** klicken → OAuth durchlaufen → Kalender-Lesen und Outlook-Posteingang wieder ohne Fehlerhinweis.
+5. Optional: `./scripts/staging-oauth-reconnect-smoke.sh` **nicht** auf Prod (Mock-Env nötig).
+
 ## Staging-Smoke (API, §12–13)
 
 Mit laufender App (Mock + VAPID wie in Playwright, **nur Staging/Dev**):
