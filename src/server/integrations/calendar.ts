@@ -12,6 +12,7 @@ import { isGoogleCalendarOAuthConfigured } from "@/server/integrations/google-co
 import { isMicrosoftCalendarOAuthConfigured } from "@/server/integrations/microsoft-config";
 import { listCalendarConnections } from "@/server/integrations/calendar-connection";
 import { exportDraftToExternalCalendar } from "@/server/integrations/calendar-export";
+import { getCalendarOAuthHealth } from "@/server/integrations/calendar-oauth-health";
 
 export type CalendarDraftInput = z.infer<typeof externalCalendarDraftPayloadSchema>;
 
@@ -55,6 +56,7 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
 
   const emailConn = await getEmailConnection();
   const icloudMailConnected = emailConn?.provider === "icloud";
+  const oauthHealth = await getCalendarOAuthHealth();
 
   return {
     enabled: settings.calendarIntegrationEnabled,
@@ -79,6 +81,7 @@ export async function getCalendarIntegrationStatus(settings: AppSettings) {
       connections.find((c) => parseCalendarProvider(c.provider) === exportProvider)
         ?.accountEmail ?? null,
     message,
+    oauthHealth,
   };
 }
 

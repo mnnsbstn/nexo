@@ -65,6 +65,11 @@ export function SettingsView() {
     connections?: { provider: string; accountEmail: string | null }[];
     accountEmail: string | null;
     message: string;
+    oauthHealth?: {
+      provider: string;
+      status: string;
+      message?: string;
+    }[];
   } | null>(null);
   const [icloudAppleId, setIcloudAppleId] = useState("");
   const [icloudAppPassword, setIcloudAppPassword] = useState("");
@@ -117,7 +122,13 @@ export function SettingsView() {
       connections: (d.connections as { provider: string; accountEmail: string | null }[]) ?? [],
       accountEmail: (d.accountEmail as string | null) ?? null,
       message: (d.message as string) ?? "",
+      oauthHealth:
+        (d.oauthHealth as { provider: string; status: string; message?: string }[]) ?? [],
     };
+  }
+
+  function oauthHealthFor(provider: string) {
+    return calendarStatus?.oauthHealth?.find((h) => h.provider === provider);
   }
 
   useEffect(() => {
@@ -720,24 +731,46 @@ export function SettingsView() {
         )}
         {(calendarStatus?.connections?.length ?? 0) > 0 && (
           <ul className="text-sm space-y-2">
-            {calendarStatus?.connections?.map((c) => (
-              <li
-                key={c.provider}
-                className="flex flex-wrap items-center gap-2 border border-stone-100 rounded-lg px-3 py-2"
-              >
-                <span className="text-stone-700">
-                  {connectedProviderLabel(c.provider)}
-                  {c.accountEmail ? `: ${c.accountEmail}` : ""}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => disconnectCalendarProvider(c.provider)}
-                  className="text-xs px-2 py-1 border border-stone-300 rounded-lg"
+            {calendarStatus?.connections?.map((c) => {
+              const health = oauthHealthFor(c.provider);
+              const oauthStale =
+                health && health.status !== "ok" && (c.provider === "google" || c.provider === "microsoft");
+              return (
+                <li
+                  key={c.provider}
+                  className="flex flex-wrap items-center gap-2 border border-stone-100 rounded-lg px-3 py-2"
                 >
-                  Trennen
-                </button>
-              </li>
-            ))}
+                  <span className="text-stone-700">
+                    {connectedProviderLabel(c.provider)}
+                    {c.accountEmail ? `: ${c.accountEmail}` : ""}
+                  </span>
+                  {oauthStale && health?.message && (
+                    <p className="w-full text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                      {health.message}
+                    </p>
+                  )}
+                  {oauthStale && (
+                    <a
+                      href={
+                        c.provider === "microsoft"
+                          ? "/api/integrations/calendar/microsoft/connect"
+                          : "/api/integrations/calendar/connect"
+                      }
+                      className="text-xs px-2 py-1 border border-amber-400 rounded-lg text-amber-950 bg-amber-50"
+                    >
+                      Erneut verbinden
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => disconnectCalendarProvider(c.provider)}
+                    className="text-xs px-2 py-1 border border-stone-300 rounded-lg"
+                  >
+                    Trennen
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
         {calendarStatus?.connected && (calendarStatus.connections?.length ?? 0) > 0 && (
